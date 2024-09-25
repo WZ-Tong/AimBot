@@ -1,7 +1,11 @@
+// MS7210模块的初始化与数据传输
 module HdmiOutput (
+   // 原始数据输入输出
    input        clk   ,
    input        rstn  ,
+   output       inited, // MS7210模块是否已初始化
 
+   // MS7210控制
    output       pclk  , // HDMI显示图像: 像素时钟
    output       p_en  , // HDMI显示图像: 有效像素点使能信号
    output       h_sync, // HDMI显示图像: 行同步信号
@@ -20,4 +24,4 @@ module HdmiOutput (
    output       a_1     // 音频通道1
 );
 
-endmodule
+endmodule : HdmiOutput
