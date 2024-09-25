@@ -1,4 +1,15 @@
 AimBot.pds*
+impl.tcl
 **.log
 
 **sublime**
+
+multiseed_summary.csv
+compile/**
+device_map/**
+generate_bitstream/**
+generate_netlist/**
+place_route/**
+report_power/**
+report_timing/**
+synthesize/**
