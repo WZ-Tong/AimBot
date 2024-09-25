@@ -1,5 +1,5 @@
 // MS7210模块的初始化与数据传输
-module HdmiOutput (
+module hdmi_output (
    // 原始数据输入输出
    input        clk   ,
    input        rstn  ,
@@ -24,4 +24,4 @@ module HdmiOutput (
    output       a_1     // 音频通道1
 );
 
-endmodule : HdmiOutput
+endmodule : hdmi_output
