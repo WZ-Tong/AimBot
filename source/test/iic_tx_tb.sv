@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module iic_tx_tb ();
 
     localparam SCL_CLK_DIV     = 64; // IIC总线时钟分频系数

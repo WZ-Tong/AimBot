@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module iic_tx #(
     parameter SCL_CLK_DIV     = 64, // IIC总线时钟分频系数
     parameter DEVICE_ADDR_LEN = 7 , // 设备地址宽度

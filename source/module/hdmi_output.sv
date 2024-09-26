@@ -1,4 +1,7 @@
 // MS7210模块的初始化与数据传输
+
+`timescale 1ns / 1ps
+
 module hdmi_output (
    // 原始数据输入输出
    input        clk   ,
