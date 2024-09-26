@@ -5,8 +5,10 @@ impl.tcl
 **sublime**
 
 multiseed_summary.csv
+
 compile/**
 device_map/**
+doc/**
 generate_bitstream/**
 generate_netlist/**
 place_route/**
