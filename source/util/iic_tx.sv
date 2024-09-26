@@ -10,7 +10,7 @@ module iic_tx #(
 	input      [   REG_ADDR_LEN-1:0] reg_addr   , // 从机寄存器地址
 	input      [       DATA_LEN-1:0] data       , // IIC写入数据
 	input                            start      , // 用于启动IIC传输
-	output reg                       busy       , // IIC总线正忙
+	output                           busy       , // IIC总线正忙
 
 	inout                            sda        , // IIC数据
 	output reg                       scl          // IIC时钟
@@ -37,6 +37,7 @@ typedef enum logic [3:0] {
 	STOP
 } state_t;
 state_t state;
+assign busy = state != IDLE;
 
 reg sda_en, sda_data;
 assign sda = sda_en ? sda_data : 1'bz;
