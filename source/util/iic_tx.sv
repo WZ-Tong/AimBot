@@ -236,4 +236,14 @@ module iic_tx #(
         end
     end
 
+    if (DEBUG) begin
+        wire sample, sample_start, sample_begin, sample_half, sample_end, sample_finish;
+        assign sample_start  = clk_count == CLK_START;
+        assign sample_begin  = clk_count == CLK_BEGIN;
+        assign sample_half   = clk_count == CLK_HALF;
+        assign sample_end    = clk_count == CLK_END;
+        assign sample_finish = clk_count == CLK_FINISH;
+        assign sample        = sample_start || sample_begin || sample_half || sample_end || sample_finish;
+    end
+
 endmodule : iic_tx
