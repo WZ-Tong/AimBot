@@ -76,8 +76,9 @@ module iic_tx #(
                 end
                 START : begin // scl = 1, data_count = 0, sda_en = 1
                     clk_count <= #1 clk_count + 1'b1;
-                    sda_data  <= #1 'b0;
-                    if (clk_count == CLK_END) begin
+                    if (clk_count == CLK_HALF) begin
+                        sda_data <= #1 'b0;
+                    end else if (clk_count == CLK_END) begin
                         scl <= #1 'b0;
                     end else if (clk_count == CLK_FINISH) begin
                         state      <= #1 DEVICE_ADDR;
