@@ -50,9 +50,17 @@ module iic_tx_tb ();
     initial begin
         clk = 0;
         rstn = 0;
+        device_addr = 'hB2;
+        reg_addr = 'hA5;
+        data = 'h98;
         #13;
         rstn = 1;
-        #1000;
+        #500;
+        start = 1;
+        #50;
+        start = 0;
+        wait(busy==0);
+        #500;
         $finish;
     end
 

@@ -207,7 +207,7 @@ module iic_tx #(
                         if (data_count == ACK || DEBUG) begin
                             data_count <= #1 'b0;
                             sda_en     <= #1 'b1;
-                            state      <= #1 WRITE_DATA;
+                            state      <= #1 STOP;
                         end else begin
                             state <= #1 IDLE; // Slave REGISTER_ADDR_ACK failed
                         end
