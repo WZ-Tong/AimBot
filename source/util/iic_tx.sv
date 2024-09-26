@@ -2,7 +2,8 @@ module iic_tx #(
 	parameter SCL_CLK_DIV     = 64, // IIC总线时钟分频系数
 	parameter DEVICE_ADDR_LEN = 7 , // 设备地址宽度
 	parameter REG_ADDR_LEN    = 8 , // 寄存器地址宽度
-	parameter DATA_LEN        = 8   // 数据长度
+	parameter DATA_LEN        = 8 , // 数据长度
+	parameter DEBUG           = 0   // 0:ACK失败返回IDLE, 1:ACK失败继续流程
 ) (
 	input                            clk        ,
 	input                            rstn       ,
@@ -125,7 +126,7 @@ module iic_tx #(
 					end else if (clk_count == CLK_END) begin
 						scl <= #1 'b0;
 					end else if (clk_count == CLK_FINISH) begin
-						if (data_count == ACK) begin
+						if (data_count == ACK || DEBUG) begin
 							data_count <= #1 REG_ADDR_LEN - 1;
 							sda_en     <= #1 'b1;
 							state      <= #1 REGISTER_ADDR;
@@ -163,7 +164,7 @@ module iic_tx #(
 					end else if (clk_count == CLK_END) begin
 						scl <= #1 'b0;
 					end else if (clk_count == CLK_FINISH) begin
-						if (data_count == ACK) begin
+						if (data_count == ACK || DEBUG) begin
 							data_count <= #1 DATA_LEN - 1;
 							sda_en     <= #1 'b1;
 							state      <= #1 WRITE_DATA;
@@ -201,7 +202,7 @@ module iic_tx #(
 					end else if (clk_count == CLK_END) begin
 						scl <= #1 'b0;
 					end else if (clk_count == CLK_FINISH) begin
-						if (data_count == ACK) begin
+						if (data_count == ACK || DEBUG) begin
 							data_count <= #1 'b0;
 							sda_en     <= #1 'b1;
 							state      <= #1 WRITE_DATA;
