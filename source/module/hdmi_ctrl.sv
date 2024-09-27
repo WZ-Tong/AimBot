@@ -8,25 +8,6 @@ module hdmi_ctrl (
     input        rstn     ,
     output       inited   ,
 
-    // MS7200 (HDMI Input)
-    output       i_pix_clk, // HDMI传入图像: 像素时钟
-    output       i_hsync  , // HDMI传入图像: 行同步信号
-    output       i_vsync  , // HDMI传入图像: 帧同步信号
-    output       i_de     , // HDMI传入图像: 有效像素点使能信号
-    output [7:0] i_r      , // HDMI传入图像: 像素点位(R)
-    output [7:0] i_g      , // HDMI传入图像: 像素点位(G)
-    output [7:0] i_b      , // HDMI传入图像: 像素点位(B)
-
-    // MS7210 (HDMI Output)
-    output       o_pix_clk, // HDMI显示图像: 像素时钟
-    output       o_hsync  , // HDMI显示图像: 行同步信号
-    output       o_vsync  , // HDMI显示图像: 帧同步信号
-    output       o_de     , // HDMI显示图像: 有效像素点使能信号
-    output [7:0] o_r      , // HDMI显示图像: 像素点位(R)
-    output [7:0] o_g      , // HDMI显示图像: 像素点位(G)
-    output [7:0] o_b      , // HDMI显示图像: 像素点位(B)
-    output       o_int    , // MS7210: 输出中断
-
     // IIC Ctrl
     output       iic_rstn ,
     output       iic_i_scl,
