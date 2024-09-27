@@ -11,6 +11,7 @@ device_map/**
 doc/**
 generate_bitstream/**
 generate_netlist/**
+ipcore/**
 place_route/**
 report_power/**
 report_timing/**
