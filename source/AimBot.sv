@@ -99,7 +99,6 @@ module AimBot #(
     wire ddr_hsync ;
     wire ddr_vsync ;
     wire ddr_de    ;
-    wire ddr_inited;
 
     wire [BITS-1:0] ddr_r;
     wire [BITS-1:0] ddr_g;
