@@ -103,11 +103,12 @@ module draw_window #(
         end
     endgenerate
 
+    integer j;
     always_comb begin
         o_r = i_r;
         o_g = i_g;
         o_b = i_b;
-        for (int j = 0; j < N_BOX; j=j+1) begin
+        for (j = 0; j < N_BOX; j=j+1) begin
             if (active[j]) begin
                 o_r = color_r[j];
                 o_g = color_g[j];
