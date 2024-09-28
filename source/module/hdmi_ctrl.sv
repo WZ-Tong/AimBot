@@ -16,20 +16,22 @@ module hdmi_ctrl (
     inout  iic_o_sda
 );
 
-    localparam RSTN_HOLD_MS = 10000;
+    localparam RSTN_HOLD_MS = 1000;
 
-    reg [$clog2(RSTN_HOLD_MS)-1:0] rstn_1ms_cnt;
+    reg [$clog2(RSTN_HOLD_MS)-1:0] rstn_cnt;
     always @(posedge clk50 or negedge rstn) begin
         if (~rstn) begin
-            rstn_1ms_cnt <= #1 'b0;
+            rstn_cnt <= #1 'b0;
         end
         else if (clk10_locked) begin
-            if (rstn_1ms_cnt != RSTN_HOLD_MS) begin
-                rstn_1ms_cnt <= #1 rstn_1ms_cnt + 1'b1;
+            if (rstn_cnt != RSTN_HOLD_MS) begin
+                rstn_cnt <= #1 rstn_cnt + 1'b1;
             end
+        end else begin
+            rstn_cnt <= #1 'b0;
         end
     end
-    assign iic_rstn = rstn_1ms_cnt == RSTN_HOLD_MS;
+    assign iic_rstn = rstn_cnt == RSTN_HOLD_MS;
 
     ms72xx_ctl ms72xx_ctl (
         .clk       (clk10    ),
