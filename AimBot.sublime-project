@@ -1,0 +1,71 @@
+{
+	"settings": {
+		"ensure_newline_at_eof_on_save": true,
+		"SublimeLinter.linters.iverilog.args": [
+			"-g",
+			"2012",
+			"-i",
+			"-Y",
+			".v",
+			"-Y",
+			".sv",
+			"-t",
+			"null",
+			"-y",
+			"$project_path\\source",
+			"-y",
+			"$project_path\\source\\module",
+			"-y",
+			"$project_path\\source\\util\\convert",
+			"-y",
+			"$project_path\\source\\util\\hdmi",
+			"-y",
+			"$project_path\\source\\util\\ov5640",
+		],
+		"SublimeLinter.linters.iverilog.disable": false,
+	},
+	"build_systems": [
+		{
+			"name": "Verilog (Compile)",
+			"windows": {
+				"shell_cmd": "mkdir .\\compile\\sim\\\\$file_base_name & iverilog -g 2012 -Y .v -Y .sv -y .\\source -y .\\source\\module -y .\\source\\util\\convert -y .\\source\\util\\hdmi -y .\\source\\util\\ov5640 -o .\\compile\\sim\\\\$file_base_name\\\\$file_base_name.vvp $file && cd .\\compile\\sim\\\\$file_base_name && start /WAIT vvp -l .\\\\$file_base_name.log .\\\\$file_base_name.vvp -fst && gtkwave .\\\\$file_base_name.vcd .\\\\$file_base_name.gtkw",
+			},
+			"working_dir": "$project_path",
+			"file_patterns": [
+				"*_tb.v",
+				"*_tb.sv",
+			],
+			"word_wrap": false,
+			"cancel": {
+				"kill": true,
+			},
+		},
+		{
+			"name": "Verilog (GTKWave)",
+			"windows": {
+				"shell_cmd": "gtkwave .\\\\$file_base_name.vcd .\\\\$file_base_name.gtkw",
+			},
+			"working_dir": "$project_path\\compile\\sim\\\\$file_base_name",
+			"word_wrap": false,
+			"file_patterns": [
+				"*.vcd",
+			],
+			"cancel": {
+				"kill": true,
+			},
+		}
+	],
+	"folders": [
+		{
+			"name": "Source",
+			"path": "source"
+		},
+		{
+			"name": "Simulation",
+			"path": "compile\\sim",
+			"file_include_patterns": [
+				"*.vcd"
+			],
+		}
+	]
+}

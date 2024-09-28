@@ -2,7 +2,7 @@ AimBot.pds*
 impl.tcl
 **.log
 
-**sublime**
+*.sublime-workspace
 
 multiseed_summary.csv
 
