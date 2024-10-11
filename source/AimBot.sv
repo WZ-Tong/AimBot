@@ -172,20 +172,9 @@ module AimBot #(
     wire [                 3:0] axi_rid        ;
     wire                        axi_rlast      ;
 
-    logic vin_clk  ;
-    logic wr_fsync ;
-    logic wr_en    ;
-    logic init_done;
-    logic ddr_rstn ;
-    logic vout_clk ;
-    logic rd_fsync ;
-    logic rd_en    ;
-    logic vout_de  ;
-
     localparam DDR3_RSTN_HOLD_CNT = 50000;
 
     wire ddr3_rstn;
-
     rstn_async_hold #(.TICK(DDR3_RSTN_HOLD_CNT)) u_ddr3_rstn (
         .clk   (clk      ),
         .i_rstn(rstn     ),
@@ -301,6 +290,5 @@ module AimBot #(
         .axi_rlast  (axi_rlast      ),
         .axi_rid    (axi_rid        )
     );
-
 
 endmodule : AimBot
