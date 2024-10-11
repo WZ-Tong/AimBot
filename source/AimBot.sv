@@ -83,41 +83,53 @@ module AimBot #(
     wire [15:0] cam1_data_565,  cam2_data_565;
 
     ov5640_reader u_cam1_reader (
-        .clk25        (clk25         ),
-        .clk25_locked (clkl          ),
-        .rstn         (rstn          ),
-        .cam_vsync    (cam1_vsync    ),
-        .cam_href     (cam1_href     ),
-        .cam_pclk     (cam1_pclk     ),
-        .cam_data     (cam1_data     ),
-        .cam_inited   (cam1_inited   ),
-        .cam_href_565 (cam1_href_565 ),
-        .cam_pclk_565 (cam1_pclk_565 ),
-        .cam_data_565 (cam1_data_565 ),
-        .cam_scl      (cam1_scl      ),
-        .cam_sda      (cam1_sda      ),
-        .cam_rstn     (cam1_rstn     )
+        .clk25       (clk25        ),
+        .clk25_locked(clkl         ),
+        .rstn        (rstn         ),
+        .cam_vsync   (cam1_vsync   ),
+        .cam_href    (cam1_href    ),
+        .cam_pclk    (cam1_pclk    ),
+        .cam_data    (cam1_data    ),
+        .cam_inited  (cam1_inited  ),
+        .cam_href_565(cam1_href_565),
+        .cam_pclk_565(cam1_pclk_565),
+        .cam_data_565(cam1_data_565),
+        .cam_scl     (cam1_scl     ),
+        .cam_sda     (cam1_sda     ),
+        .cam_rstn    (cam1_rstn    )
     );
 
     ov5640_reader u_cam2_reader (
-        .clk25        (clk25         ),
-        .clk25_locked (clkl          ),
-        .rstn         (rstn          ),
-        .cam_vsync    (cam2_vsync    ),
-        .cam_href     (cam2_href     ),
-        .cam_pclk     (cam2_pclk     ),
-        .cam_data     (cam2_data     ),
-        .cam_inited   (cam2_inited   ),
-        .cam_href_565 (cam2_href_565 ),
-        .cam_pclk_565 (cam2_pclk_565 ),
-        .cam_data_565 (cam2_data_565 ),
-        .cam_scl      (cam2_scl      ),
-        .cam_sda      (cam2_sda      ),
-        .cam_rstn     (cam2_rstn     )
+        .clk25       (clk25        ),
+        .clk25_locked(clkl         ),
+        .rstn        (rstn         ),
+        .cam_vsync   (cam2_vsync   ),
+        .cam_href    (cam2_href    ),
+        .cam_pclk    (cam2_pclk    ),
+        .cam_data    (cam2_data    ),
+        .cam_inited  (cam2_inited  ),
+        .cam_href_565(cam2_href_565),
+        .cam_pclk_565(cam2_pclk_565),
+        .cam_data_565(cam2_data_565),
+        .cam_scl     (cam2_scl     ),
+        .cam_sda     (cam2_sda     ),
+        .cam_rstn    (cam2_rstn    )
     );
 
     localparam CAM_TICK = 30;
-    tick #(.TICK(CAM_TICK)) u_cam1_tick (.clk(cam1_vsync_565), .rstn(rstn), .tick(cam1_tick));
-    tick #(.TICK(CAM_TICK)) u_cam2_tick (.clk(cam2_vsync_565), .rstn(rstn), .tick(cam2_tick));
+
+    tick #(.TICK(CAM_TICK)) u_cam1_tick (
+        .clk (clk       ),
+        .rstn(rstn      ),
+        .trig(cam1_vsync),
+        .tick(cam1_tick )
+    );
+
+    tick #(.TICK(CAM_TICK)) u_cam2_tick (
+        .clk (clk       ),
+        .rstn(rstn      ),
+        .trig(cam2_vsync),
+        .tick(cam2_tick )
+    );
 
 endmodule : AimBot
