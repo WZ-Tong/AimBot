@@ -19,7 +19,7 @@ module hdmi_ctrl (
 
     rstn_async_hold #(.TICK(RSTN_HOLD_CNT)) ms72xx_rstn (
         .clk   (clk10            ),
-        .i_rstn(rstn|clk10_locked),
+        .i_rstn(rstn&clk10_locked),
         .o_rstn(iic_rstn         )
     );
 

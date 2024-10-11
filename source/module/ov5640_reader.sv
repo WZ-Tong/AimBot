@@ -27,7 +27,7 @@ module ov5640_reader (
     wire cam_rstn;
     rstn_async_hold #(.TICK(CAM_RSTN_HOLD)) cam_rstn_hold (
         .clk   (cam_cfg_clk      ),
-        .i_rstn(rstn|clk25_locked),
+        .i_rstn(rstn&clk25_locked),
         .o_rstn(cam_rstn         )
     );
 
