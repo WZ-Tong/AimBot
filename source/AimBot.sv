@@ -116,20 +116,26 @@ module AimBot #(
         .cam_rstn    (cam2_rstn    )
     );
 
-    localparam CAM_TICK = 30;
+    localparam CAM_TICK    = 30  ;
+    localparam CAM_DBG_CNT = 1024;
 
-    tick #(.TICK(CAM_TICK)) u_cam1_tick (
-        .clk (clk       ),
-        .rstn(rstn      ),
-        .trig(cam1_vsync),
-        .tick(cam1_tick )
+    reg [$clog2(CAM_DBG_CNT)-1:0] cam1_dbg_cnt /*synthesis PAP_MARK_DEBUG="true"*/;
+    reg [$clog2(CAM_DBG_CNT)-1:0] cam2_dbg_cnt /*synthesis PAP_MARK_DEBUG="true"*/;
+
+    tick #(.TICK(CAM_TICK), .DBG_CNT(CAM_DBG_CNT)) u_cam1_tick (
+        .clk    (clk         ),
+        .rstn   (rstn        ),
+        .trig   (cam1_vsync  ),
+        .tick   (cam1_tick   ),
+        .dbg_cnt(cam1_dbg_cnt)
     );
 
-    tick #(.TICK(CAM_TICK)) u_cam2_tick (
-        .clk (clk       ),
-        .rstn(rstn      ),
-        .trig(cam2_vsync),
-        .tick(cam2_tick )
+    tick #(.TICK(CAM_TICK), .DBG_CNT(CAM_DBG_CNT)) u_cam2_tick (
+        .clk    (clk         ),
+        .rstn   (rstn        ),
+        .trig   (cam2_vsync  ),
+        .tick   (cam2_tick   ),
+        .dbg_cnt(cam2_dbg_cnt)
     );
 
 endmodule : AimBot
