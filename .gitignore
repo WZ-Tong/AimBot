@@ -1,6 +1,7 @@
 AimBot.pds*
 impl.tcl
 **.log
+data.wf
 
 *.sublime-workspace
 
