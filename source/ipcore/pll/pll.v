@@ -20,25 +20,24 @@ module pll (
     pll_rst,
     clkout0,
     clkout1,
-    clkout2,
     
     pll_lock
     );
 
     localparam real CLKIN_FREQ          = 50.0;
     localparam integer STATIC_RATIOI    = 2;
-    localparam integer STATIC_RATIO0    = 32;
-    localparam integer STATIC_RATIO1    = 80;
+    localparam integer STATIC_RATIO0    = 24;
+    localparam integer STATIC_RATIO1    = 60;
     localparam integer STATIC_RATIO2    = 2;
     localparam integer STATIC_RATIO3    = 16;
     localparam integer STATIC_RATIO4    = 16;
-    localparam integer STATIC_RATIOF    = 32;
-    localparam integer STATIC_DUTY0     = 32;
-    localparam integer STATIC_DUTY1     = 80;
+    localparam integer STATIC_RATIOF    = 24;
+    localparam integer STATIC_DUTY0     = 24;
+    localparam integer STATIC_DUTY1     = 60;
     localparam integer STATIC_DUTY2     = 2;
     localparam integer STATIC_DUTY3     = 16;
     localparam integer STATIC_DUTY4     = 16;
-    localparam integer STATIC_DUTYF     = 32;
+    localparam integer STATIC_DUTYF     = 24;
     localparam integer STATIC_PHASE0    = 16;
     localparam integer STATIC_PHASE1    = 16;
     localparam integer STATIC_PHASE2    = 16;
@@ -103,7 +102,6 @@ module pll (
     input pll_rst;
     output clkout0;
     output clkout1;
-    output clkout2;
     
     output pll_lock;
 
