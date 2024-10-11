@@ -17,20 +17,11 @@ module hdmi_ctrl (
 
     localparam RSTN_HOLD_CNT = 10_000_000;
 
-    reg [$clog2(RSTN_HOLD_CNT)-1:0] rstn_cnt;
-    always @(posedge clk10 or negedge rstn) begin
-        if (~rstn) begin
-            rstn_cnt <= #1 'b0;
-        end
-        else if (clk10_locked) begin
-            if (rstn_cnt < RSTN_HOLD_CNT) begin
-                rstn_cnt <= #1 rstn_cnt + 1'b1;
-            end
-        end else begin
-            rstn_cnt <= #1 'b0;
-        end
-    end
-    assign iic_rstn = rstn_cnt == RSTN_HOLD_CNT;
+    rstn_async_hold #(.TICK(RSTN_HOLD_CNT)) ms72xx_rstn (
+        .clk   (clk10            ),
+        .i_rstn(rstn|clk10_locked),
+        .o_rstn(iic_rstn         )
+    );
 
     ms72xx_ctl ms72xx_ctl (
         .clk       (clk10    ),
