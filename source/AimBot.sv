@@ -18,53 +18,57 @@ module AimBot #(
 
     parameter N_BOX       = 1'b1
 ) (
-    input        clk       ,
-    input        rstn      ,
+    input        clk        ,
+    input        rstn       ,
 
-    inout        cam1_scl  ,
-    inout        cam1_sda  ,
-    input        cam1_vsync,
-    input        cam1_href ,
-    input        cam1_pclk ,
-    input  [7:0] cam1_data ,
-    output       cam1_rstn ,
+    inout        cam1_scl   ,
+    inout        cam1_sda   ,
+    input        cam1_vsync ,
+    input        cam1_href  ,
+    input        cam1_pclk  ,
+    input  [7:0] cam1_data  ,
+    output       cam1_rstn  ,
 
-    inout        cam2_scl  ,
-    inout        cam2_sda  ,
-    input        cam2_vsync,
-    input        cam2_href ,
-    input        cam2_pclk ,
-    input  [7:0] cam2_data ,
-    output       cam2_rstn ,
+    inout        cam2_scl   ,
+    inout        cam2_sda   ,
+    input        cam2_vsync ,
+    input        cam2_href  ,
+    input        cam2_pclk  ,
+    input  [7:0] cam2_data  ,
+    output       cam2_rstn  ,
 
-    output       hdmi_hsync,
-    output       hdmi_vsync,
-    output       hdmi_de   ,
-    output [7:0] hdmi_r    ,
-    output [7:0] hdmi_g    ,
-    output [7:0] hdmi_b    ,
+    output       hdmi_hsync ,
+    output       hdmi_vsync ,
+    output       hdmi_de    ,
+    output [7:0] hdmi_r     ,
+    output [7:0] hdmi_g     ,
+    output [7:0] hdmi_b     ,
 
-    output       hdmi_rstn ,
-    output       hdmi_scl  ,
-    inout        hdmi_sda
+    output       hdmi_rstn  ,
+    output       hdmi_scl   ,
+    inout        hdmi_sda   ,
+
+    output       hdmi_inited,
+    output       cam1_inited,
+    output       cam2_inited,
+    output       cam1_tick  ,
+    output       cam2_tick
 );
 
-    // Pll clk generator
-    wire clk10, clk10l;
-    wire clk20, clk20l;
-    wire clk25, clk25l;
-    fake_pll #(.CLK(3)) pll (
-        .i(clk                   ),
-        .l({clk10l,clk20l,clk25l}),
-        .o({clk10, clk20, clk25} )
+    wire clk10, clk25, clkl;
+    pll u_pll (
+        .pll_rst (~rstn),
+        .clkin1  (clk  ),
+        .pll_lock(clkl ),
+        .clkout0 (clk25),
+        .clkout1 (clk10)
     );
 
     // HDMI configure
-    wire hdmi_inited;
-    hdmi_ctrl hdmi_ctrl (
+    hdmi_ctrl u_hdmi_ctrl (
         .rstn        (rstn       ),
         .clk10       (clk10      ),
-        .clk10_locked(clk10l     ),
+        .clk10_locked(clkl       ),
         .inited      (hdmi_inited),
         .iic_rstn    (hdmi_rstn  ),
         .iic_i_scl   (/*unused*/ ),
@@ -74,14 +78,14 @@ module AimBot #(
     );
 
     // OV5640 configure & read
-    wire        cam1_inited, cam2_inited;
     wire        cam1_vsync_565, cam2_vsync_565;
     wire        cam1_href_565,  cam2_href_565;
     wire        cam1_pclk_565,  cam2_pclk_565;
     wire [15:0] cam1_data_565,  cam2_data_565;
 
-    ov5640_reader cam1_reader (
+    ov5640_reader u_cam1_reader (
         .clk25        (clk25         ),
+        .clk25_locked (clkl          ),
         .rstn         (rstn          ),
         .cam_vsync    (cam1_vsync    ),
         .cam_href     (cam1_href     ),
@@ -97,8 +101,9 @@ module AimBot #(
         .cam_rstn     (cam1_rstn     )
     );
 
-    ov5640_reader cam2_reader (
+    ov5640_reader u_cam2_reader (
         .clk25        (clk25         ),
+        .clk25_locked (clkl          ),
         .rstn         (rstn          ),
         .cam_vsync    (cam2_vsync    ),
         .cam_href     (cam2_href     ),
@@ -113,5 +118,9 @@ module AimBot #(
         .cam_sda      (cam2_sda      ),
         .cam_rstn     (cam2_rstn     )
     );
+
+    localparam CAM_TICK = 30;
+    tick #(.TICK(CAM_TICK)) u_cam1_tick (.clk(cam1_vsync_565), .rstn(rstn), .tick(cam1_tick));
+    tick #(.TICK(CAM_TICK)) u_cam2_tick (.clk(cam2_vsync_565), .rstn(rstn), .tick(cam2_tick));
 
 endmodule : AimBot

@@ -18,3 +18,4 @@ report_timing/**
 synthesize/**
 
 source/*_backup/**
+constraint_check/**

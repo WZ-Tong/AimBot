@@ -1,5 +1,6 @@
 module ov5640_reader (
     input         clk25        ,
+    input         clk25_locked ,
     input         rstn         ,
 
     input         cam_vsync    ,
@@ -26,9 +27,9 @@ module ov5640_reader (
 
     wire cam_rstn;
     rstn_async_hold #(.TICK(CAM_RSTN_HOLD)) cam_rstn_hold (
-        .clk   (cam_cfg_clk),
-        .i_rstn(rstn       ),
-        .o_rstn(cam_rstn   )
+        .clk   (cam_cfg_clk      ),
+        .i_rstn(rstn|clk25_locked),
+        .o_rstn(cam_rstn         )
     );
 
     reg_config cam_reg_config (
