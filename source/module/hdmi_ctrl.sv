@@ -3,7 +3,6 @@
 `timescale 1ns / 1ps
 
 module hdmi_ctrl (
-    input  clk50       ,
     input  clk10       ,
     input  clk10_locked,
     input  rstn        ,
@@ -16,22 +15,22 @@ module hdmi_ctrl (
     inout  iic_o_sda
 );
 
-    localparam RSTN_HOLD_MS = 1000;
+    localparam RSTN_HOLD_CNT = 10_000_000;
 
-    reg [$clog2(RSTN_HOLD_MS)-1:0] rstn_cnt;
-    always @(posedge clk50 or negedge rstn) begin
+    reg [$clog2(RSTN_HOLD_CNT)-1:0] rstn_cnt;
+    always @(posedge clk10 or negedge rstn) begin
         if (~rstn) begin
             rstn_cnt <= #1 'b0;
         end
         else if (clk10_locked) begin
-            if (rstn_cnt != RSTN_HOLD_MS) begin
+            if (rstn_cnt < RSTN_HOLD_CNT) begin
                 rstn_cnt <= #1 rstn_cnt + 1'b1;
             end
         end else begin
             rstn_cnt <= #1 'b0;
         end
     end
-    assign iic_rstn = rstn_cnt == RSTN_HOLD_MS;
+    assign iic_rstn = rstn_cnt == RSTN_HOLD_CNT;
 
     ms72xx_ctl ms72xx_ctl (
         .clk       (clk10    ),
