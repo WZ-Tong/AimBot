@@ -116,34 +116,34 @@ module AimBot #(
         .clk25       (clk25        ),
         .clk25_locked(clkl         ),
         .rstn        (rstn         ),
-        .cam_vsync   (cam1_vsync   ),
-        .cam_href    (cam1_href    ),
-        .cam_pclk    (cam1_pclk    ),
-        .cam_data    (cam1_data    ),
-        .cam_inited  (cam1_inited  ),
-        .cam_href_565(cam1_href_565),
-        .cam_pclk_565(cam1_pclk_565),
-        .cam_data_565(cam1_data_565),
-        .cam_scl     (cam1_scl     ),
-        .cam_sda     (cam1_sda     ),
-        .cam_rstn    (cam1_rstn    )
+        .vsync       (cam1_vsync   ),
+        .href        (cam1_href    ),
+        .pclk        (cam1_pclk    ),
+        .data        (cam1_data    ),
+        .inited      (cam1_inited  ),
+        .href_565    (cam1_href_565),
+        .pclk_565    (cam1_pclk_565),
+        .data_565    (cam1_data_565),
+        .cfg_scl     (cam1_scl     ),
+        .cfg_sda     (cam1_sda     ),
+        .cfg_rstn    (cam1_rstn    )
     );
 
     ov5640_reader u_cam2_reader (
         .clk25       (clk25        ),
         .clk25_locked(clkl         ),
         .rstn        (rstn         ),
-        .cam_vsync   (cam2_vsync   ),
-        .cam_href    (cam2_href    ),
-        .cam_pclk    (cam2_pclk    ),
-        .cam_data    (cam2_data    ),
-        .cam_inited  (cam2_inited  ),
-        .cam_href_565(cam2_href_565),
-        .cam_pclk_565(cam2_pclk_565),
-        .cam_data_565(cam2_data_565),
-        .cam_scl     (cam2_scl     ),
-        .cam_sda     (cam2_sda     ),
-        .cam_rstn    (cam2_rstn    )
+        .vsync   (cam2_vsync   ),
+        .href    (cam2_href    ),
+        .pclk    (cam2_pclk    ),
+        .data    (cam2_data    ),
+        .inited  (cam2_inited  ),
+        .href_565(cam2_href_565),
+        .pclk_565(cam2_pclk_565),
+        .data_565(cam2_data_565),
+        .cfg_scl     (cam2_scl     ),
+        .cfg_sda     (cam2_sda     ),
+        .cfg_rstn    (cam2_rstn    )
     );
 
 
