@@ -251,7 +251,7 @@ module AimBot #(
         .rd_fake_stop           (1'b0           )
     );
 
-    fram_buf #(.PIX_WIDTH(32)) fram_buf (
+    fram_buf #(.PIX_WIDTH(32)) u_fram_buf (
         .ddr_clk    (ddr_clk        ),
         .ddr_rstn   (ddr_inited     ),
         .vin_clk    (               ),   // TODO: OV5640
@@ -289,6 +289,24 @@ module AimBot #(
         .axi_rvalid (axi_rvalid     ),
         .axi_rlast  (axi_rlast      ),
         .axi_rid    (axi_rid        )
+    );
+
+    localparam DBG_CNT = 102400;
+
+    logic [$clog2(DBG_CNT)-1:0] dbg1, dbg2;
+    tick #(.TICK(1), .DBG_CNT(DBG_CNT)) u_cam1_cnt (
+        .clk    (ddr_clk       ),
+        .rstn   (rstn      ),
+        .trig   (cam1_vsync),
+        .tick   ( ),
+        .dbg_cnt(dbg1      )
+    );
+    tick #(.TICK(1), .DBG_CNT(DBG_CNT)) u_cam2_cnt (
+        .clk    (ddr_clk   ),
+        .rstn   (rstn      ),
+        .trig   (cam2_vsync),
+        .tick   (          ),
+        .dbg_cnt(dbg2      )
     );
 
 endmodule : AimBot
