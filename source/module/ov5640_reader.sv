@@ -1,16 +1,21 @@
 module ov5640_reader (
-    input         clk25    ,
-    input         rstn     ,
+    input         clk25        ,
+    input         rstn         ,
 
-    output [15:0] rgb_565  ,
-    output        href     ,
+    input         cam_vsync    ,
+    input         cam_href     ,
+    input         cam_pclk     ,
+    input  [ 7:0] cam_data     ,
 
-    inout         cam_scl  ,
-    inout         cam_sda  ,
-    input         cam_vsync,
-    input         cam_href ,
-    input         cam_pclk ,
-    input  [ 7:0] cam_data ,
+    output        cam_inited   ,
+    output        cam_vsync_565,
+    output        cam_href_565 ,
+    output        cam_pclk_565 ,
+    output [15:0] cam_data_565 ,
+
+    // Configure
+    inout         cam_scl      ,
+    inout         cam_sda      ,
     output        cam_rstn
 );
 
@@ -26,16 +31,15 @@ module ov5640_reader (
         .o_rstn(cam_rstn   )
     );
 
-    wire cam_inited;
     reg_config cam_reg_config (
-        .clk_25M      (cam_cfg_clk ),
-        .camera_rstn  (cam_rstn    ),
-        .initial_en   (/* unused */),
-        .reg_conf_done(cam_inited  ),
-        .i2c_sclk     (cam_scl     ),
-        .i2c_sdat     (cam_sda     ),
-        .clock_20k    (/* unused */),
-        .reg_index    (/* unused */)
+        .clk_25M      (cam_cfg_clk),
+        .camera_rstn  (cam_rstn   ),
+        .initial_en   (/*unused*/ ),
+        .reg_conf_done(cam_inited ),
+        .i2c_sclk     (cam_scl    ),
+        .i2c_sdat     (cam_sda    ),
+        .clock_20k    (/*unused*/ ),
+        .reg_index    (/*unused*/ )
     );
 
     reg [7:0] cam_data_d;
@@ -48,24 +52,19 @@ module ov5640_reader (
         cam_href_d  <= #1 cam_href ;
     end
 
-    wire cam_pclk_16;
-    wire cam_href_16;
-
     wire [15:0] cam_pix_565;
-    wire [15:0] cam_rgb_565;
-    assign cam_rgb_565 = {cam_pix_565[4:0], cam_pix_565[10:5], cam_pix_565[15:11]};
-
-    cmos_8_16bit cam_color_converter (
-        .pclk     (cam_pclk   ),
-        .rst_n    (cam_inited ),
-        .pdata_i  (cam_data_d ),
-        .de_i     (cam_href_d ),
-        .vs_i     (cam_vsync_d),
-        .pixel_clk(cam_pclk_16),
-        .pdata_o  (cam_pix_565),
-        .de_o     (cam_href_16)
+    cmos_8_16bit cam_pix_reader (
+        .pclk     (cam_pclk    ),
+        .rst_n    (cam_inited  ),
+        .pdata_i  (cam_data_d  ),
+        .de_i     (cam_href_d  ),
+        .vs_i     (cam_vsync_d ),
+        .pixel_clk(cam_pclk_565),
+        .pdata_o  (cam_pix_565 ),
+        .de_o     (cam_href_565)
     );
 
-    assign href = cam_href_16;
+    assign cam_data_565 = {cam_pix_565[4:0], cam_pix_565[10:5], cam_pix_565[15:11]};
+    assign cam_vsync_565 = cam_vsync;
 
 endmodule : ov5640_reader
