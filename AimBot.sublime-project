@@ -50,7 +50,12 @@
 	"folders": [
 		{
 			"name": "Source",
-			"path": "source"
+			"path": "source",
+			"folder_exclude_patterns": [
+				"*_backup",
+				"yolo*",
+				"stub"
+			]
 		},
 		{
 			"name": "Simulation",

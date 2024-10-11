@@ -1,4 +1,17 @@
-# HDMI
+# Top Ctrl
+define_attribute {p:clk} {PAP_IO_DIRECTION} {INPUT}
+define_attribute {p:clk} {PAP_IO_LOC} {P20}
+define_attribute {p:clk} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:clk} {PAP_IO_STANDARD} {LVCMOS33}
+define_attribute {p:clk} {PAP_IO_NONE} {TRUE}
+
+define_attribute {p:rstn} {PAP_IO_DIRECTION} {INPUT}
+define_attribute {p:rstn} {PAP_IO_LOC} {K18}
+define_attribute {p:rstn} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:rstn} {PAP_IO_STANDARD} {LVCMOS33}
+define_attribute {p:rstn} {PAP_IO_NONE} {TRUE}
+
+# HDMI Color
 define_attribute {p:hdmi_b[7]} {PAP_IO_DIRECTION} {OUTPUT}
 define_attribute {p:hdmi_b[7]} {PAP_IO_LOC} {P19}
 define_attribute {p:hdmi_b[7]} {PAP_IO_VCCIO} {3.3}
@@ -55,6 +68,7 @@ define_attribute {p:hdmi_b[0]} {PAP_IO_STANDARD} {LVCMOS33}
 define_attribute {p:hdmi_b[0]} {PAP_IO_DRIVE} {8}
 define_attribute {p:hdmi_b[0]} {PAP_IO_NONE} {TRUE}
 define_attribute {p:hdmi_b[0]} {PAP_IO_SLEW} {FAST}
+
 define_attribute {p:hdmi_g[7]} {PAP_IO_DIRECTION} {OUTPUT}
 define_attribute {p:hdmi_g[7]} {PAP_IO_LOC} {L17}
 define_attribute {p:hdmi_g[7]} {PAP_IO_VCCIO} {3.3}
@@ -111,6 +125,7 @@ define_attribute {p:hdmi_g[0]} {PAP_IO_STANDARD} {LVCMOS33}
 define_attribute {p:hdmi_g[0]} {PAP_IO_DRIVE} {8}
 define_attribute {p:hdmi_g[0]} {PAP_IO_NONE} {TRUE}
 define_attribute {p:hdmi_g[0]} {PAP_IO_SLEW} {FAST}
+
 define_attribute {p:hdmi_r[7]} {PAP_IO_DIRECTION} {OUTPUT}
 define_attribute {p:hdmi_r[7]} {PAP_IO_LOC} {H19}
 define_attribute {p:hdmi_r[7]} {PAP_IO_VCCIO} {3.3}
@@ -167,3 +182,220 @@ define_attribute {p:hdmi_r[0]} {PAP_IO_STANDARD} {LVCMOS33}
 define_attribute {p:hdmi_r[0]} {PAP_IO_DRIVE} {8}
 define_attribute {p:hdmi_r[0]} {PAP_IO_NONE} {TRUE}
 define_attribute {p:hdmi_r[0]} {PAP_IO_SLEW} {FAST}
+
+# HDMI Frame
+define_attribute {p:hdmi_de} {PAP_IO_DIRECTION} {OUTPUT}
+define_attribute {p:hdmi_de} {PAP_IO_LOC} {Y22}
+define_attribute {p:hdmi_de} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:hdmi_de} {PAP_IO_STANDARD} {LVCMOS33}
+define_attribute {p:hdmi_de} {PAP_IO_DRIVE} {8}
+define_attribute {p:hdmi_de} {PAP_IO_NONE} {TRUE}
+define_attribute {p:hdmi_de} {PAP_IO_SLEW} {FAST}
+
+define_attribute {p:hdmi_hsync} {PAP_IO_DIRECTION} {OUTPUT}
+define_attribute {p:hdmi_hsync} {PAP_IO_LOC} {Y21}
+define_attribute {p:hdmi_hsync} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:hdmi_hsync} {PAP_IO_STANDARD} {LVCMOS33}
+define_attribute {p:hdmi_hsync} {PAP_IO_DRIVE} {8}
+define_attribute {p:hdmi_hsync} {PAP_IO_NONE} {TRUE}
+define_attribute {p:hdmi_hsync} {PAP_IO_SLEW} {FAST}
+
+define_attribute {p:hdmi_vsync} {PAP_IO_DIRECTION} {OUTPUT}
+define_attribute {p:hdmi_vsync} {PAP_IO_LOC} {W20}
+define_attribute {p:hdmi_vsync} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:hdmi_vsync} {PAP_IO_STANDARD} {LVCMOS33}
+define_attribute {p:hdmi_vsync} {PAP_IO_DRIVE} {8}
+define_attribute {p:hdmi_vsync} {PAP_IO_NONE} {TRUE}
+define_attribute {p:hdmi_vsync} {PAP_IO_SLEW} {FAST}
+
+# HDMI Configure
+define_attribute {p:hdmi_rstn} {PAP_IO_DIRECTION} {OUTPUT}
+define_attribute {p:hdmi_rstn} {PAP_IO_LOC} {R17}
+define_attribute {p:hdmi_rstn} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:hdmi_rstn} {PAP_IO_STANDARD} {LVCMOS33}
+define_attribute {p:hdmi_rstn} {PAP_IO_DRIVE} {8}
+define_attribute {p:hdmi_rstn} {PAP_IO_NONE} {TRUE}
+define_attribute {p:hdmi_rstn} {PAP_IO_SLEW} {FAST}
+
+define_attribute {p:hdmi_scl} {PAP_IO_DIRECTION} {OUTPUT}
+define_attribute {p:hdmi_scl} {PAP_IO_LOC} {P17}
+define_attribute {p:hdmi_scl} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:hdmi_scl} {PAP_IO_STANDARD} {LVCMOS33}
+define_attribute {p:hdmi_scl} {PAP_IO_DRIVE} {8}
+define_attribute {p:hdmi_scl} {PAP_IO_NONE} {TRUE}
+define_attribute {p:hdmi_scl} {PAP_IO_SLEW} {FAST}
+
+define_attribute {p:hdmi_sda} {PAP_IO_DIRECTION} {INOUT}
+define_attribute {p:hdmi_sda} {PAP_IO_LOC} {P18}
+define_attribute {p:hdmi_sda} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:hdmi_sda} {PAP_IO_STANDARD} {LVCMOS33}
+define_attribute {p:hdmi_sda} {PAP_IO_DRIVE} {8}
+define_attribute {p:hdmi_sda} {PAP_IO_NONE} {TRUE}
+define_attribute {p:hdmi_sda} {PAP_IO_SLEW} {FAST}
+
+# Camera
+define_attribute {p:cam1_data[7]} {PAP_IO_DIRECTION} {INPUT}
+define_attribute {p:cam1_data[7]} {PAP_IO_LOC} {AB13}
+define_attribute {p:cam1_data[7]} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:cam1_data[7]} {PAP_IO_STANDARD} {LVCMOS12}
+define_attribute {p:cam1_data[7]} {PAP_IO_NONE} {TRUE}
+define_attribute {p:cam1_data[6]} {PAP_IO_DIRECTION} {INPUT}
+define_attribute {p:cam1_data[6]} {PAP_IO_LOC} {AA10}
+define_attribute {p:cam1_data[6]} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:cam1_data[6]} {PAP_IO_STANDARD} {LVCMOS12}
+define_attribute {p:cam1_data[6]} {PAP_IO_NONE} {TRUE}
+define_attribute {p:cam1_data[5]} {PAP_IO_DIRECTION} {INPUT}
+define_attribute {p:cam1_data[5]} {PAP_IO_LOC} {AB11}
+define_attribute {p:cam1_data[5]} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:cam1_data[5]} {PAP_IO_STANDARD} {LVCMOS12}
+define_attribute {p:cam1_data[5]} {PAP_IO_NONE} {TRUE}
+define_attribute {p:cam1_data[4]} {PAP_IO_DIRECTION} {INPUT}
+define_attribute {p:cam1_data[4]} {PAP_IO_LOC} {W11}
+define_attribute {p:cam1_data[4]} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:cam1_data[4]} {PAP_IO_STANDARD} {LVCMOS12}
+define_attribute {p:cam1_data[4]} {PAP_IO_NONE} {TRUE}
+define_attribute {p:cam1_data[3]} {PAP_IO_DIRECTION} {INPUT}
+define_attribute {p:cam1_data[3]} {PAP_IO_LOC} {R11}
+define_attribute {p:cam1_data[3]} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:cam1_data[3]} {PAP_IO_STANDARD} {LVCMOS12}
+define_attribute {p:cam1_data[3]} {PAP_IO_NONE} {TRUE}
+define_attribute {p:cam1_data[2]} {PAP_IO_DIRECTION} {INPUT}
+define_attribute {p:cam1_data[2]} {PAP_IO_LOC} {T11}
+define_attribute {p:cam1_data[2]} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:cam1_data[2]} {PAP_IO_STANDARD} {LVCMOS12}
+define_attribute {p:cam1_data[2]} {PAP_IO_NONE} {TRUE}
+define_attribute {p:cam1_data[1]} {PAP_IO_DIRECTION} {INPUT}
+define_attribute {p:cam1_data[1]} {PAP_IO_LOC} {Y10}
+define_attribute {p:cam1_data[1]} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:cam1_data[1]} {PAP_IO_STANDARD} {LVCMOS12}
+define_attribute {p:cam1_data[1]} {PAP_IO_NONE} {TRUE}
+define_attribute {p:cam1_data[0]} {PAP_IO_DIRECTION} {INPUT}
+define_attribute {p:cam1_data[0]} {PAP_IO_LOC} {V11}
+define_attribute {p:cam1_data[0]} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:cam1_data[0]} {PAP_IO_STANDARD} {LVCMOS12}
+define_attribute {p:cam1_data[0]} {PAP_IO_NONE} {TRUE}
+
+define_attribute {p:cam2_data[7]} {PAP_IO_DIRECTION} {INPUT}
+define_attribute {p:cam2_data[7]} {PAP_IO_LOC} {AB9}
+define_attribute {p:cam2_data[7]} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:cam2_data[7]} {PAP_IO_STANDARD} {LVCMOS12}
+define_attribute {p:cam2_data[7]} {PAP_IO_NONE} {TRUE}
+define_attribute {p:cam2_data[6]} {PAP_IO_DIRECTION} {INPUT}
+define_attribute {p:cam2_data[6]} {PAP_IO_LOC} {Y9}
+define_attribute {p:cam2_data[6]} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:cam2_data[6]} {PAP_IO_STANDARD} {LVCMOS12}
+define_attribute {p:cam2_data[6]} {PAP_IO_NONE} {TRUE}
+define_attribute {p:cam2_data[5]} {PAP_IO_DIRECTION} {INPUT}
+define_attribute {p:cam2_data[5]} {PAP_IO_LOC} {AB8}
+define_attribute {p:cam2_data[5]} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:cam2_data[5]} {PAP_IO_STANDARD} {LVCMOS12}
+define_attribute {p:cam2_data[5]} {PAP_IO_NONE} {TRUE}
+define_attribute {p:cam2_data[4]} {PAP_IO_DIRECTION} {INPUT}
+define_attribute {p:cam2_data[4]} {PAP_IO_LOC} {W8}
+define_attribute {p:cam2_data[4]} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:cam2_data[4]} {PAP_IO_STANDARD} {LVCMOS12}
+define_attribute {p:cam2_data[4]} {PAP_IO_NONE} {TRUE}
+define_attribute {p:cam2_data[3]} {PAP_IO_DIRECTION} {INPUT}
+define_attribute {p:cam2_data[3]} {PAP_IO_LOC} {U9}
+define_attribute {p:cam2_data[3]} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:cam2_data[3]} {PAP_IO_STANDARD} {LVCMOS12}
+define_attribute {p:cam2_data[3]} {PAP_IO_NONE} {TRUE}
+define_attribute {p:cam2_data[2]} {PAP_IO_DIRECTION} {INPUT}
+define_attribute {p:cam2_data[2]} {PAP_IO_LOC} {T8}
+define_attribute {p:cam2_data[2]} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:cam2_data[2]} {PAP_IO_STANDARD} {LVCMOS12}
+define_attribute {p:cam2_data[2]} {PAP_IO_NONE} {TRUE}
+define_attribute {p:cam2_data[1]} {PAP_IO_DIRECTION} {INPUT}
+define_attribute {p:cam2_data[1]} {PAP_IO_LOC} {U8}
+define_attribute {p:cam2_data[1]} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:cam2_data[1]} {PAP_IO_STANDARD} {LVCMOS12}
+define_attribute {p:cam2_data[1]} {PAP_IO_NONE} {TRUE}
+define_attribute {p:cam2_data[0]} {PAP_IO_DIRECTION} {INPUT}
+define_attribute {p:cam2_data[0]} {PAP_IO_LOC} {Y6}
+define_attribute {p:cam2_data[0]} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:cam2_data[0]} {PAP_IO_STANDARD} {LVCMOS12}
+define_attribute {p:cam2_data[0]} {PAP_IO_NONE} {TRUE}
+
+define_attribute {p:cam1_scl} {PAP_IO_DIRECTION} {INOUT}
+define_attribute {p:cam1_scl} {PAP_IO_LOC} {Y11}
+define_attribute {p:cam1_scl} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:cam1_scl} {PAP_IO_STANDARD} {LVCMOS33}
+define_attribute {p:cam1_scl} {PAP_IO_DRIVE} {8}
+define_attribute {p:cam1_scl} {PAP_IO_NONE} {TRUE}
+define_attribute {p:cam1_scl} {PAP_IO_SLEW} {SLOW}
+
+define_attribute {p:cam1_sda} {PAP_IO_DIRECTION} {INOUT}
+define_attribute {p:cam1_sda} {PAP_IO_LOC} {Y13}
+define_attribute {p:cam1_sda} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:cam1_sda} {PAP_IO_STANDARD} {LVCMOS33}
+define_attribute {p:cam1_sda} {PAP_IO_DRIVE} {8}
+define_attribute {p:cam1_sda} {PAP_IO_NONE} {TRUE}
+define_attribute {p:cam1_sda} {PAP_IO_SLEW} {SLOW}
+
+define_attribute {p:cam2_scl} {PAP_IO_DIRECTION} {INOUT}
+define_attribute {p:cam2_scl} {PAP_IO_LOC} {V9}
+define_attribute {p:cam2_scl} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:cam2_scl} {PAP_IO_STANDARD} {LVCMOS33}
+define_attribute {p:cam2_scl} {PAP_IO_DRIVE} {8}
+define_attribute {p:cam2_scl} {PAP_IO_NONE} {TRUE}
+define_attribute {p:cam2_scl} {PAP_IO_SLEW} {SLOW}
+
+define_attribute {p:cam2_sda} {PAP_IO_DIRECTION} {INOUT}
+define_attribute {p:cam2_sda} {PAP_IO_LOC} {T10}
+define_attribute {p:cam2_sda} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:cam2_sda} {PAP_IO_STANDARD} {LVCMOS33}
+define_attribute {p:cam2_sda} {PAP_IO_DRIVE} {8}
+define_attribute {p:cam2_sda} {PAP_IO_NONE} {TRUE}
+define_attribute {p:cam2_sda} {PAP_IO_SLEW} {SLOW}
+
+define_attribute {p:cam1_rstn} {PAP_IO_DIRECTION} {OUTPUT}
+define_attribute {p:cam1_rstn} {PAP_IO_LOC} {W10}
+define_attribute {p:cam1_rstn} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:cam1_rstn} {PAP_IO_STANDARD} {LVCMOS33}
+define_attribute {p:cam1_rstn} {PAP_IO_DRIVE} {8}
+define_attribute {p:cam1_rstn} {PAP_IO_NONE} {TRUE}
+define_attribute {p:cam1_rstn} {PAP_IO_SLEW} {SLOW}
+
+define_attribute {p:cam2_rstn} {PAP_IO_DIRECTION} {OUTPUT}
+define_attribute {p:cam2_rstn} {PAP_IO_LOC} {AB4}
+define_attribute {p:cam2_rstn} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:cam2_rstn} {PAP_IO_STANDARD} {LVCMOS33}
+define_attribute {p:cam2_rstn} {PAP_IO_DRIVE} {8}
+define_attribute {p:cam2_rstn} {PAP_IO_NONE} {TRUE}
+define_attribute {p:cam2_rstn} {PAP_IO_SLEW} {SLOW}
+
+define_attribute {p:cam1_href} {PAP_IO_DIRECTION} {INPUT}
+define_attribute {p:cam1_href} {PAP_IO_LOC} {AB10}
+define_attribute {p:cam1_href} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:cam1_href} {PAP_IO_STANDARD} {LVCMOS33}
+define_attribute {p:cam1_href} {PAP_IO_NONE} {TRUE}
+
+define_attribute {p:cam1_pclk} {PAP_IO_DIRECTION} {INPUT}
+define_attribute {p:cam1_pclk} {PAP_IO_LOC} {T12}
+define_attribute {p:cam1_pclk} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:cam1_pclk} {PAP_IO_STANDARD} {LVCMOS33}
+define_attribute {p:cam1_pclk} {PAP_IO_NONE} {TRUE}
+
+define_attribute {p:cam1_vsync} {PAP_IO_DIRECTION} {INPUT}
+define_attribute {p:cam1_vsync} {PAP_IO_LOC} {U12}
+define_attribute {p:cam1_vsync} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:cam1_vsync} {PAP_IO_STANDARD} {LVCMOS33}
+define_attribute {p:cam1_vsync} {PAP_IO_NONE} {TRUE}
+
+define_attribute {p:cam2_href} {PAP_IO_DIRECTION} {INPUT}
+define_attribute {p:cam2_href} {PAP_IO_LOC} {AB5}
+define_attribute {p:cam2_href} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:cam2_href} {PAP_IO_STANDARD} {LVCMOS33}
+define_attribute {p:cam2_href} {PAP_IO_NONE} {TRUE}
+
+define_attribute {p:cam2_pclk} {PAP_IO_DIRECTION} {INPUT}
+define_attribute {p:cam2_pclk} {PAP_IO_LOC} {W6}
+define_attribute {p:cam2_pclk} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:cam2_pclk} {PAP_IO_STANDARD} {LVCMOS33}
+define_attribute {p:cam2_pclk} {PAP_IO_NONE} {TRUE}
+
+define_attribute {p:cam2_vsync} {PAP_IO_DIRECTION} {INPUT}
+define_attribute {p:cam2_vsync} {PAP_IO_LOC} {Y5}
+define_attribute {p:cam2_vsync} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:cam2_vsync} {PAP_IO_STANDARD} {LVCMOS33}
+define_attribute {p:cam2_vsync} {PAP_IO_NONE} {TRUE}

@@ -16,3 +16,5 @@ place_route/**
 report_power/**
 report_timing/**
 synthesize/**
+
+source/*_backup/**
