@@ -9,7 +9,6 @@ module ov5640_reader (
     input  [ 7:0] cam_data     ,
 
     output        cam_inited   ,
-    output        cam_vsync_565,
     output        cam_href_565 ,
     output        cam_pclk_565 ,
     output [15:0] cam_data_565 ,
@@ -66,6 +65,5 @@ module ov5640_reader (
     );
 
     assign cam_data_565 = {cam_pix_565[4:0], cam_pix_565[10:5], cam_pix_565[15:11]};
-    assign cam_vsync_565 = cam_vsync;
 
 endmodule : ov5640_reader

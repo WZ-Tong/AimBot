@@ -1,6 +1,6 @@
 module pll (
     input  clkin1  ,
-    input  rst     ,
+    input  pll_rst ,
 
     output pll_lock,
     output clkout0 ,
