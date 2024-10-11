@@ -117,46 +117,4 @@ module AimBot #(
         .cam_rstn    (cam2_rstn    )
     );
 
-    localparam CAM_TICK            = 30  ;
-    localparam CAM_FRAME_DBG_CNT   = 1024;
-    localparam CAM_PIX_CLK_DBG_CNT = 102400;
-
-    reg [$clog2(CAM_FRAME_DBG_CNT)-1:0] cam1_frame_dbg_cnt /*synthesis PAP_MARK_DEBUG="true"*/;
-    reg [$clog2(CAM_FRAME_DBG_CNT)-1:0] cam2_frame_dbg_cnt /*synthesis PAP_MARK_DEBUG="true"*/;
-
-    tick #(.TICK(CAM_TICK), .DBG_CNT(CAM_FRAME_DBG_CNT)) u_cam1_frame_tick (
-        .clk    (clk               ),
-        .rstn   (rstn              ),
-        .trig   (cam1_vsync        ),
-        // .tick   (cam1_tick         ),
-        .dbg_cnt(cam1_frame_dbg_cnt)
-    );
-
-    tick #(.TICK(CAM_TICK), .DBG_CNT(CAM_FRAME_DBG_CNT)) u_cam2_frame_tick (
-        .clk    (clk         ),
-        .rstn   (rstn        ),
-        .trig   (cam2_vsync  ),
-        // .tick   (cam2_tick   ),
-        .dbg_cnt(cam2_frame_dbg_cnt)
-    );
-
-    reg [$clog2(CAM_PIX_CLK_DBG_CNT)-1:0] cam1_pix_clk_dbg_cnt /*synthesis PAP_MARK_DEBUG="true"*/;
-    reg [$clog2(CAM_PIX_CLK_DBG_CNT)-1:0] cam2_pix_clk_dbg_cnt /*synthesis PAP_MARK_DEBUG="true"*/;
-
-    tick #(.TICK(1), .DBG_CNT(CAM_PIX_CLK_DBG_CNT)) u_cam1_pix_tick (
-        .clk    (clk400              ),
-        .rstn   (rstn&clkl           ),
-        .trig   (cam1_pclk           ),
-        .tick   (cam1_tick           ),
-        .dbg_cnt(cam1_pix_clk_dbg_cnt)
-    );
-
-    tick #(.TICK(1), .DBG_CNT(CAM_PIX_CLK_DBG_CNT)) u_cam2_pix_tick (
-        .clk    (clk400              ),
-        .rstn   (rstn&clkl           ),
-        .trig   (cam2_pclk           ),
-        .tick   (cam2_tick           ),
-        .dbg_cnt(cam2_pix_clk_dbg_cnt)
-    );
-
 endmodule : AimBot
