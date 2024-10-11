@@ -1,8 +1,6 @@
 `timescale 1ns / 1ps
 
 module AimBot #(
-    parameter BITS        = 8       ,
-
     parameter V_TOTAL     = 12'd750 ,
     parameter V_FP        = 12'd5   ,
     parameter V_BP        = 12'd20  ,
@@ -20,28 +18,35 @@ module AimBot #(
 
     parameter N_BOX       = 1'b1
 ) (
-    input             clk        ,
-    input             rstn       ,
+    input        clk       ,
+    input        rstn      ,
 
-    inout             cam_scl   ,
-    inout             cam_sda   ,
-    input             cam_vsync ,
-    input             cam_href  ,
-    input             cam_pclk  ,
-    input  [BITS-1:0] cam_data  ,
-    output            cam_reset ,
-    output            cam_heart ,
+    inout        cam1_scl   ,
+    inout        cam1_sda   ,
+    input        cam1_vsync ,
+    input        cam1_href  ,
+    input        cam1_pclk  ,
+    input  [7:0] cam1_data  ,
+    output       cam1_reset ,
 
-    output            hdmi_hsync ,
-    output            hdmi_vsync ,
-    output            hdmi_de    ,
-    output [BITS-1:0] hdmi_r     ,
-    output [BITS-1:0] hdmi_g     ,
-    output [BITS-1:0] hdmi_b     ,
+    inout        cam2_scl   ,
+    inout        cam2_sda   ,
+    input        cam2_vsync ,
+    input        cam2_href  ,
+    input        cam2_pclk  ,
+    input  [7:0] cam2_data  ,
+    output       cam2_reset ,
 
-    output            hdmi_rstn  ,
-    output            hdmi_scl   ,
-    inout             hdmi_sda
+    output       hdmi_hsync,
+    output       hdmi_vsync,
+    output       hdmi_de   ,
+    output [7:0] hdmi_r    ,
+    output [7:0] hdmi_g    ,
+    output [7:0] hdmi_b    ,
+
+    output       hdmi_rstn ,
+    output       hdmi_scl  ,
+    inout        hdmi_sda
 );
 
     // Pll clk generator
@@ -69,27 +74,44 @@ module AimBot #(
     );
 
     // OV5640 configure & read
-    wire cam_inited;
+    wire        cam1_inited, cam2_inited;
+    wire        cam1_vsync_565, cam2_vsync_565;
+    wire        cam1_href_565,  cam2_href_565;
+    wire        cam1_pclk_565,  cam2_pclk_565;
+    wire [15:0] cam1_data_565,  cam2_data_565;
 
-    wire        cam_vsync_565;
-    wire        cam_href_565 ;
-    wire        cam_pclk_565 ;
-    wire [15:0] cam_data_565 ;
-    ov5640_reader ov5640_reader (
-        .clk25        (clk25        ),
-        .rstn         (rstn         ),
-        .cam_vsync    (cam_vsync    ),
-        .cam_href     (cam_href     ),
-        .cam_pclk     (cam_pclk     ),
-        .cam_data     (cam_data     ),
-        .cam_inited   (cam_inited   ),
-        .cam_vsync_565(cam_vsync_565),
-        .cam_href_565 (cam_href_565 ),
-        .cam_pclk_565 (cam_pclk_565 ),
-        .cam_data_565 (cam_data_565 ),
-        .cam_scl      (cam_scl      ),
-        .cam_sda      (cam_sda      ),
-        .cam_rstn     (cam_rstn     )
+    ov5640_reader cam1_reader (
+        .clk25        (clk25         ),
+        .rstn         (rstn          ),
+        .cam_vsync    (cam1_vsync    ),
+        .cam_href     (cam1_href     ),
+        .cam_pclk     (cam1_pclk     ),
+        .cam_data     (cam1_data     ),
+        .cam_inited   (cam1_inited   ),
+        .cam_vsync_565(cam1_vsync_565),
+        .cam_href_565 (cam1_href_565 ),
+        .cam_pclk_565 (cam1_pclk_565 ),
+        .cam_data_565 (cam1_data_565 ),
+        .cam_scl      (cam1_scl      ),
+        .cam_sda      (cam1_sda      ),
+        .cam_rstn     (cam1_rstn     )
+    );
+
+    ov5640_reader cam2_reader (
+        .clk25        (clk25         ),
+        .rstn         (rstn          ),
+        .cam_vsync    (cam2_vsync    ),
+        .cam_href     (cam2_href     ),
+        .cam_pclk     (cam2_pclk     ),
+        .cam_data     (cam2_data     ),
+        .cam_inited   (cam2_inited   ),
+        .cam_vsync_565(cam2_vsync_565),
+        .cam_href_565 (cam2_href_565 ),
+        .cam_pclk_565 (cam2_pclk_565 ),
+        .cam_data_565 (cam2_data_565 ),
+        .cam_scl      (cam2_scl      ),
+        .cam_sda      (cam2_sda      ),
+        .cam_rstn     (cam2_rstn     )
     );
 
 endmodule : AimBot
