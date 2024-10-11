@@ -28,59 +28,61 @@ module AimBot #(
     parameter MEM_DQS_WIDTH      = 32/8                                             ,
     parameter CTRL_ADDR_WIDTH    = MEM_ROW_WIDTH + MEM_BANK_WIDTH + MEM_COLUMN_WIDTH
 ) (
-    input                           clk        ,
-    input                           rstn       ,
+    input                           clk         ,
+    input                           rstn        ,
 
-    inout                           cam1_scl   ,
-    inout                           cam1_sda   ,
-    input                           cam1_vsync ,
-    input                           cam1_href  ,
-    input                           cam1_pclk  ,
-    input  [                   7:0] cam1_data  ,
-    output                          cam1_rstn  ,
+    inout                           cam1_scl    ,
+    inout                           cam1_sda    ,
+    input                           cam1_vsync  ,
+    input                           cam1_href   ,
+    input                           cam1_pclk   ,
+    input  [                   7:0] cam1_data   ,
+    output                          cam1_rstn   ,
 
-    inout                           cam2_scl   ,
-    inout                           cam2_sda   ,
-    input                           cam2_vsync ,
-    input                           cam2_href  ,
-    input                           cam2_pclk  ,
-    input  [                   7:0] cam2_data  ,
-    output                          cam2_rstn  ,
+    inout                           cam2_scl    ,
+    inout                           cam2_sda    ,
+    input                           cam2_vsync  ,
+    input                           cam2_href   ,
+    input                           cam2_pclk   ,
+    input  [                   7:0] cam2_data   ,
+    output                          cam2_rstn   ,
 
-    output                          hdmi_hsync ,
-    output                          hdmi_vsync ,
-    output                          hdmi_de    ,
-    output [                   7:0] hdmi_r     ,
-    output [                   7:0] hdmi_g     ,
-    output [                   7:0] hdmi_b     ,
+    output                          hdmi_hsync  ,
+    output                          hdmi_vsync  ,
+    output                          hdmi_de     ,
+    output [                   7:0] hdmi_r      ,
+    output [                   7:0] hdmi_g      ,
+    output [                   7:0] hdmi_b      ,
 
     // Ctrl signals
-    output                          hdmi_rstn  ,
-    output                          hdmi_scl   ,
-    inout                           hdmi_sda   ,
+    output                          hdmi_rstn   ,
+    output                          hdmi_scl    ,
+    inout                           hdmi_sda    ,
 
-    output                          mem_rst_n  ,
-    output                          mem_ck     ,
-    output                          mem_ck_n   ,
-    output                          mem_cke    ,
-    output                          mem_cs_n   ,
-    output                          mem_ras_n  ,
-    output                          mem_cas_n  ,
-    output                          mem_we_n   ,
-    output                          mem_odt    ,
-    output [MEM_ROW_ADDR_WIDTH-1:0] mem_a      ,
-    output [   MEM_BADDR_WIDTH-1:0] mem_ba     ,
-    inout  [    MEM_DQ_WIDTH/8-1:0] mem_dqs    ,
-    inout  [    MEM_DQ_WIDTH/8-1:0] mem_dqs_n  ,
-    inout  [      MEM_DQ_WIDTH-1:0] mem_dq     ,
-    output [    MEM_DQ_WIDTH/8-1:0] mem_dm     ,
+    output                          mem_rst_n   ,
+    output                          mem_ck      ,
+    output                          mem_ck_n    ,
+    output                          mem_cke     ,
+    output                          mem_cs_n    ,
+    output                          mem_ras_n   ,
+    output                          mem_cas_n   ,
+    output                          mem_we_n    ,
+    output                          mem_odt     ,
+    output [MEM_ROW_ADDR_WIDTH-1:0] mem_a       ,
+    output [   MEM_BADDR_WIDTH-1:0] mem_ba      ,
+    inout  [    MEM_DQ_WIDTH/8-1:0] mem_dqs     ,
+    inout  [    MEM_DQ_WIDTH/8-1:0] mem_dqs_n   ,
+    inout  [      MEM_DQ_WIDTH-1:0] mem_dq      ,
+    output [    MEM_DQ_WIDTH/8-1:0] mem_dm      ,
 
     // Debug signals
-    output                          hdmi_inited,
-    output                          cam1_inited,
-    output                          cam2_inited,
-    output                          cam1_tick  ,
-    output                          cam2_tick
+    output                          hdmi_inited ,
+    output                          cam1_inited ,
+    output                          cam2_inited ,
+    output                          cam1_tick   ,
+    output                          cam2_tick   ,
+    output                          ddr_inited  ,
+    output                          fram_inited
 );
 
     wire clk10, clk25, clkl;
@@ -148,45 +150,55 @@ module AimBot #(
     localparam FRAME_BUF_H_NUM = 12'd1280;
     localparam FRAME_BUF_V_NUM = 12'd720 ;
 
-    wire  [ CTRL_ADDR_WIDTH-1:0] axi_awaddr     ;
-    wire                         axi_awuser_ap  ;
-    wire  [                 3:0] axi_awuser_id  ;
-    wire  [                 3:0] axi_awlen      ;
-    wire                         axi_awready    ;
-    wire                         axi_awvalid    ;
-    wire  [  MEM_DQ_WIDTH*8-1:0] axi_wdata      ;
-    wire  [MEM_DQ_WIDTH*8/8-1:0] axi_wstrb      ;
-    wire                         axi_wready     ;
-    wire  [                 3:0] axi_wusero_id  ;
-    wire                         axi_wusero_last;
-    wire  [ CTRL_ADDR_WIDTH-1:0] axi_araddr     ;
-    wire                         axi_aruser_ap  ;
-    wire  [                 3:0] axi_aruser_id  ;
-    wire  [                 3:0] axi_arlen      ;
-    wire                         axi_arready    ;
-    wire                         axi_arvalid    ;
-    wire  [  MEM_DQ_WIDTH*8-1:0] axi_rdata      ;
-    wire                         axi_rvalid     ;
-    wire  [                 3:0] axi_rid        ;
-    wire                         axi_rlast      ;
+    wire [ CTRL_ADDR_WIDTH-1:0] axi_awaddr     ;
+    wire                        axi_awuser_ap  ;
+    wire [                 3:0] axi_awuser_id  ;
+    wire [                 3:0] axi_awlen      ;
+    wire                        axi_awready    ;
+    wire                        axi_awvalid    ;
+    wire [  MEM_DQ_WIDTH*8-1:0] axi_wdata      ;
+    wire [MEM_DQ_WIDTH*8/8-1:0] axi_wstrb      ;
+    wire                        axi_wready     ;
+    wire [                 3:0] axi_wusero_id  ;
+    wire                        axi_wusero_last;
+    wire [ CTRL_ADDR_WIDTH-1:0] axi_araddr     ;
+    wire                        axi_aruser_ap  ;
+    wire [                 3:0] axi_aruser_id  ;
+    wire [                 3:0] axi_arlen      ;
+    wire                        axi_arready    ;
+    wire                        axi_arvalid    ;
+    wire [  MEM_DQ_WIDTH*8-1:0] axi_rdata      ;
+    wire                        axi_rvalid     ;
+    wire [                 3:0] axi_rid        ;
+    wire                        axi_rlast      ;
 
-    logic                        vin_clk        ;
-    logic                        wr_fsync       ;
-    logic                        wr_en          ;
-    logic                        init_done      ;
-    logic                        ddr_clk        ;
-    logic                        ddr_rstn       ;
-    logic                        vout_clk       ;
-    logic                        rd_fsync       ;
-    logic                        rd_en          ;
-    logic                        vout_de        ;
+    logic vin_clk  ;
+    logic wr_fsync ;
+    logic wr_en    ;
+    logic init_done;
+    logic ddr_rstn ;
+    logic vout_clk ;
+    logic rd_fsync ;
+    logic rd_en    ;
+    logic vout_de  ;
 
-    DDR3_50H u_DDR3_50H (
-        .ref_clk                (sys_clk        ),
-        .resetn                 (rstn_out       ),
-        .ddr_init_done          (ddr_init_done  ),
-        .ddrphy_clkin           (core_clk       ),
-        .pll_lock               (pll_lock       ),
+    localparam DDR3_RSTN_HOLD_CNT = 50000;
+
+    wire ddr3_rstn;
+
+    rstn_async_hold #(.TICK(DDR3_RSTN_HOLD_CNT)) u_ddr3_rstn (
+        .clk   (clk      ),
+        .i_rstn(rstn     ),
+        .o_rstn(ddr3_rstn)
+    );
+
+    wire ddr_clk, ddr_clkl;
+    DDR3_50H u_ddr3 (
+        .ref_clk                (clk            ),
+        .resetn                 (ddr3_rstn      ),
+        .ddr_init_done          (ddr_inited     ),
+        .ddrphy_clkin           (ddr_clk        ),
+        .pll_lock               (/*unused*/     ),
         .axi_awaddr             (axi_awaddr     ),
         .axi_awuser_ap          (1'b0           ),
         .axi_awuser_id          (axi_awuser_id  ),
@@ -251,18 +263,18 @@ module AimBot #(
     );
 
     fram_buf #(.PIX_WIDTH(32)) fram_buf (
-        .ddr_clk    (core_clk       ),
-        .ddr_rstn   (ddr_init_done  ),
-        .vin_clk    (pclk_in_test   ),
-        .wr_fsync   (vs_in_test     ),
-        .wr_en      (de_in_test     ),
+        .ddr_clk    (ddr_clk        ),
+        .ddr_rstn   (ddr_inited     ),
+        .vin_clk    (               ),   // TODO: OV5640
+        .wr_fsync   (               ),   // TODO
+        .wr_en      (               ),   // TODO
         .wr_data    (               ),   // TODO
-        .vout_clk   (pix_clk        ),
-        .rd_fsync   (vs_o           ),
-        .rd_en      (de_re          ),
-        .vout_de    (de_o           ),
+        .vout_clk   (               ),   // TODO: HDMI
+        .rd_fsync   (               ),   // TODO
+        .rd_en      (               ),   // TODO
+        .vout_de    (               ),   // TODO
         .vout_data  (               ),   // TODO
-        .init_done  (init_done      ),
+        .init_done  (fram_inited    ),
         .axi_awaddr (axi_awaddr     ),
         .axi_awid   (axi_awuser_id  ),
         .axi_awlen  (axi_awlen      ),
