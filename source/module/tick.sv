@@ -3,7 +3,7 @@ module tick #(parameter TICK = 1, DBG_CNT = 1024) (
     input      rstn   ,
     input      trig   ,
     output reg tick   ,
-    output reg [$clog2(DBG_CNT)-1:0] dbg_cnt
+    output reg [$clog2(DBG_CNT)-1:0] dbg_cnt /*synthesis PAP_MARK_DEBUG="1"*/
 );
 
     reg last;
