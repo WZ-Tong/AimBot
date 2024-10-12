@@ -959,14 +959,21 @@ define_attribute {p:mem_we_n} {PAP_IO_SLEW} {FAST}
 # Clock
 create_clock -name {clk50} [get_ports {clk}] -period {20.000} -waveform {0.000 10.000}
 
-create_clock -name {cam1_pclk} [get_ports {cam1_pclk}] -period {11.900} -waveform {0.000 5.950}
-create_clock -name {cam2_pclk} [get_ports {cam2_pclk}] -period {11.900} -waveform {0.000 5.950}
-
 create_generated_clock -name {clk25} -source [get_ports {clk}] [get_nets {u_pll/clkout0}] -master_clock [get_clocks {clk50}] -multiply_by {1} -divide_by {2}
 create_generated_clock -name {clk10} -source [get_ports {clk}] [get_nets {u_pll/clkout1}] -master_clock [get_clocks {clk50}] -multiply_by {1} -divide_by {5}
+
+create_clock -name {cam1_pclk} [get_ports {cam1_pclk}] -period {11.900} -waveform {0.000 5.950}
+create_clock -name {cam2_pclk} [get_ports {cam2_pclk}] -period {11.900} -waveform {0.000 5.950}
+create_generated_clock -name {cam1_cfg_clk} -source [get_pins {u_cam1_reader/clk25}] [get_pins {u_cam1_reader/cam_reg_config/clock_20k}] -master_clock [get_clocks {clk25}] -multiply_by {4} -divide_by {5}
+create_generated_clock -name {cam2_cfg_clk} -source [get_pins {u_cam2_reader/clk25}] [get_pins {u_cam2_reader/cam_reg_config/clock_20k}] -master_clock [get_clocks {clk25}] -multiply_by {4} -divide_by {5}
+create_generated_clock -name {cam1_pclk_565} -source [get_pins {u_cam1_reader/pclk}] [get_pins {u_cam1_reader/cam_pix_reader/pixel_clk}] -master_clock [get_clocks {cam1_pclk}] -multiply_by {1} -divide_by {2}
+create_generated_clock -name {cam2_pclk_565} -source [get_pins {u_cam2_reader/pclk}] [get_pins {u_cam2_reader/cam_pix_reader/pixel_clk}] -master_clock [get_clocks {cam2_pclk}] -multiply_by {1} -divide_by {2}
 
 create_generated_clock -name {ddrphy_clkin} -source [get_ports {clk}] [get_pins {u_ddr3.I_GTP_CLKDIV/CLKDIVOUT}] -master_clock [get_clocks {clk50}] -multiply_by {16} -divide_by {8}
 create_generated_clock -name {ioclk0} -source [get_ports {clk}] [get_pins {u_ddr3.I_GTP_IOCLKBUF_0/CLKOUT}] -master_clock [get_clocks {clk50}] -multiply_by {16} -divide_by {2}
 create_generated_clock -name {ioclk1} -source [get_ports {clk}] [get_pins {u_ddr3.I_GTP_IOCLKBUF_1/CLKOUT}] -master_clock [get_clocks {clk50}] -multiply_by {16} -divide_by {2}
 create_generated_clock -name {ioclk2} -source [get_ports {clk}] [get_pins {u_ddr3.I_GTP_IOCLKBUF_2/CLKOUT}] -master_clock [get_clocks {clk50}] -multiply_by {16} -divide_by {2}
 create_generated_clock -name {ioclk_gate_clk} -source [get_ports {clk}] [get_pins {u_ddr3.u_clkbufg_gate/CLKOUT}] -master_clock [get_clocks {clk50}] -multiply_by {16} -divide_by {8}
+define_attribute {i:u_ddr3.u_ipsxb_ddrphy_pll_0.u_pll_e3} {PAP_LOC} {PLL_158_199}
+define_attribute {i:u_ddr3.u_ipsxb_ddrphy_pll_1.u_pll_e3} {PAP_LOC} {PLL_158_179}
+define_attribute {i:u_ddr3.u_ddrphy_top.ddrphy_reset_ctrl.ddrphy_ioclk_gate} {PAP_LOC} {CLMA_150_192:FF3}
