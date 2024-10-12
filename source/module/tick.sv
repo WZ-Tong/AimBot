@@ -20,12 +20,12 @@ module tick #(parameter TICK = 1, DBG_CNT = 1024) (
             last <= #1 trig;
             if (last!=trig) begin
                 if (cnt==TICK-1) begin
-                    cnt     <= #1 'b0;
-                    tick    <= #1 ~tick;
-                    dbg_cnt <= #1 dbg_cnt + 1'b1;
+                    cnt  <= #1 'b0;
+                    tick <= #1 ~tick;
                 end else begin
                     cnt <= #1 cnt + 1'b1;
                 end
+                dbg_cnt <= #1 dbg_cnt + 1'b1;
             end
         end
     end

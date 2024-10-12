@@ -22,9 +22,9 @@ module ov5640_reader (
     wire cfg_clk;
     assign cfg_clk = clk25;
 
-    localparam CAM_RSTN_HOLD = 'h40000 + 'hffff;
+    localparam CFG_RSTN_HOLD = 'h40000 + 'hffff;
 
-    rstn_async_hold #(.TICK(CAM_RSTN_HOLD)) cam_rstn_hold (
+    rstn_async_hold #(.TICK(CFG_RSTN_HOLD)) cam_cfg_rstn_hold (
         .clk   (cfg_clk          ),
         .i_rstn(rstn&clk25_locked),
         .o_rstn(cfg_rstn         )
@@ -32,7 +32,7 @@ module ov5640_reader (
 
     reg_config cam_reg_config (
         .clk_25M      (cfg_clk   ),
-        .camera_rstn  (cam_rstn  ),
+        .camera_rstn  (cfg_rstn  ),
         .initial_en   (/*unused*/),
         .reg_conf_done(inited    ),
         .i2c_sclk     (cfg_scl   ),

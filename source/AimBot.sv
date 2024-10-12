@@ -28,61 +28,62 @@ module AimBot #(
     parameter MEM_DQS_WIDTH      = 32/8                                             ,
     parameter CTRL_ADDR_WIDTH    = MEM_ROW_WIDTH + MEM_BANK_WIDTH + MEM_COLUMN_WIDTH
 ) (
-    input                           clk         ,
-    input                           rstn        ,
+    input                           clk        ,
+    input                           rstn       ,
 
-    inout                           cam1_scl    ,
-    inout                           cam1_sda    ,
-    input                           cam1_vsync  ,
-    input                           cam1_href   ,
-    input                           cam1_pclk   ,
-    input  [                   7:0] cam1_data   ,
-    output                          cam1_rstn   ,
+    inout                           cam1_scl   ,
+    inout                           cam1_sda   ,
+    input                           cam1_vsync ,
+    input                           cam1_href  ,
+    input                           cam1_pclk  ,
+    input  [                   7:0] cam1_data  ,
+    output                          cam1_rstn  ,
 
-    inout                           cam2_scl    ,
-    inout                           cam2_sda    ,
-    input                           cam2_vsync  ,
-    input                           cam2_href   ,
-    input                           cam2_pclk   ,
-    input  [                   7:0] cam2_data   ,
-    output                          cam2_rstn   ,
+    inout                           cam2_scl   ,
+    inout                           cam2_sda   ,
+    input                           cam2_vsync ,
+    input                           cam2_href  ,
+    input                           cam2_pclk  ,
+    input  [                   7:0] cam2_data  ,
+    output                          cam2_rstn  ,
 
-    output                          hdmi_hsync  ,
-    output                          hdmi_vsync  ,
-    output                          hdmi_de     ,
-    output [                   7:0] hdmi_r      ,
-    output [                   7:0] hdmi_g      ,
-    output [                   7:0] hdmi_b      ,
+    output                          hdmi_hsync ,
+    output                          hdmi_vsync ,
+    output                          hdmi_de    ,
+    output [                   7:0] hdmi_r     ,
+    output [                   7:0] hdmi_g     ,
+    output [                   7:0] hdmi_b     ,
 
     // Ctrl signals
-    output                          hdmi_rstn   ,
-    output                          hdmi_scl    ,
-    inout                           hdmi_sda    ,
+    output                          hdmi_rstn  ,
+    output                          hdmi_scl   ,
+    inout                           hdmi_sda   ,
 
-    output                          mem_rst_n   ,
-    output                          mem_ck      ,
-    output                          mem_ck_n    ,
-    output                          mem_cke     ,
-    output                          mem_cs_n    ,
-    output                          mem_ras_n   ,
-    output                          mem_cas_n   ,
-    output                          mem_we_n    ,
-    output                          mem_odt     ,
-    output [MEM_ROW_ADDR_WIDTH-1:0] mem_a       ,
-    output [   MEM_BADDR_WIDTH-1:0] mem_ba      ,
-    inout  [    MEM_DQ_WIDTH/8-1:0] mem_dqs     ,
-    inout  [    MEM_DQ_WIDTH/8-1:0] mem_dqs_n   ,
-    inout  [      MEM_DQ_WIDTH-1:0] mem_dq      ,
-    output [    MEM_DQ_WIDTH/8-1:0] mem_dm      ,
+    output                          mem_rst_n  ,
+    output                          mem_ck     ,
+    output                          mem_ck_n   ,
+    output                          mem_cke    ,
+    output                          mem_cs_n   ,
+    output                          mem_ras_n  ,
+    output                          mem_cas_n  ,
+    output                          mem_we_n   ,
+    output                          mem_odt    ,
+    output [MEM_ROW_ADDR_WIDTH-1:0] mem_a      ,
+    output [   MEM_BADDR_WIDTH-1:0] mem_ba     ,
+    inout  [    MEM_DQ_WIDTH/8-1:0] mem_dqs    ,
+    inout  [    MEM_DQ_WIDTH/8-1:0] mem_dqs_n  ,
+    inout  [      MEM_DQ_WIDTH-1:0] mem_dq     ,
+    output [    MEM_DQ_WIDTH/8-1:0] mem_dm     ,
 
     // Debug signals
-    output                          hdmi_inited ,
-    output                          cam1_inited ,
-    output                          cam2_inited ,
-    output                          cam1_tick   ,
-    output                          cam2_tick   ,
-    output                          ddr_inited  ,
-    output                          fram_inited
+    output                          hdmi_inited,
+    output                          cam1_inited,
+    output                          cam2_inited,
+    output                          cam1_tick  ,
+    output                          cam2_tick  ,
+    output                          ddr_inited ,
+    output                          fram_inited,
+    output                          pll_locked
 );
 
     wire clk10, clk25, clkl;
@@ -93,6 +94,7 @@ module AimBot #(
         .clkout0 (clk25),
         .clkout1 (clk10)
     );
+    assign pll_locked = clkl;
 
     // HDMI configure
     hdmi_ctrl u_hdmi_ctrl (
@@ -294,18 +296,18 @@ module AimBot #(
     localparam DBG_CNT = 102400;
 
     logic [$clog2(DBG_CNT)-1:0] dbg1, dbg2;
-    tick #(.TICK(1), .DBG_CNT(DBG_CNT)) u_cam1_cnt (
-        .clk    (ddr_clk       ),
+    tick #(.TICK(30), .DBG_CNT(DBG_CNT)) u_cam1_cnt (
+        .clk    (clk       ),
         .rstn   (rstn      ),
         .trig   (cam1_vsync),
-        .tick   ( ),
+        .tick   (cam1_tick ),
         .dbg_cnt(dbg1      )
     );
-    tick #(.TICK(1), .DBG_CNT(DBG_CNT)) u_cam2_cnt (
-        .clk    (ddr_clk   ),
+    tick #(.TICK(30), .DBG_CNT(DBG_CNT)) u_cam2_cnt (
+        .clk    (clk       ),
         .rstn   (rstn      ),
         .trig   (cam2_vsync),
-        .tick   (          ),
+        .tick   (cam2_tick ),
         .dbg_cnt(dbg2      )
     );
 
