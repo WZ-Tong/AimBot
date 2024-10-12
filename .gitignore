@@ -20,3 +20,4 @@ synthesize/**
 
 source/*_backup/**
 constraint_check/**
+temp_projects/**
