@@ -51,6 +51,9 @@
 		{
 			"name": "Source",
 			"path": "source",
+			"file_exclude_patterns": [
+				"*.md"
+			],
 			"folder_exclude_patterns": [
 				"*_backup",
 				"yolo*",
