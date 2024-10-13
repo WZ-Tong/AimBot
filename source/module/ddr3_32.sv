@@ -51,7 +51,7 @@ module ddr3_32 (
     localparam DDR3_RSTN_HOLD_CNT = 50000;
 
     wire ddr3_rstn;
-    rstn_async_hold #(.TICK(DDR3_RSTN_HOLD_CNT)) u_ddr3_rstn (
+    rstn_gen #(.TICK(DDR3_RSTN_HOLD_CNT)) u_ddr3_rstn_gen (
         .clk   (clk      ),
         .i_rstn(rstn     ),
         .o_rstn(ddr3_rstn)

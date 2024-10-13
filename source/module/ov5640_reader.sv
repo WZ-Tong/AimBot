@@ -24,7 +24,7 @@ module ov5640_reader (
 
     localparam CFG_RSTN_HOLD = 'h40000 + 'hffff;
 
-    rstn_async_hold #(.TICK(CFG_RSTN_HOLD)) cam_cfg_rstn_hold (
+    rstn_gen #(.TICK(CFG_RSTN_HOLD)) cam_cfg_rstn_gen (
         .clk   (cfg_clk          ),
         .i_rstn(rstn&clk25_locked),
         .o_rstn(cfg_rstn         )

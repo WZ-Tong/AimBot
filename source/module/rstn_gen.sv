@@ -1,4 +1,4 @@
-module rstn_async_hold #(parameter TICK = 1) (
+module rstn_gen #(parameter TICK = 1) (
     input      clk   ,
     input      i_rstn,
     output reg o_rstn
@@ -19,4 +19,4 @@ module rstn_async_hold #(parameter TICK = 1) (
         end
     end
 
-endmodule : rstn_async_hold
+endmodule : rstn_gen

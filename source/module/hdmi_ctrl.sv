@@ -17,7 +17,7 @@ module hdmi_ctrl (
 
     localparam RSTN_HOLD_CNT = 10_000_000;
 
-    rstn_async_hold #(.TICK(RSTN_HOLD_CNT)) ms72xx_rstn (
+    rstn_gen #(.TICK(RSTN_HOLD_CNT)) ms72xx_rstn_gen (
         .clk   (clk10            ),
         .i_rstn(rstn&clk10_locked),
         .o_rstn(iic_rstn         )

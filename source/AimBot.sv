@@ -79,7 +79,6 @@ module AimBot #(
         .clkout1 (clk10),
         .clkout2 (clk37_125)
     );
-    assign pll_locked = clkl;
 
     // HDMI configure
     hdmi_ctrl u_hdmi_ctrl (
@@ -96,9 +95,9 @@ module AimBot #(
 
     // OV5640 configure & read
     wire        cam1_inited, cam2_inited;
-    wire        cam1_href_565, cam2_href_565;
-    wire        cam1_pclk_565, cam2_pclk_565;
-    wire [15:0] cam1_data_565, cam2_data_565;
+    wire        cam1_href_565, cam2_href_565 /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire        cam1_pclk_565, cam2_pclk_565 /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire [15:0] cam1_data_565, cam2_data_565 /*synthesis PAP_MARK_DEBUG="true"*/;
     assign cam_inited = cam1_inited && cam2_inited;
 
     ov5640_reader u_cam1_reader (
@@ -135,15 +134,15 @@ module AimBot #(
         .cfg_rstn    (cam2_rstn    )
     );
 
-    wire buf_valid;
+    wire comb_valid /*synthesis PAP_MARK_DEBUG="true"*/;
 
-    wire [15:0] pixel_1, pixel_2;
+    wire [15:0] comb_pix_1, comb_pix_2 /*synthesis PAP_MARK_DEBUG="true"*/;
     pixel_combine u_pixel_combine (
         .rclk    (clk37_125    ),   // TODO
         .rstn    (rstn         ),
-        .pixel_1 (pixel_1      ),
-        .pixel_2 (pixel_2      ),
-        .valid   (buf_valid    ),
+        .pixel_1 (comb_pix_1   ),
+        .pixel_2 (comb_pix_2   ),
+        .valid   (comb_valid   ),
         // Cam1
         .inited_1(cam1_inited  ),
         .pclk_1  (cam1_pclk_565),
@@ -159,13 +158,28 @@ module AimBot #(
     tick #(.TICK(((1280*720)/1280)*30), .DBG_CNT(10240)) u_buf_tick (
         .clk (clk37_125),
         .rstn(rstn     ),
-        .trig(buf_valid),
+        .trig(comb_valid), 
         .tick(buf_tick )
     );
 
-    wire         ddr_clk, ddr_clkl;
-    wire [ 27:0] axi_awaddr     ;
-    wire         axi_awuser_ap  ;
+    sync_vg u_sync_vg (
+        .clk   (clk37_125  ),
+        .rstn  (hdmi_inited),
+        .vs_out(hdmi_vsync ),
+        .hs_out(hdmi_hsync ),
+        .de_out(/*unused*/ ),
+        .de_re (/*unused*/ ),
+        .x_act (/*unused*/ ),
+        .y_act (/*unused*/ )
+    );
+    assign hdmi_de = comb_valid;
+    assign hdmi_r  = comb_pix_1[15:11];
+    assign hdmi_g  = comb_pix_1[10:5];
+    assign hdmi_b  = comb_pix_1[4:0];
+
+    wire        ddr_clk, ddr_clkl;
+    wire [27:0] axi_awaddr   ;
+    wire        axi_awuser_ap;
     wire [  3:0] axi_awuser_id  ;
     wire [  3:0] axi_awlen      ;
     wire         axi_awready    ;
