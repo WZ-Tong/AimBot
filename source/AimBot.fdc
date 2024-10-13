@@ -937,6 +937,7 @@ create_clock -name {clk50} [get_ports {clk}] -period {20.000} -waveform {0.000 1
 
 create_generated_clock -name {clk25} -source [get_ports {clk}] [get_nets {u_pll/clkout0}] -master_clock [get_clocks {clk50}] -multiply_by {1} -divide_by {2}
 create_generated_clock -name {clk10} -source [get_ports {clk}] [get_nets {u_pll/clkout1}] -master_clock [get_clocks {clk50}] -multiply_by {1} -divide_by {5}
+create_generated_clock -name {clk37_125} -source [get_ports {clk}] [get_nets {u_pll/clkout2}] -master_clock [get_clocks {clk50}] -multiply_by {3} -divide_by {4}
 
 create_clock -name {cam1_pclk} [get_ports {cam1_pclk}] -period {11.900} -waveform {0.000 5.950}
 create_clock -name {cam2_pclk} [get_ports {cam2_pclk}] -period {11.900} -waveform {0.000 5.950}
