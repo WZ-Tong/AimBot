@@ -937,7 +937,7 @@ create_clock -name {clk50} [get_ports {clk}] -period {20.000} -waveform {0.000 1
 
 create_generated_clock -name {clk25} -source [get_ports {clk}] [get_nets {u_pll/clkout0}] -master_clock [get_clocks {clk50}] -multiply_by {1} -divide_by {2}
 create_generated_clock -name {clk10} -source [get_ports {clk}] [get_nets {u_pll/clkout1}] -master_clock [get_clocks {clk50}] -multiply_by {1} -divide_by {5}
-create_generated_clock -name {clk37_125} -source [get_ports {clk}] [get_nets {u_pll/clkout2}] -master_clock [get_clocks {clk50}] -multiply_by {3} -divide_by {4}
+create_generated_clock -name {clk37_125} -source [get_ports {clk}] [get_nets {u_pll/clkout2}] -master_clock [get_clocks {clk50}] -multiply_by {20} -divide_by {27}
 
 create_clock -name {cam1_pclk} [get_ports {cam1_pclk}] -period {11.900} -waveform {0.000 5.950}
 create_clock -name {cam2_pclk} [get_ports {cam2_pclk}] -period {11.900} -waveform {0.000 5.950}
@@ -954,3 +954,10 @@ create_generated_clock -name {ioclk_gate_clk} -source [get_ports {clk}] [get_pin
 define_attribute {i:u_ddr3_32/u_ddr3_intrinsic.u_ipsxb_ddrphy_pll_0.u_pll_e3} {PAP_LOC} {PLL_158_199}
 define_attribute {i:u_ddr3_32/u_ddr3_intrinsic.u_ipsxb_ddrphy_pll_1.u_pll_e3} {PAP_LOC} {PLL_158_179}
 define_attribute {i:u_ddr3_32/u_ddr3_intrinsic.u_ddrphy_top.ddrphy_reset_ctrl.ddrphy_ioclk_gate} {PAP_LOC} {CLMA_150_192:FF3}
+
+set_clock_groups -name clk50 -asynchronous -group [get_clocks {clk50}]
+set_clock_groups -name clk25 -asynchronous -group [get_clocks {clk25}]
+set_clock_groups -name clk10 -asynchronous -group [get_clocks {clk10}]
+set_clock_groups -name clk37_125 -asynchronous -group [get_clocks {clk37_125}]
+set_clock_groups -name cam1_pclk -asynchronous -group [get_clocks {cam1_pclk}]
+set_clock_groups -name cam2_pclk -asynchronous -group [get_clocks {cam2_pclk}]
