@@ -54,8 +54,7 @@ module AimBot #(
 
     // Debug signals
     output        hdmi_inited,
-    output        cam1_inited,
-    output        cam2_inited,
+    output        cam_inited ,
     output        buf_tick
 );
 
@@ -96,9 +95,11 @@ module AimBot #(
     );
 
     // OV5640 configure & read
-    wire        cam1_href_565,  cam2_href_565;
-    wire        cam1_pclk_565,  cam2_pclk_565;
-    wire [15:0] cam1_data_565,  cam2_data_565;
+    wire        cam1_inited, cam2_inited;
+    wire        cam1_href_565, cam2_href_565;
+    wire        cam1_pclk_565, cam2_pclk_565;
+    wire [15:0] cam1_data_565, cam2_data_565;
+    assign cam_inited = cam1_inited && cam2_inited;
 
     ov5640_reader u_cam1_reader (
         .clk25       (clk25        ),
