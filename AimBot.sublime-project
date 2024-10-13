@@ -54,7 +54,8 @@
 			"folder_exclude_patterns": [
 				"*_backup",
 				"yolo*",
-				"stub"
+				"stub",
+				"ipcore",
 			]
 		},
 		{
