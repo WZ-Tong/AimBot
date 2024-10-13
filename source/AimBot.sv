@@ -7,6 +7,7 @@ module AimBot #(
 ) (
     input         clk        ,
     input         rstn       ,
+    input         svg_rstn   ,
 
     inout         cam1_scl   ,
     inout         cam1_sda   ,
@@ -163,14 +164,14 @@ module AimBot #(
     );
 
     sync_vg u_sync_vg (
-        .clk   (clk37_125  ),
-        .rstn  (hdmi_inited),
-        .vs_out(hdmi_vsync ),
-        .hs_out(hdmi_hsync ),
-        .de_out(/*unused*/ ),
-        .de_re (/*unused*/ ),
-        .x_act (/*unused*/ ),
-        .y_act (/*unused*/ )
+        .clk   (clk37_125 ),
+        .rstn  (svg_rstn  ),
+        .vs_out(hdmi_vsync),
+        .hs_out(hdmi_hsync),
+        .de_out(/*unused*/),
+        .de_re (/*unused*/),
+        .x_act (/*unused*/),
+        .y_act (/*unused*/)
     );
     assign hdmi_de = comb_valid;
     assign hdmi_r  = comb_pix_1[15:11];
