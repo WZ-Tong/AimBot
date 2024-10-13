@@ -4,6 +4,7 @@ module pixel_combine (
     output [15:0] pixel_1 ,
     output [15:0] pixel_2 ,
     output        valid   ,
+    output        finish  ,
 
     input         inited_1,
     input         pclk_1  ,
@@ -21,52 +22,29 @@ module pixel_combine (
 
     localparam LINE_PIX = 1280;
 
-    reg [$clog2(LINE_PIX)-1:0] waddr_1;
-    always_ff @(posedge pclk_1 or negedge rstn) begin
-        if (~rstn || ~inited) begin
-            waddr_1 <= #1 'b0;
-        end else begin
-            if (href_1) begin
-                waddr_1 <= #1 waddr_1 + 1'b1;
-            end else begin
-                waddr_1 <= #1 'b0;
-            end
-        end
-    end
+    reg [$clog2(LINE_PIX)-1:0] waddr_1, waddr_2, raddr;
 
-    reg [$clog2(LINE_PIX)-1:0] waddr_2;
-    always_ff @(posedge pclk_2 or negedge rstn) begin
-        if (~rstn || ~inited) begin
-            waddr_2 <= #1 'b0;
-        end else begin
-            if (href_2) begin
-                waddr_2 <= #1 waddr_2 + 1'b1;
-            end else begin
-                waddr_2 <= #1 'b0;
-            end
-        end
-    end
-
-    wire valid_w;
-    assign valid_w = raddr<waddr_1 && raddr<waddr_2;
-
-    reg valid_d;
-    assign valid = valid_d;
-
-    reg [$clog2(LINE_PIX)-1:0] raddr;
-    always_ff @(posedge rclk or negedge rstn) begin
-        if (~rstn || ~inited) begin
-            raddr   <= #1 'b0;
-            valid_d <= #1 'b0;
-        end else begin
-            valid_d <= #1 valid_w;
-            if (raddr<LINE_PIX && valid_d) begin
-                raddr <= #1 raddr + 1'b1;
-            end else begin
-                raddr <= #1 'b0;
-            end
-        end
-    end
+    waddr_gen #(.NUM(LINE_PIX)) u_cam1_waddr (
+        .clk (pclk_1     ),
+        .rstn(rstn&inited),
+        .en  (href_1     ),
+        .addr(waddr_1    )
+    );
+    waddr_gen #(.NUM(LINE_PIX)) u_cam2_waddr (
+        .clk (pclk_2     ),
+        .rstn(rstn&inited),
+        .en  (href_2     ),
+        .addr(waddr_2    )
+    );
+    raddr_gen #(.NUM(LINE_PIX)) u_raddr (
+        .clk   (rclk       ),
+        .rstn  (rstn&inited),
+        .head_1(waddr_1    ),
+        .head_2(waddr_2    ),
+        .addr  (raddr      ),
+        .valid (valid      ),
+        .finish(finish     )
+    );
 
     wire cam1_rstn = rstn&inited_1;
     line_buf u_cam1_buf (

@@ -155,7 +155,7 @@ module AimBot #(
         .data_2  (cam2_data_565)
     );
 
-    tick #(.TICK(720), .DBG_CNT(1024)) u_buf_tick (
+    tick #(.TICK(((1280*720)/1280)*30), .DBG_CNT(10240)) u_buf_tick (
         .clk (clk37_125),
         .rstn(rstn     ),
         .trig(buf_valid),
