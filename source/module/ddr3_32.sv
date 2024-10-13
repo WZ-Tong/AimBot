@@ -48,9 +48,18 @@ module ddr3_32 (
     output [  3:0] mem_dm
 );
 
+    localparam DDR3_RSTN_HOLD_CNT = 50000;
+
+    wire ddr3_rstn;
+    rstn_async_hold #(.TICK(DDR3_RSTN_HOLD_CNT)) u_ddr3_rstn (
+        .clk   (clk      ),
+        .i_rstn(rstn     ),
+        .o_rstn(ddr3_rstn)
+    );
+
     DDR3_50H u_ddr3_intrinsic (
         .ref_clk                (clk            ),
-        .resetn                 (rstn           ),
+        .resetn                 (ddr3_rstn      ),
         .ddr_init_done          (inited         ),
         .ddrphy_clkin           (phy_clk        ),
         .pll_lock               (phy_clkl       ),

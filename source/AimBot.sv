@@ -137,14 +137,6 @@ module AimBot #(
         .cfg_rstn    (cam2_rstn    )
     );
 
-    localparam DDR3_RSTN_HOLD_CNT = 50000;
-
-    wire ddr3_rstn;
-    rstn_async_hold #(.TICK(DDR3_RSTN_HOLD_CNT)) u_ddr3_rstn (
-        .clk   (clk      ),
-        .i_rstn(rstn     ),
-        .o_rstn(ddr3_rstn)
-    );
 
     wire         ddr_clk, ddr_clkl;
     wire [ 27:0] axi_awaddr     ;
