@@ -425,45 +425,13 @@ define_attribute {p:cam2_inited} {PAP_IO_DRIVE} {8}
 define_attribute {p:cam2_inited} {PAP_IO_NONE} {TRUE}
 define_attribute {p:cam2_inited} {PAP_IO_SLEW} {SLOW}
 
-define_attribute {p:cam1_tick} {PAP_IO_DIRECTION} {OUTPUT}
-define_attribute {p:cam1_tick} {PAP_IO_LOC} {A3}
-define_attribute {p:cam1_tick} {PAP_IO_VCCIO} {3.3}
-define_attribute {p:cam1_tick} {PAP_IO_STANDARD} {LVCMOS33}
-define_attribute {p:cam1_tick} {PAP_IO_DRIVE} {8}
-define_attribute {p:cam1_tick} {PAP_IO_NONE} {TRUE}
-define_attribute {p:cam1_tick} {PAP_IO_SLEW} {SLOW}
-
-define_attribute {p:cam2_tick} {PAP_IO_DIRECTION} {OUTPUT}
-define_attribute {p:cam2_tick} {PAP_IO_LOC} {C5}
-define_attribute {p:cam2_tick} {PAP_IO_VCCIO} {3.3}
-define_attribute {p:cam2_tick} {PAP_IO_STANDARD} {LVCMOS33}
-define_attribute {p:cam2_tick} {PAP_IO_DRIVE} {8}
-define_attribute {p:cam2_tick} {PAP_IO_NONE} {TRUE}
-define_attribute {p:cam2_tick} {PAP_IO_SLEW} {SLOW}
-
-define_attribute {p:ddr_inited} {PAP_IO_DIRECTION} {OUTPUT}
-define_attribute {p:ddr_inited} {PAP_IO_LOC} {A5}
-define_attribute {p:ddr_inited} {PAP_IO_VCCIO} {3.3}
-define_attribute {p:ddr_inited} {PAP_IO_STANDARD} {LVCMOS33}
-define_attribute {p:ddr_inited} {PAP_IO_DRIVE} {8}
-define_attribute {p:ddr_inited} {PAP_IO_NONE} {TRUE}
-define_attribute {p:ddr_inited} {PAP_IO_SLEW} {SLOW}
-
-define_attribute {p:fram_inited} {PAP_IO_DIRECTION} {OUTPUT}
-define_attribute {p:fram_inited} {PAP_IO_LOC} {F7}
-define_attribute {p:fram_inited} {PAP_IO_VCCIO} {3.3}
-define_attribute {p:fram_inited} {PAP_IO_STANDARD} {LVCMOS33}
-define_attribute {p:fram_inited} {PAP_IO_DRIVE} {8}
-define_attribute {p:fram_inited} {PAP_IO_NONE} {TRUE}
-define_attribute {p:fram_inited} {PAP_IO_SLEW} {SLOW}
-
-define_attribute {p:pll_locked} {PAP_IO_DIRECTION} {OUTPUT}
-define_attribute {p:pll_locked} {PAP_IO_LOC} {F8}
-define_attribute {p:pll_locked} {PAP_IO_VCCIO} {3.3}
-define_attribute {p:pll_locked} {PAP_IO_STANDARD} {LVCMOS33}
-define_attribute {p:pll_locked} {PAP_IO_DRIVE} {8}
-define_attribute {p:pll_locked} {PAP_IO_NONE} {TRUE}
-define_attribute {p:pll_locked} {PAP_IO_SLEW} {SLOW}
+define_attribute {p:buf_tick} {PAP_IO_DIRECTION} {OUTPUT}
+define_attribute {p:buf_tick} {PAP_IO_LOC} {A3}
+define_attribute {p:buf_tick} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:buf_tick} {PAP_IO_STANDARD} {LVCMOS33}
+define_attribute {p:buf_tick} {PAP_IO_DRIVE} {8}
+define_attribute {p:buf_tick} {PAP_IO_NONE} {TRUE}
+define_attribute {p:buf_tick} {PAP_IO_SLEW} {SLOW}
 
 # DDR
 define_attribute {p:mem_a[0]} {PAP_IO_DIRECTION} {OUTPUT}

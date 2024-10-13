@@ -1,8 +1,9 @@
 module pixel_combine (
     input         rclk    ,
     input         rstn    ,
-    output [31:0] pixel   ,
-    output        last    ,
+    output [15:0] pixel_1 ,
+    output [15:0] pixel_2 ,
+    output        valid   ,
 
     input         inited_1,
     input         pclk_1  ,
@@ -15,39 +16,54 @@ module pixel_combine (
     input  [15:0] data_2
 );
 
-    wire [15:0] pixel_1, pixel_2;
-    assign pixel = {pixel_1, pixel_2};
+    wire inited;
+    assign inited = inited_1 && inited_2;
 
     localparam LINE_PIX = 1280;
 
-    reg [$clog2(LINE_PIX)-1:0] raddr;
-
-    reg last;
-    always_ff @(posedge rclk or negedge rstn) begin
-        if(~rstn) begin
-            raddr <= #1 'b0;
-            last  <= #1 'b0;
-        end else begin
-            if (raddr < LINE_PIX) begin
-                raddr <= #1 raddr + 1'b1;
-                last  <= #1 'b0;
-            end else begin
-                raddr <= #1 'b0;
-                last  <= #1 'b1;
-            end
-        end
-    end
-
-    // Cam1
     reg [$clog2(LINE_PIX)-1:0] waddr_1;
     always_ff @(posedge pclk_1 or negedge rstn) begin
-        if(~rstn) begin
+        if (~rstn || ~inited) begin
             waddr_1 <= #1 'b0;
         end else begin
             if (href_1) begin
                 waddr_1 <= #1 waddr_1 + 1'b1;
             end else begin
                 waddr_1 <= #1 'b0;
+            end
+        end
+    end
+
+    reg [$clog2(LINE_PIX)-1:0] waddr_2;
+    always_ff @(posedge pclk_2 or negedge rstn) begin
+        if (~rstn || ~inited) begin
+            waddr_2 <= #1 'b0;
+        end else begin
+            if (href_2) begin
+                waddr_2 <= #1 waddr_2 + 1'b1;
+            end else begin
+                waddr_2 <= #1 'b0;
+            end
+        end
+    end
+
+    wire valid_w;
+    assign valid_w = raddr<waddr_1 && raddr<waddr_2;
+
+    reg valid_d;
+    assign valid = valid_d;
+
+    reg [$clog2(LINE_PIX)-1:0] raddr;
+    always_ff @(posedge rclk or negedge rstn) begin
+        if (~rstn || ~inited) begin
+            raddr   <= #1 'b0;
+            valid_d <= #1 'b0;
+        end else begin
+            valid_d <= #1 valid_w;
+            if (raddr<LINE_PIX && valid_d) begin
+                raddr <= #1 raddr + 1'b1;
+            end else begin
+                raddr <= #1 'b0;
             end
         end
     end
@@ -64,20 +80,6 @@ module pixel_combine (
         .rd_addr(raddr     ),
         .rd_data(pixel_1   )
     );
-
-    // Cam2
-    reg [$clog2(LINE_PIX)-1:0] waddr_2;
-    always_ff @(posedge pclk_2 or negedge rstn) begin
-        if(~rstn) begin
-            waddr_2 <= #1 'b0;
-        end else begin
-            if (href_2) begin
-                waddr_2 <= #1 waddr_2 + 1'b1;
-            end else begin
-                waddr_2 <= #1 'b0;
-            end
-        end
-    end
 
     wire cam2_rstn = rstn&inited_2;
     line_buf u_cam2_buf (

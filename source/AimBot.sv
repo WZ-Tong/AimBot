@@ -56,11 +56,7 @@ module AimBot #(
     output        hdmi_inited,
     output        cam1_inited,
     output        cam2_inited,
-    output        cam1_tick  ,
-    output        cam2_tick  ,
-    output        ddr_inited ,
-    output        fram_inited,
-    output        pll_locked
+    output        buf_tick
 );
 
     localparam V_TOTAL = 12'd750;
@@ -75,13 +71,14 @@ module AimBot #(
     localparam H_SYNC  = 12'd40  ;
     localparam H_ACT   = 12'd1280;
 
-    wire clk10, clk25, clkl;
+    wire clk10, clk25, clk37_125, clkl;
     pll u_pll (
         .pll_rst (~rstn),
         .clkin1  (clk  ),
         .pll_lock(clkl ),
         .clkout0 (clk25),
-        .clkout1 (clk10)
+        .clkout1 (clk10),
+        .clkout2 (clk37_125)
     );
     assign pll_locked = clkl;
 
@@ -137,6 +134,33 @@ module AimBot #(
         .cfg_rstn    (cam2_rstn    )
     );
 
+    wire buf_valid;
+
+    wire [15:0] pixel_1, pixel_2;
+    pixel_combine u_pixel_combine (
+        .rclk    (clk37_125    ),   // TODO
+        .rstn    (rstn         ),
+        .pixel_1 (pixel_1      ),
+        .pixel_2 (pixel_2      ),
+        .valid   (buf_valid    ),
+        // Cam1
+        .inited_1(cam1_inited  ),
+        .pclk_1  (cam1_pclk_565),
+        .href_1  (cam1_href    ),
+        .data_1  (cam1_data_565),
+        // Cam2
+        .inited_2(cam2_inited  ),
+        .pclk_2  (cam2_pclk_565),
+        .href_2  (cam2_href    ),
+        .data_2  (cam2_data_565)
+    );
+
+    tick #(.TICK(30*1280), .DBG_CNT(1024)) u_buf_tick (
+        .clk (clk37_125),
+        .rstn(rstn     ),
+        .trig(buf_valid),
+        .tick(buf_tick )
+    );
 
     wire         ddr_clk, ddr_clkl;
     wire [ 27:0] axi_awaddr     ;
@@ -205,24 +229,6 @@ module AimBot #(
         .mem_dqs_n      (mem_dqs_n      ),
         .mem_dq         (mem_dq         ),
         .mem_dm         (mem_dm         )
-    );
-
-    localparam DBG_CNT = 102400;
-
-    wire [$clog2(DBG_CNT)-1:0] dbg1, dbg2;
-    tick #(.TICK(30), .DBG_CNT(DBG_CNT)) u_cam1_cnt (
-        .clk    (ddr_clk   ),
-        .rstn   (rstn      ),
-        .trig   (cam1_vsync),
-        .tick   (cam1_tick ),
-        .dbg_cnt(dbg1      )
-    );
-    tick #(.TICK(30), .DBG_CNT(DBG_CNT)) u_cam2_cnt (
-        .clk    (ddr_clk   ),
-        .rstn   (rstn      ),
-        .trig   (cam2_vsync),
-        .tick   (cam2_tick ),
-        .dbg_cnt(dbg2      )
     );
 
 endmodule : AimBot
