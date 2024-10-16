@@ -173,20 +173,18 @@ module AimBot #(
         .tick(buf_tick  )
     );
 
-    sync_vg u_sync_vg (
-        .clk   (clk37_125 ),
-        .rstn  (rstn      ),
-        .vs_out(hdmi_vsync),
-        .hs_out(hdmi_hsync),
-        .de_out(hdmi_de   ),
-        .de_re (/*unused*/),
-        .x_act (/*unused*/),
-        .y_act (/*unused*/)
+    hsync_gen #(.AFTER(5), .HOLD(5)) u_hsync_gen (
+        .clk  (clk37_125 ),
+        .rstn (rstn      ),
+        .href (cam1_href ),
+        .hsync(hdmi_hsync)
     );
 
-    assign hdmi_r = {comb_pix_1[15:11], 3'b0};
-    assign hdmi_g = {comb_pix_1[10:5],  2'b0};
-    assign hdmi_b = {comb_pix_1[4:0],   3'b0};
+    assign hdmi_r     = {comb_pix_1[15:11], 3'b0};
+    assign hdmi_g     = {comb_pix_1[10:05], 2'b0};
+    assign hdmi_b     = {comb_pix_1[04:00], 3'b0};
+
+    assign hdmi_vsync = cam1_vsync;
 
     wire         ddr_clk, ddr_clkl;
     wire [ 27:0] axi_awaddr     ;
