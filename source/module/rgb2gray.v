@@ -39,7 +39,7 @@ output reg          hs_out    //都照着de一样做相同的打拍操作即可
     );
 
  reg [7:0]    dout1  ;
-assign ycrcb={dout1,14'b0};//只要灰度，cr，cb都为0
+assign ycrcb={dout1,dout1,dout1};//只要灰度，cr，cb都为0
 
 reg [7:0]   data_r;
 reg [7:0]   data_g;
