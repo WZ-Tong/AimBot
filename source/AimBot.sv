@@ -56,7 +56,8 @@ module AimBot #(
     // Debug signals
     output        hdmi_inited,
     output        cam_inited ,
-    output        buf_tick
+    output        buf_tick   ,
+    output        comb_err
 );
 
     localparam V_TOTAL = 12'd750;
@@ -142,13 +143,12 @@ module AimBot #(
 
     wire [15:0] comb_pix_1, comb_pix_2 /*synthesis PAP_MARK_DEBUG="true"*/;
 
-    wire combine_error;
     pixel_combine u_pixel_combine (
         .rclk    (clk37_125    ),
         .rstn    (rstn         ),
         .pixel_1 (comb_pix_1   ),
         .pixel_2 (comb_pix_2   ),
-        .error   (combine_error),
+        .error   (comb_err     ),
         // Cam 1
         .inited_1(cam1_inited  ),
         .hsync_1 (cam1_hsync   ),
