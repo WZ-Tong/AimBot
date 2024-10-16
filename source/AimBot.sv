@@ -182,9 +182,9 @@ module AimBot #(
         .y_act (/*unused*/)
     );
 
-    assign hdmi_r = comb_pix_1[15:11];
-    assign hdmi_g = comb_pix_1[10:5];
-    assign hdmi_b = comb_pix_1[4:0];
+    assign hdmi_r = {comb_pix_1[15:11], 3'b0};
+    assign hdmi_g = {comb_pix_1[10:5],  2'b0};
+    assign hdmi_b = {comb_pix_1[4:0],   3'b0};
 
     wire         ddr_clk, ddr_clkl;
     wire [ 27:0] axi_awaddr     ;
