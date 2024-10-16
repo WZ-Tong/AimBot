@@ -55,7 +55,7 @@ module hsync_gen #(
                         cnt <= #1 cnt + 1'b1;
                     end else begin
                         cnt   <= #1 'b0;
-                        state <= #1 WAIT;
+                        state <= #1 IDLE;
                         hsync <= #1 'b0;
                     end
                 end
