@@ -1,76 +1,103 @@
-module pixel_combine #(parameter LINE_PIX = 1280) (
-    input                         rclk    ,
-    input                         rstn    ,
-    output [                15:0] pixel_1 ,
-    output [                15:0] pixel_2 ,
-    output [$clog2(LINE_PIX)-1:0] ahead   ,
-    output                        valid   ,
-    output                        finish  ,
+module pixel_combine (
+    input             rclk    ,
+    input             rstn    ,
+    output     [15:0] pixel_1 ,
+    output     [15:0] pixel_2 ,
+    output reg        error   ,
 
-    input                         inited_1,
-    input                         pclk_1  ,
-    input                         href_1  ,
-    input  [                15:0] data_1  ,
+    input             inited_1,
+    input             hsync_1 ,
+    input             pclk_1  ,
+    input             href_1  ,
+    input      [15:0] data_1  ,
 
-    input                         inited_2,
-    input                         pclk_2  ,
-    input                         href_2  ,
-    input  [                15:0] data_2
+    input             inited_2,
+    input             hsync_2,
+    input             pclk_2  ,
+    input             href_2  ,
+    input      [15:0] data_2
 );
 
-    wire inited;
-    assign inited = inited_1 && inited_2;
+    localparam H_SYNC_ACTIVE = 1'b1;
 
-    wire [$clog2(LINE_PIX)-1:0] head   ;
-    reg  [$clog2(LINE_PIX)-1:0] waddr_1, waddr_2, raddr;
+    reg re;
 
-    waddr_gen #(.NUM(LINE_PIX)) u_cam1_waddr (
-        .clk (pclk_1     ),
-        .rstn(rstn&inited),
-        .en  (href_1     ),
-        .addr(waddr_1    )
-    );
-    waddr_gen #(.NUM(LINE_PIX)) u_cam2_waddr (
-        .clk (pclk_2     ),
-        .rstn(rstn&inited),
-        .en  (href_2     ),
-        .addr(waddr_2    )
-    );
-    assign head = waddr_1 > waddr_2 ? waddr_1 : waddr_2;
-    raddr_gen #(.NUM(LINE_PIX)) u_raddr (
-        .clk   (rclk       ),
-        .rstn  (rstn&inited),
-        .head  (head       ),
-        .addr  (raddr      ),
-        .valid (valid      ),
-        .finish(finish     )
-    );
-    assign ahead = head - raddr;
+    wire rst_1, rst_2;
+    reg rst_1_d, rst_2_d;
 
-    wire cam1_rstn = rstn&inited_1;
-    line_buf u_cam1_buf (
-        .wr_clk (pclk_1    ),
-        .wr_rst (~cam1_rstn),
-        .wr_en  (href_1    ),
-        .wr_addr(waddr_1   ),
-        .wr_data(data_1    ),
-        .rd_clk (rclk      ),
-        .rd_rst (~rstn     ),
-        .rd_addr(raddr     ),
-        .rd_data(pixel_1   )
+    assign rst_1 = (~inited_1) || (hsync_1==H_SYNC_ACTIVE);
+    assign rst_2 = (~inited_2) || (hsync_2==H_SYNC_ACTIVE);
+
+    always_ff @(posedge rclk or negedge rstn) begin
+        if(~rstn) begin
+            rst_1_d <= #1 'b1;
+            rst_2_d <= #1 'b1;
+        end else begin
+            rst_1_d <= #1 rst_1;
+            rst_2_d <= #1 rst_2;
+        end
+    end
+
+    wire full_1, empty_1, aempty_1;
+    async_fifo u_sync_1 (
+        // Write
+        .wr_data     (data_1    ),
+        .wr_en       (href_1    ),
+        .wr_clk      (pclk_1    ),
+        .wr_rst      (rst_1     ),
+        .wr_full     (full_1    ),
+        .almost_full (/*unused*/),
+        // Read
+        .rd_data     (pixel_1   ),
+        .rd_en       (re        ),
+        .rd_clk      (rclk      ),
+        .rd_rst      (rst_1_d   ),
+        .rd_empty    (empty_1   ),
+        .almost_empty(aempty_1  )
     );
 
-    wire cam2_rstn = rstn&inited_2;
-    line_buf u_cam2_buf (
-        .wr_clk (pclk_2    ),
-        .wr_rst (~cam1_rstn),
-        .wr_en  (href_2    ),
-        .wr_addr(waddr_2   ),
-        .wr_data(data_2    ),
-        .rd_clk (rclk      ),
-        .rd_rst (~rstn     ),
-        .rd_addr(raddr     ),
-        .rd_data(pixel_2   )
+    wire full_2, empty_2, aempty_2;
+    async_fifo u_sync_2 (
+        // Write
+        .wr_data     (data_2    ),
+        .wr_en       (href_2    ),
+        .wr_clk      (pclk_2    ),
+        .wr_rst      (rst_2     ),
+        .wr_full     (full_2    ),
+        .almost_full (/*unused*/),
+        // Read
+        .rd_data     (pixel_2   ),
+        .rd_en       (re        ),
+        .rd_clk      (rclk      ),
+        .rd_rst      (rst_2_d   ),
+        .rd_empty    (empty_2   ),
+        .almost_empty(aempty_2  )
     );
+
+    always_ff @(posedge rclk or negedge rstn) begin
+        if(~rstn) begin
+            error <= #1 'b0;
+        end else begin
+            if (full_1 || full_2) begin
+                error <= #1 'b1;
+            end
+        end
+    end
+
+    always_ff @(posedge rclk or negedge rstn) begin
+        if(~rstn) begin
+            re <= #1 'b0;
+        end else begin
+            if (re) begin
+                if (empty_1 || empty_2) begin
+                    re <= #1 'b0;
+                end
+            end begin
+                if (~aempty_1 && ~aempty_2) begin
+                    re <= #1 'b1;
+                end
+            end
+        end
+    end
 
 endmodule : pixel_combine

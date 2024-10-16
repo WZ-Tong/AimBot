@@ -12,6 +12,7 @@ module ov5640_reader (
     output        href_565    ,
     output        pclk_565    ,
     output [15:0] data_565    ,
+    output        hsync       ,
 
     // Configure
     inout         cfg_scl     ,
@@ -23,6 +24,7 @@ module ov5640_reader (
     assign cfg_clk = clk25;
 
     localparam CFG_RSTN_HOLD = 'h40000 + 'hffff;
+    localparam H_SYNC_ACTIVE = 1'b1            ;
 
     rstn_gen #(.TICK(CFG_RSTN_HOLD)) cam_cfg_rstn_gen (
         .clk   (cfg_clk          ),
@@ -50,6 +52,8 @@ module ov5640_reader (
         vsync_d <= #1 vsync;
         href_d  <= #1 href ;
     end
+
+    assign hsync = href==1 && href_d ==0;
 
     wire [15:0] cam_pix_565;
     cmos_8_16bit cam_pix_reader (

@@ -97,6 +97,8 @@ module AimBot #(
 
     // OV5640 configure & read
     wire cam1_inited, cam2_inited;
+    wire cam1_hsync, cam2_hsync;
+
     wire        cam1_href_565, cam2_href_565 /*synthesis PAP_MARK_DEBUG="true"*/;
     wire        cam1_pclk_565, cam2_pclk_565 /*synthesis PAP_MARK_DEBUG="true"*/;
     wire [15:0] cam1_data_565, cam2_data_565 /*synthesis PAP_MARK_DEBUG="true"*/;
@@ -111,6 +113,7 @@ module AimBot #(
         .pclk        (cam1_pclk    ),
         .data        (cam1_data    ),
         .inited      (cam1_inited  ),
+        .hsync       (cam1_hsync   ),
         .href_565    (cam1_href_565),
         .pclk_565    (cam1_pclk_565),
         .data_565    (cam1_data_565),
@@ -128,6 +131,7 @@ module AimBot #(
         .pclk        (cam2_pclk    ),
         .data        (cam2_data    ),
         .inited      (cam2_inited  ),
+        .hsync       (cam2_hsync   ),
         .href_565    (cam2_href_565),
         .pclk_565    (cam2_pclk_565),
         .data_565    (cam2_data_565),
@@ -136,26 +140,29 @@ module AimBot #(
         .cfg_rstn    (cam2_rstn    )
     );
 
-    wire comb_valid /*synthesis PAP_MARK_DEBUG="true"*/;
-
     wire [15:0] comb_pix_1, comb_pix_2 /*synthesis PAP_MARK_DEBUG="true"*/;
+
+    wire combine_error;
     pixel_combine u_pixel_combine (
-        .rclk    (clk37_125    ),   // TODO
+        .rclk    (clk37_125    ),
         .rstn    (rstn         ),
         .pixel_1 (comb_pix_1   ),
         .pixel_2 (comb_pix_2   ),
-        .valid   (comb_valid   ),
-        // Cam1
+        .error   (combine_error),
+        // Cam 1
         .inited_1(cam1_inited  ),
+        .hsync_1 (cam1_hsync   ),
         .pclk_1  (cam1_pclk_565),
         .href_1  (cam1_href    ),
         .data_1  (cam1_data_565),
-        // Cam2
+        // Cam 2
         .inited_2(cam2_inited  ),
+        .hsync_2 (cam2_hsync   ),
         .pclk_2  (cam2_pclk_565),
         .href_2  (cam2_href    ),
         .data_2  (cam2_data_565)
     );
+
 
     tick #(.TICK(((1280*720)/1280)*30), .DBG_CNT(10240)) u_buf_tick (
         .clk (clk37_125 ),
@@ -175,9 +182,9 @@ module AimBot #(
         .y_act (/*unused*/)
     );
 
-    assign hdmi_r  = comb_pix_1[15:11];
-    assign hdmi_g  = comb_pix_1[10:5];
-    assign hdmi_b  = comb_pix_1[4:0];
+    assign hdmi_r = comb_pix_1[15:11];
+    assign hdmi_g = comb_pix_1[10:5];
+    assign hdmi_b = comb_pix_1[4:0];
 
     wire         ddr_clk, ddr_clkl;
     wire [ 27:0] axi_awaddr     ;
