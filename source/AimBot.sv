@@ -25,6 +25,7 @@ module AimBot #(
     input  [ 7:0] cam2_data  ,
     output        cam2_rstn  ,
 
+    output        hdmi_clk   ,
     output        hdmi_hsync ,
     output        hdmi_vsync ,
     output        hdmi_de    ,
@@ -32,7 +33,6 @@ module AimBot #(
     output [ 7:0] hdmi_g     ,
     output [ 7:0] hdmi_b     ,
 
-    // Ctrl signals
     output        hdmi_rstn  ,
     output        hdmi_scl   ,
     inout         hdmi_sda   ,
@@ -73,13 +73,14 @@ module AimBot #(
 
     wire clk10, clk25, clk37_125, clkl;
     pll u_pll (
-        .pll_rst (~rstn),
-        .clkin1  (clk  ),
-        .pll_lock(clkl ),
-        .clkout0 (clk25),
-        .clkout1 (clk10),
+        .pll_rst (~rstn    ),
+        .clkin1  (clk      ),
+        .pll_lock(clkl     ),
+        .clkout0 (clk25    ),
+        .clkout1 (clk10    ),
         .clkout2 (clk37_125)
     );
+    assign hdmi_clk = clk37_125;
 
     // HDMI configure
     hdmi_ctrl u_hdmi_ctrl (
@@ -95,7 +96,7 @@ module AimBot #(
     );
 
     // OV5640 configure & read
-    wire        cam1_inited, cam2_inited;
+    wire cam1_inited, cam2_inited;
     wire        cam1_href_565, cam2_href_565 /*synthesis PAP_MARK_DEBUG="true"*/;
     wire        cam1_pclk_565, cam2_pclk_565 /*synthesis PAP_MARK_DEBUG="true"*/;
     wire [15:0] cam1_data_565, cam2_data_565 /*synthesis PAP_MARK_DEBUG="true"*/;
@@ -157,30 +158,30 @@ module AimBot #(
     );
 
     tick #(.TICK(((1280*720)/1280)*30), .DBG_CNT(10240)) u_buf_tick (
-        .clk (clk37_125),
-        .rstn(rstn     ),
-        .trig(comb_valid), 
-        .tick(buf_tick )
+        .clk (clk37_125 ),
+        .rstn(rstn      ),
+        .trig(comb_valid),
+        .tick(buf_tick  )
     );
 
     sync_vg u_sync_vg (
         .clk   (clk37_125 ),
-        .rstn  (svg_rstn  ),
+        .rstn  (rstn      ),
         .vs_out(hdmi_vsync),
         .hs_out(hdmi_hsync),
-        .de_out(/*unused*/),
+        .de_out(hdmi_de   ),
         .de_re (/*unused*/),
         .x_act (/*unused*/),
         .y_act (/*unused*/)
     );
-    assign hdmi_de = comb_valid;
+
     assign hdmi_r  = comb_pix_1[15:11];
     assign hdmi_g  = comb_pix_1[10:5];
     assign hdmi_b  = comb_pix_1[4:0];
 
-    wire        ddr_clk, ddr_clkl;
-    wire [27:0] axi_awaddr   ;
-    wire        axi_awuser_ap;
+    wire         ddr_clk, ddr_clkl;
+    wire [ 27:0] axi_awaddr     ;
+    wire         axi_awuser_ap  ;
     wire [  3:0] axi_awuser_id  ;
     wire [  3:0] axi_awlen      ;
     wire         axi_awready    ;

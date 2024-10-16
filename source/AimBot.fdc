@@ -17,7 +17,15 @@ define_attribute {p:svg_rstn} {PAP_IO_VCCIO} {3.3}
 define_attribute {p:svg_rstn} {PAP_IO_STANDARD} {LVCMOS33}
 define_attribute {p:svg_rstn} {PAP_IO_NONE} {TRUE}
 
-# HDMI Color
+# HDMI
+define_attribute {p:hdmi_clk} {PAP_IO_DIRECTION} {OUTPUT}
+define_attribute {p:hdmi_clk} {PAP_IO_LOC} {M22}
+define_attribute {p:hdmi_clk} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:hdmi_clk} {PAP_IO_STANDARD} {LVCMOS33}
+define_attribute {p:hdmi_clk} {PAP_IO_DRIVE} {8}
+define_attribute {p:hdmi_clk} {PAP_IO_NONE} {TRUE}
+define_attribute {p:hdmi_clk} {PAP_IO_SLEW} {FAST}
+
 define_attribute {p:hdmi_b[7]} {PAP_IO_DIRECTION} {OUTPUT}
 define_attribute {p:hdmi_b[7]} {PAP_IO_LOC} {P19}
 define_attribute {p:hdmi_b[7]} {PAP_IO_VCCIO} {3.3}
