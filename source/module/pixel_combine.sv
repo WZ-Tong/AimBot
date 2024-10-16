@@ -3,6 +3,7 @@ module pixel_combine (
     input             rstn    ,
     output     [15:0] pixel_1 ,
     output     [15:0] pixel_2 ,
+    output            valid   ,
     output reg        error   ,
 
     input             inited_1,
@@ -12,7 +13,7 @@ module pixel_combine (
     input      [15:0] data_1  ,
 
     input             inited_2,
-    input             hsync_2,
+    input             hsync_2 ,
     input             pclk_2  ,
     input             href_2  ,
     input      [15:0] data_2
@@ -21,6 +22,7 @@ module pixel_combine (
     localparam H_SYNC_ACTIVE = 1'b1;
 
     reg re;
+    assign valid = re;
 
     wire rst_1, rst_2;
     reg rst_1_d, rst_2_d;

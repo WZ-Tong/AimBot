@@ -141,6 +141,7 @@ module AimBot #(
         .cfg_rstn    (cam2_rstn    )
     );
 
+    wire comb_href /*synthesis PAP_MARK_DEBUG="true"*/;
     wire [15:0] comb_pix_1, comb_pix_2 /*synthesis PAP_MARK_DEBUG="true"*/;
 
     pixel_combine u_pixel_combine (
@@ -149,6 +150,7 @@ module AimBot #(
         .pixel_1 (comb_pix_1   ),
         .pixel_2 (comb_pix_2   ),
         .error   (comb_err     ),
+        .valid   (comb_href    ),
         // Cam 1
         .inited_1(cam1_inited  ),
         .hsync_1 (cam1_hsync   ),
