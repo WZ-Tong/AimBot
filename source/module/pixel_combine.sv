@@ -1,4 +1,4 @@
-module pixel_combine (
+module pixel_combine #(parameter LINE_PIX = 1280) (
     input                         rclk    ,
     input                         rstn    ,
     output [                15:0] pixel_1 ,
@@ -20,8 +20,6 @@ module pixel_combine (
 
     wire inited;
     assign inited = inited_1 && inited_2;
-
-    localparam LINE_PIX = 1280;
 
     wire [$clog2(LINE_PIX)-1:0] head   ;
     reg  [$clog2(LINE_PIX)-1:0] waddr_1, waddr_2, raddr;
