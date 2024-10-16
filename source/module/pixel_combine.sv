@@ -1,20 +1,21 @@
 module pixel_combine (
-    input         rclk    ,
-    input         rstn    ,
-    output [15:0] pixel_1 ,
-    output [15:0] pixel_2 ,
-    output        valid   ,
-    output        finish  ,
+    input                         rclk    ,
+    input                         rstn    ,
+    output [                15:0] pixel_1 ,
+    output [                15:0] pixel_2 ,
+    output [$clog2(LINE_PIX)-1:0] ahead   ,
+    output                        valid   ,
+    output                        finish  ,
 
-    input         inited_1,
-    input         pclk_1  ,
-    input         href_1  ,
-    input  [15:0] data_1  ,
+    input                         inited_1,
+    input                         pclk_1  ,
+    input                         href_1  ,
+    input  [                15:0] data_1  ,
 
-    input         inited_2,
-    input         pclk_2  ,
-    input         href_2  ,
-    input  [15:0] data_2
+    input                         inited_2,
+    input                         pclk_2  ,
+    input                         href_2  ,
+    input  [                15:0] data_2
 );
 
     wire inited;
@@ -22,7 +23,8 @@ module pixel_combine (
 
     localparam LINE_PIX = 1280;
 
-    reg [$clog2(LINE_PIX)-1:0] waddr_1, waddr_2, raddr;
+    wire [$clog2(LINE_PIX)-1:0] head   ;
+    reg  [$clog2(LINE_PIX)-1:0] waddr_1, waddr_2, raddr;
 
     waddr_gen #(.NUM(LINE_PIX)) u_cam1_waddr (
         .clk (pclk_1     ),
@@ -36,15 +38,16 @@ module pixel_combine (
         .en  (href_2     ),
         .addr(waddr_2    )
     );
+    assign head = waddr_1 > waddr_2 ? waddr_1 : waddr_2;
     raddr_gen #(.NUM(LINE_PIX)) u_raddr (
         .clk   (rclk       ),
         .rstn  (rstn&inited),
-        .head_1(waddr_1    ),
-        .head_2(waddr_2    ),
+        .head  (head       ),
         .addr  (raddr      ),
         .valid (valid      ),
         .finish(finish     )
     );
+    assign ahead = head - raddr;
 
     wire cam1_rstn = rstn&inited_1;
     line_buf u_cam1_buf (
