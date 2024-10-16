@@ -173,7 +173,7 @@ module AimBot #(
         .tick(buf_tick )
     );
 
-    hsync_gen #(.AFTER(5), .HOLD(5)) u_hsync_gen (
+    hsync_gen #(.AFTER(8), .HOLD(8)) u_hsync_gen (
         .clk  (clk37_125 ),
         .rstn (rstn      ),
         .href (comb_href ),

@@ -1,6 +1,6 @@
 module hsync_gen #(
-    parameter AFTER = 100,
-    parameter HOLD  = 100
+    parameter AFTER = 1,
+    parameter HOLD  = 1
 ) (
     input      clk  ,
     input      rstn ,
@@ -42,7 +42,7 @@ module hsync_gen #(
                     end
                 end
                 WAIT : begin
-                    if (cnt<AFTER) begin
+                    if (cnt!=AFTER-1) begin
                         cnt <= #1 cnt + 1'b1;
                     end else begin
                         cnt   <= #1 'b0;
@@ -51,7 +51,7 @@ module hsync_gen #(
                     end
                 end
                 SYNC : begin
-                    if (cnt<HOLD) begin
+                    if (cnt!=HOLD-1) begin
                         cnt <= #1 cnt + 1'b1;
                     end else begin
                         cnt   <= #1 'b0;
