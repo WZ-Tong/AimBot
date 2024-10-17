@@ -4,7 +4,7 @@ module pixel_combine (
     output     [15:0] pixel_1 ,
     output     [15:0] pixel_2 ,
     output            valid   ,
-    output reg        error   ,
+    output reg        error     /*synthesis PAP_MARK_DEBUG="true"*/,
 
     input             inited_1,
     input             hsync_1 ,
@@ -22,10 +22,10 @@ module pixel_combine (
     localparam H_SYNC_ACTIVE = 1'b1;
 
     reg re;
-    assign valid = re;
+    assign valid = re /*synthesis PAP_MARK_DEBUG="true"*/;
 
-    wire rst_1, rst_2;
-    reg rst_1_d, rst_2_d;
+    wire rst_1, rst_2 /*synthesis PAP_MARK_DEBUG="true"*/;
+    reg rst_1_d, rst_2_d /*synthesis PAP_MARK_DEBUG="true"*/;
 
     assign rst_1 = (~inited_1) || (hsync_1==H_SYNC_ACTIVE);
     assign rst_2 = (~inited_2) || (hsync_2==H_SYNC_ACTIVE);
@@ -40,7 +40,7 @@ module pixel_combine (
         end
     end
 
-    wire full_1, empty_1, aempty_1;
+    wire full_1, empty_1, aempty_1 /*synthesis PAP_MARK_DEBUG="true"*/;
     async_fifo u_sync_1 (
         // Write
         .wr_data     (data_1    ),
@@ -58,7 +58,7 @@ module pixel_combine (
         .almost_empty(aempty_1  )
     );
 
-    wire full_2, empty_2, aempty_2;
+    wire full_2, empty_2, aempty_2 /*synthesis PAP_MARK_DEBUG="true"*/;
     async_fifo u_sync_2 (
         // Write
         .wr_data     (data_2    ),
