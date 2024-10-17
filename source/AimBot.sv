@@ -183,7 +183,7 @@ module AimBot #(
         .clk      (clk37_125 ),
         .rstn     (rstn      ),
         .cam_href (comb_href ),
-        .cam_vsync(cam_vsync ),
+        .cam_vsync(cam1_vsync),
         .hsync    (hdmi_hsync),
         .vsync    (hdmi_vsync)
     );

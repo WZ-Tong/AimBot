@@ -11,11 +11,11 @@ module sync_gen #(
 ) (
     input      clk      ,
     input      rstn     ,
-    input      cam_href ,
-    input      cam_vsync,
+    input      cam_href   /*synthesis PAP_MARK_DEBUG="true"*/,
+    input      cam_vsync  /*synthesis PAP_MARK_DEBUG="true"*/,
 
-    output reg hsync    ,
-    output reg vsync
+    output reg hsync      /*synthesis PAP_MARK_DEBUG="true"*/,
+    output reg vsync      /*synthesis PAP_MARK_DEBUG="true"*/
 );
 
     reg cam_href_d;
@@ -65,9 +65,14 @@ module sync_gen #(
             case (state)
                 PASSIVE_H_ACTIVE : begin
                     if (cam_href==0 && cam_href_d==1) begin
-                        v_cnt <= #1 v_cnt + 1'b1;
                         h_cnt <= #1 'b0;
                         state <= #1 PASSIVE_H_FP;
+                        if (vsynced) begin
+                            vsynced <= #1 'b0;
+                            v_cnt   <= #1 'b0;
+                        end else begin
+                            v_cnt <= #1 v_cnt + 1'b1;
+                        end
                     end
                 end
                 PASSIVE_H_FP : begin
@@ -85,7 +90,7 @@ module sync_gen #(
                     end else begin
                         h_cnt <= #1 'b0;
                         hsync <= #1 'b0;
-                        if (v_cnt==V_ACT+V_FP+V_SYNC /* TODO: Check this */) begin
+                        if (v_cnt==V_ACT/* TODO: Check this */) begin
                             state <= #1 ACTIVE_H_WAIT_REF;
                         end else begin
                             state   <= #1 PASSIVE_H_WAIT_REF;
@@ -96,9 +101,6 @@ module sync_gen #(
                 PASSIVE_H_WAIT_REF : begin
                     if (cam_href==1 && cam_href_d==0) begin
                         state <= #1 PASSIVE_H_ACTIVE;
-                    end else if (vsynced) begin
-                        vsynced <= #1 'b0;
-                        v_cnt   <= #1 'b0;
                     end else begin
                         h_total <= #1 h_total + 1'b1;
                     end
