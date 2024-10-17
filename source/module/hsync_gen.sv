@@ -1,6 +1,6 @@
 module hsync_gen #(
-    parameter AFTER = 1,
-    parameter HOLD  = 1
+    parameter H_FP   = 110,
+    parameter H_SYNC = 40
 ) (
     input      clk  ,
     input      rstn ,
@@ -9,7 +9,7 @@ module hsync_gen #(
     output reg hsync
 );
 
-    localparam CNT = AFTER > HOLD ? AFTER : HOLD;
+    localparam CNT = H_FP > H_SYNC ? H_FP : H_SYNC;
 
     reg href_d;
 
@@ -42,7 +42,7 @@ module hsync_gen #(
                     end
                 end
                 WAIT : begin
-                    if (cnt!=AFTER-1) begin
+                    if (cnt!=H_FP-1) begin
                         cnt <= #1 cnt + 1'b1;
                     end else begin
                         cnt   <= #1 'b0;
@@ -51,7 +51,7 @@ module hsync_gen #(
                     end
                 end
                 SYNC : begin
-                    if (cnt!=HOLD-1) begin
+                    if (cnt!=H_SYNC-1) begin
                         cnt <= #1 cnt + 1'b1;
                     end else begin
                         cnt   <= #1 'b0;

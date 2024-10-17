@@ -172,7 +172,6 @@ module AimBot #(
     );
     assign comb_err = ~comb_err_w;
 
-
     tick #(.TICK(((1280*720)/1280)*30), .DBG_CNT(10240)) u_buf_tick (
         .clk (clk37_125),
         .rstn(rstn     ),
@@ -180,7 +179,7 @@ module AimBot #(
         .tick(buf_tick )
     );
 
-    hsync_gen #(.AFTER(8), .HOLD(8)) u_hsync_gen (
+    hsync_gen #(.H_FP(110), .H_SYNC(40)) u_hsync_gen (
         .clk  (clk37_125 ),
         .rstn (rstn      ),
         .href (comb_href ),
