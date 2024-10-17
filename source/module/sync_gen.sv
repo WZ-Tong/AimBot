@@ -1,11 +1,11 @@
 module sync_gen #(
-    parameter V_FP   = 18  ,
-    parameter V_SYNC = 100 ,
-    parameter V_ACT  = 720 ,
+    parameter V_DELAY = 5   ,
+    parameter V_FP    = 13  ,
+    parameter V_ACT   = 720 ,
 
-    parameter H_FP   = 220 ,
-    parameter H_SYNC = 100 ,
-    parameter H_ACT  = 1280
+    parameter H_FP    = 150 ,
+    parameter H_SYNC  = 40  ,
+    parameter H_ACT   = 1280
 ) (
     input      clk      ,
     input      rstn     ,
@@ -25,8 +25,8 @@ module sync_gen #(
         end
     end
 
-    localparam V_TOTAL = V_FP + V_ACT;
-    localparam H_TOTAL = H_FP + H_ACT;
+    localparam V_TOTAL = V_FP + V_ACT + V_DELAY;
+    localparam H_TOTAL = H_FP + H_ACT         ;
 
     reg [$clog2(V_TOTAL)-1:0] v_cnt /*synthesis PAP_MARK_DEBUG="true"*/;
     reg [$clog2(H_TOTAL)-1:0] h_cnt /*synthesis PAP_MARK_DEBUG="true"*/;
@@ -62,6 +62,7 @@ module sync_gen #(
 
             case (state)
                 PASSIVE_H_ACTIVE : begin
+                    vsync <= #1 'b0;
                     if (cam_href==0 && cam_href_d==1) begin
                         h_cnt <= #1 'b0;
                         state <= #1 PASSIVE_H_FP;
@@ -128,6 +129,11 @@ module sync_gen #(
                         h_cnt <= #1 'b0;
                         hsync <= #1 'b1;
                         state <= #1 ACTIVE_H_SYNC;
+                        if (v_cnt==V_DELAY+V_ACT-1) begin
+                            vsync <= #1 'b1;
+                        end else if (v_cnt==V_DELAY+V_ACT+V_DELAY-1/* TODO: Check this */) begin
+                            vsync <= #1 'b0;
+                        end
                     end
                 end
                 ACTIVE_H_SYNC : begin
