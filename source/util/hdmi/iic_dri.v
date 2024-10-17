@@ -150,7 +150,7 @@ module iic_dri #(
     reg [7:0] receiv_data=8'd0;
     reg       trans_en=0;
     reg       trans_over=0;
-    reg       scl_out= 1'b1/*synthesis PAP_MARK_DEBUG="true"*/;
+    reg       scl_out= 1'b1;
     
 //    assign sda = sda_out_en ? sda_out : 1'bz;
 //    assign sda_in = sda;

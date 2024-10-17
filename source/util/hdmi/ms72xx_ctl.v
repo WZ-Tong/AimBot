@@ -49,7 +49,7 @@ module ms72xx_ctl(
     wire   [7:0] device_id_rx;
     wire         iic_trig_rx ;
     wire         w_r_rx      ;
-    wire  [15:0] addr_rx     /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire  [15:0] addr_rx     ;
     wire  [ 7:0] data_in_rx  ;
     wire         busy_rx     ;
     wire  [ 7:0] data_out_rx ;
@@ -58,7 +58,7 @@ module ms72xx_ctl(
     wire   [7:0] device_id_tx;
     wire         iic_trig_tx ;
     wire         w_r_tx      ;
-    wire  [15:0] addr_tx     /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire  [15:0] addr_tx     ;
     wire  [ 7:0] data_in_tx  ;
     wire         busy_tx     ;
     wire  [ 7:0] data_out_tx ;
@@ -67,11 +67,11 @@ module ms72xx_ctl(
 //    wire   [7:0] device_id   ;
 //    wire         iic_trig    ;
 //    wire         w_r         ;
-//    wire  [15:0] addr        /*synthesis PAP_MARK_DEBUG="true"*/;
+//    wire  [15:0] addr        ;
 //    wire  [ 7:0] data_in     ;
 //    wire         busy        ;
-//    wire  [ 7:0] data_out    /*synthesis PAP_MARK_DEBUG="true"*/;
-//    wire         byte_over   /*synthesis PAP_MARK_DEBUG="true"*/;
+//    wire  [ 7:0] data_out    ;
+//    wire         byte_over   ;
 
     ms7200_ctl ms7200_ctl (
         .clk      (clk         ),   //input
@@ -101,9 +101,9 @@ module ms72xx_ctl(
         .byte_over(byte_over_tx)    //input
     );
 
-    wire         sda_in/*synthesis PAP_MARK_DEBUG="true"*/;
-    wire         sda_out/*synthesis PAP_MARK_DEBUG="true"*/;
-    wire         sda_out_en/*synthesis PAP_MARK_DEBUG="true"*/;
+    wire         sda_in;
+    wire         sda_out;
+    wire         sda_out_en;
     iic_dri #(
         .CLK_FRE  (27'd10_000_000),   //parameter            CLK_FRE   = 27'd50_000_000,//system clock frequency
         .IIC_FREQ (20'd400_000   ),   //parameter            IIC_FREQ  = 20'd400_000,   //I2c clock frequency
@@ -132,9 +132,9 @@ module ms72xx_ctl(
     assign iic_sda = sda_out_en ? sda_out : 1'bz;
     assign sda_in  = iic_sda;
 
-    wire         sda_tx_in/*synthesis PAP_MARK_DEBUG="true"*/;
-    wire         sda_tx_out/*synthesis PAP_MARK_DEBUG="true"*/;
-    wire         sda_tx_out_en/*synthesis PAP_MARK_DEBUG="true"*/;
+    wire         sda_tx_in;
+    wire         sda_tx_out;
+    wire         sda_tx_out_en;
     iic_dri #(
         .CLK_FRE  (27'd10_000_000),   //parameter            CLK_FRE   = 27'd50_000_000,//system clock frequency
         .IIC_FREQ (20'd400_000   ),   //parameter            IIC_FREQ  = 20'd400_000,   //I2c clock frequency

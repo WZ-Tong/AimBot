@@ -30,12 +30,12 @@ module sync_gen #(
     localparam V_TOTAL = V_FP + /*V_BP +*/ V_SYNC + V_ACT;
     localparam H_TOTAL = H_FP + /*H_BP +*/ H_SYNC + H_ACT;
 
-    reg [$clog2(V_TOTAL)-1:0] v_cnt;
-    reg [$clog2(H_TOTAL)-1:0] h_cnt;
+    reg [$clog2(V_TOTAL)-1:0] v_cnt /*synthesis PAP_MARK_DEBUG="true"*/;
+    reg [$clog2(H_TOTAL)-1:0] h_cnt /*synthesis PAP_MARK_DEBUG="true"*/;
 
-    reg [$clog2(H_TOTAL)-1:0] h_total;
+    reg [$clog2(H_TOTAL)-1:0] h_total /*synthesis PAP_MARK_DEBUG="true"*/;
 
-    reg vsynced;
+    reg vsynced /*synthesis PAP_MARK_DEBUG="true"*/;
 
     localparam PASSIVE_H_ACTIVE   = 3'b000;
     localparam PASSIVE_H_FP       = 3'b001;
@@ -47,7 +47,7 @@ module sync_gen #(
     localparam ACTIVE_H_SYNC     = 3'b110;
     localparam ACTIVE_H_WAIT_REF = 3'b111;
 
-    reg [2:0] state;
+    reg [2:0] state /*synthesis PAP_MARK_DEBUG="true"*/;
 
     always_ff @(posedge clk or negedge rstn) begin
         if(~rstn) begin
