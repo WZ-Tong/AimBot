@@ -154,9 +154,9 @@ module AimBot #(
         .data_2  (cam2_data_565)
     );
     rstn_gen #(.TICK(500000)) u_comb_err_gen (
-        .clk   (clk   ),
+        .clk   (clk        ),
         .i_rstn(~comb_err_p),
-        .o_rstn(comb_err_w)
+        .o_rstn(comb_err_w )
     );
     assign comb_err = ~comb_err_w;
 
