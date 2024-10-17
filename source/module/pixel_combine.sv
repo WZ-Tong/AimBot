@@ -80,9 +80,7 @@ module pixel_combine (
         if(~rstn) begin
             error <= #1 'b0;
         end else begin
-            if (full_1 || full_2) begin
-                error <= #1 'b1;
-            end
+            error <= #1 full_1 || full_2;
         end
     end
 
