@@ -60,26 +60,14 @@ module AimBot #(
     output        comb_err
 );
 
-    localparam V_TOTAL = 12'd750;
-    localparam V_FP    = 12'd5  ;
-    localparam V_BP    = 12'd20 ;
-    localparam V_SYNC  = 12'd5  ;
-    localparam V_ACT   = 12'd720;
-
-    localparam H_TOTAL = 12'd1650;
-    localparam H_FP    = 12'd110 ;
-    localparam H_BP    = 12'd220 ;
-    localparam H_SYNC  = 12'd40  ;
-    localparam H_ACT   = 12'd1280;
-
     wire clk10, clk25, clk37_125, clkl;
     pll u_pll (
         .pll_rst (~rstn    ),
         .clkin1  (clk      ),
         .pll_lock(clkl     ),
-        .clkout0 (clk25    ),
-        .clkout1 (clk10    ),
-        .clkout2 (clk37_125)
+        .clkout0 (clk37_125),
+        .clkout1 (clk25    ),
+        .clkout2 (clk10    )
     );
     assign hdmi_clk = clk37_125;
 

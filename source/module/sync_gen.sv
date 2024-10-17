@@ -1,10 +1,10 @@
 module sync_gen #(
     parameter V_FP   = 18  ,
-    parameter V_SYNC = 40  ,
+    parameter V_SYNC = 100 ,
     parameter V_ACT  = 720 ,
 
     parameter H_FP   = 220 ,
-    parameter H_SYNC = 40  ,
+    parameter H_SYNC = 100 ,
     parameter H_ACT  = 1280
 ) (
     input      clk      ,
