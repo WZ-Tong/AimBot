@@ -97,7 +97,8 @@ module sync_gen #(
                     if (cam_href==1 && cam_href_d==0) begin
                         state <= #1 PASSIVE_H_ACTIVE;
                     end else if (vsynced) begin
-                        v_cnt <= #1 'b0;
+                        vsynced <= #1 'b0;
+                        v_cnt   <= #1 'b0;
                     end else begin
                         h_total <= #1 h_total + 1'b1;
                     end
