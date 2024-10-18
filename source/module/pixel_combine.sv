@@ -7,13 +7,13 @@ module pixel_combine (
     output reg        error     /*synthesis PAP_MARK_DEBUG="true"*/,
 
     input             inited_1,
-    input             hsync_1 ,
+    input             hsync_1   /*synthesis PAP_MARK_DEBUG="true"*/,
     input             pclk_1  ,
     input             href_1  ,
     input      [15:0] data_1  ,
 
     input             inited_2,
-    input             hsync_2 ,
+    input             hsync_2   /*synthesis PAP_MARK_DEBUG="true"*/,
     input             pclk_2  ,
     input             href_2  ,
     input      [15:0] data_2
@@ -21,8 +21,8 @@ module pixel_combine (
 
     localparam H_SYNC_ACTIVE = 1'b1;
 
-    reg re;
-    assign valid = re /*synthesis PAP_MARK_DEBUG="true"*/;
+    reg read_en /*synthesis PAP_MARK_DEBUG="true"*/;
+    assign valid = read_en;
 
     wire rst_1, rst_2 /*synthesis PAP_MARK_DEBUG="true"*/;
     reg rst_1_d, rst_2_d /*synthesis PAP_MARK_DEBUG="true"*/;
@@ -51,7 +51,7 @@ module pixel_combine (
         .almost_full (/*unused*/),
         // Read
         .rd_data     (pixel_1   ),
-        .rd_en       (re        ),
+        .rd_en       (read_en   ),
         .rd_clk      (rclk      ),
         .rd_rst      (rst_1_d   ),
         .rd_empty    (empty_1   ),
@@ -69,7 +69,7 @@ module pixel_combine (
         .almost_full (/*unused*/),
         // Read
         .rd_data     (pixel_2   ),
-        .rd_en       (re        ),
+        .rd_en       (read_en   ),
         .rd_clk      (rclk      ),
         .rd_rst      (rst_2_d   ),
         .rd_empty    (empty_2   ),
@@ -86,15 +86,15 @@ module pixel_combine (
 
     always_ff @(posedge rclk or negedge rstn) begin
         if(~rstn) begin
-            re <= #1 'b0;
+            read_en <= #1 'b0;
         end else begin
-            if (re) begin
+            if (read_en) begin
                 if (empty_1 || empty_2) begin
-                    re <= #1 'b0;
+                    read_en <= #1 'b0;
                 end
             end begin
                 if (~aempty_1 && ~aempty_2) begin
-                    re <= #1 'b1;
+                    read_en <= #1 'b1;
                 end
             end
         end
