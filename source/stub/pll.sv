@@ -6,7 +6,8 @@ module pll (
     output clkout0 ,
     output clkout1 ,
     output clkout2 ,
-    output clkout3
+    output clkout3 ,
+    output clkout4
 );
 
 endmodule : pll

@@ -60,7 +60,7 @@ module AimBot #(
     output        comb_err
 );
 
-    wire clk10, clk25, clk37_125, clk150, clkl;
+    wire clk10, clk25, clk37_125, clk36_9, clk150, clkl;
     pll u_pll (
         .pll_rst (~rstn    ),
         .clkin1  (clk      ),
@@ -68,9 +68,10 @@ module AimBot #(
         .clkout0 (clk37_125),
         .clkout1 (clk25    ),
         .clkout2 (clk10    ),
-        .clkout3 (clk150   )
+        .clkout3 (clk150   ),
+        .clkout4 (clk36_9  )
     );
-    assign hdmi_clk = clk37_125;
+    assign hdmi_clk = clk36_9;
 
     wire debug_clk /*synthesis PAP_MARK_DEBUG="true"*/;
     assign debug_clk = clk150;
@@ -135,7 +136,7 @@ module AimBot #(
     wire [15:0] comb_pix_1, comb_pix_2 /*synthesis PAP_MARK_DEBUG="true"*/;
 
     pixel_combine u_pixel_combine (
-        .rclk    (clk37_125    ),
+        .rclk    (hdmi_clk     ),
         .rstn    (rstn         ),
         .pixel_1 (comb_pix_1   ),
         .pixel_2 (comb_pix_2   ),
@@ -160,14 +161,14 @@ module AimBot #(
     assign comb_err = ~comb_err_w;
 
     tick #(.TICK(((1280*720)/1280)*30), .DBG_CNT(10240)) u_buf_tick (
-        .clk (clk37_125),
+        .clk (hdmi_clk),
         .rstn(rstn     ),
         .trig(comb_href),
         .tick(buf_tick )
     );
 
     sync_gen u_sync_gen (
-        .clk      (clk37_125 ),
+        .clk      (hdmi_clk ),
         .rstn     (rstn      ),
         .cam_href (comb_href ),
         .cam_vsync(cam1_vsync),
@@ -180,6 +181,16 @@ module AimBot #(
     assign hdmi_r = {comb_pix_1[15:11], 3'b0};
     assign hdmi_g = {comb_pix_1[10:05], 2'b0};
     assign hdmi_b = {comb_pix_1[04:00], 3'b0};
+
+    wire svg_vs, svg_hs, svg_de, svg_dre /*synthesis PAP_MARK_DEBUG="true"*/;
+    sync_vg u_sync_vg (
+        .clk   (clk37_125),
+        .rstn  (rstn     ),
+        .vs_out(svg_vs   ),
+        .hs_out(svg_hs   ),
+        .de_out(svg_de   ),
+        .de_re (svg_dre  )
+    );
 
     wire         ddr_clk, ddr_clkl;
     wire [ 27:0] axi_awaddr     ;
