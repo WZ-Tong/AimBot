@@ -3,7 +3,7 @@ module pixel_combine (
     input             rstn    ,
     output     [15:0] pixel_1 ,
     output     [15:0] pixel_2 ,
-    output            valid     /*synthesis PAP_MARK_DEBUG="true"*/,
+    output reg        valid     /*synthesis PAP_MARK_DEBUG="true"*/,
     output reg        error     /*synthesis PAP_MARK_DEBUG="true"*/,
 
     input             inited_1,
@@ -18,7 +18,6 @@ module pixel_combine (
 );
 
     reg read_en /*synthesis PAP_MARK_DEBUG="true"*/;
-    assign valid = read_en;
 
     reg fifo_rst /*synthesis PAP_MARK_DEBUG="true"*/;
 
@@ -86,17 +85,23 @@ module pixel_combine (
         if(~rstn) begin
             read_en  <= #1 'b0;
             read_cnt <= #1 'b0;
+            valid    <= #1 'b0;
         end else begin
+            if (read_cnt==0) begin
+                valid <= #1 'b0;
+            end else begin
+                read_cnt <= #1 read_cnt - 1'b1;
+            end
+
             if (read_en) begin
-                if (read_cnt==0 || empty_1 || empty_2) begin
+                if (empty_1 || empty_2) begin
                     read_en <= #1 'b0;
-                end else begin
-                    read_cnt <= #1 read_cnt - 1'b1;
                 end
             end begin
                 if (~aempty_1 && ~aempty_2) begin
                     read_en  <= #1 'b1;
                     read_cnt <= #1 H_CNT - 1'b1;
+                    valid    <= #1 'b1;
                 end
             end
         end
