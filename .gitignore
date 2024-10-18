@@ -29,3 +29,5 @@ temp_projects/**
 cfg_verify_result.sbit
 
 source/test/*.wdf
+
+**temp**
