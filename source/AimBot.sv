@@ -90,7 +90,6 @@ module AimBot #(
 
     // OV5640 configure & read
     wire cam1_inited, cam2_inited;
-    wire cam1_hsync, cam2_hsync;
 
     wire        cam1_href_565, cam2_href_565 /*synthesis PAP_MARK_DEBUG="true"*/;
     wire        cam1_pclk_565, cam2_pclk_565 /*synthesis PAP_MARK_DEBUG="true"*/;
@@ -106,7 +105,6 @@ module AimBot #(
         .pclk        (cam1_pclk    ),
         .data        (cam1_data    ),
         .inited      (cam1_inited  ),
-        .hsync       (cam1_hsync   ),
         .href_565    (cam1_href_565),
         .pclk_565    (cam1_pclk_565),
         .data_565    (cam1_data_565),
@@ -124,7 +122,6 @@ module AimBot #(
         .pclk        (cam2_pclk    ),
         .data        (cam2_data    ),
         .inited      (cam2_inited  ),
-        .hsync       (cam2_hsync   ),
         .href_565    (cam2_href_565),
         .pclk_565    (cam2_pclk_565),
         .data_565    (cam2_data_565),
@@ -146,13 +143,11 @@ module AimBot #(
         .valid   (comb_href    ),
         // Cam 1
         .inited_1(cam1_inited  ),
-        .hsync_1 (cam1_hsync   ),
         .pclk_1  (cam1_pclk_565),
         .href_1  (cam1_href    ),
         .data_1  (cam1_data_565),
         // Cam 2
         .inited_2(cam2_inited  ),
-        .hsync_2 (cam2_hsync   ),
         .pclk_2  (cam2_pclk_565),
         .href_2  (cam2_href    ),
         .data_2  (cam2_data_565)

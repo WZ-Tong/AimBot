@@ -7,38 +7,20 @@ module pixel_combine (
     output reg        error     /*synthesis PAP_MARK_DEBUG="true"*/,
 
     input             inited_1,
-    input             hsync_1   /*synthesis PAP_MARK_DEBUG="true"*/,
     input             pclk_1    /*synthesis PAP_MARK_DEBUG="true"*/,
     input             href_1    /*synthesis PAP_MARK_DEBUG="true"*/,
     input      [15:0] data_1  ,
 
     input             inited_2,
-    input             hsync_2   /*synthesis PAP_MARK_DEBUG="true"*/,
     input             pclk_2    /*synthesis PAP_MARK_DEBUG="true"*/,
     input             href_2    /*synthesis PAP_MARK_DEBUG="true"*/,
     input      [15:0] data_2
 );
 
-    localparam H_SYNC_ACTIVE = 1'b1;
-
     reg read_en /*synthesis PAP_MARK_DEBUG="true"*/;
     assign valid = read_en;
 
-    wire rst_1, rst_2 /*synthesis PAP_MARK_DEBUG="true"*/;
-    reg rst_1_d, rst_2_d /*synthesis PAP_MARK_DEBUG="true"*/;
-
-    assign rst_1 = (~inited_1) || (hsync_1==H_SYNC_ACTIVE);
-    assign rst_2 = (~inited_2) || (hsync_2==H_SYNC_ACTIVE);
-
-    always_ff @(posedge rclk or negedge rstn) begin
-        if(~rstn) begin
-            rst_1_d <= #1 'b1;
-            rst_2_d <= #1 'b1;
-        end else begin
-            rst_1_d <= #1 rst_1;
-            rst_2_d <= #1 rst_2;
-        end
-    end
+    reg fifo_rst /*synthesis PAP_MARK_DEBUG="true"*/;
 
     wire full_1, empty_1, aempty_1 /*synthesis PAP_MARK_DEBUG="true"*/;
     async_fifo u_sync_1 (
@@ -46,14 +28,14 @@ module pixel_combine (
         .wr_data     (data_1    ),
         .wr_en       (href_1    ),
         .wr_clk      (pclk_1    ),
-        .wr_rst      (rst_1     ),
+        .wr_rst      (fifo_rst  ),
         .wr_full     (full_1    ),
         .almost_full (/*unused*/),
         // Read
         .rd_data     (pixel_1   ),
         .rd_en       (read_en   ),
         .rd_clk      (rclk      ),
-        .rd_rst      (rst_1_d   ),
+        .rd_rst      (fifo_rst  ),
         .rd_empty    (empty_1   ),
         .almost_empty(aempty_1  )
     );
@@ -64,17 +46,29 @@ module pixel_combine (
         .wr_data     (data_2    ),
         .wr_en       (href_2    ),
         .wr_clk      (pclk_2    ),
-        .wr_rst      (rst_2     ),
+        .wr_rst      (fifo_rst  ),
         .wr_full     (full_2    ),
         .almost_full (/*unused*/),
         // Read
         .rd_data     (pixel_2   ),
         .rd_en       (read_en   ),
         .rd_clk      (rclk      ),
-        .rd_rst      (rst_2_d   ),
+        .rd_rst      (fifo_rst  ),
         .rd_empty    (empty_2   ),
         .almost_empty(aempty_2  )
     );
+
+    always_ff @(posedge rclk or negedge rstn) begin
+        if(~rstn) begin
+            fifo_rst <= #1 'b1;
+        end else begin
+            if (href_1==0 && href_2==0 && empty_1 && empty_2) begin
+                fifo_rst <= #1 'b1;
+            end else begin
+                fifo_rst <= #1 'b0;
+            end
+        end
+    end
 
     always_ff @(posedge rclk or negedge rstn) begin
         if(~rstn) begin
