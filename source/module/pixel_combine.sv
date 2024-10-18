@@ -78,24 +78,29 @@ module pixel_combine (
         end
     end
 
+    localparam H_CNT = 1280;
+    reg [$clog2(H_CNT)-1:0] read_cnt /*synthesis PAP_MARK_DEBUG="true"*/;
+    reg [$clog2(H_CNT)-1:0] dbg_h_cnt /*synthesis PAP_MARK_DEBUG="true"*/;
+
     always_ff @(posedge rclk or negedge rstn) begin
         if(~rstn) begin
-            read_en <= #1 'b0;
+            read_en  <= #1 'b0;
+            read_cnt <= #1 'b0;
         end else begin
             if (read_en) begin
-                if (empty_1 || empty_2) begin
+                if (read_cnt==0 || empty_1 || empty_2) begin
                     read_en <= #1 'b0;
+                end else begin
+                    read_cnt <= #1 read_cnt - 1'b1;
                 end
             end begin
                 if (~aempty_1 && ~aempty_2) begin
-                    read_en <= #1 'b1;
+                    read_en  <= #1 'b1;
+                    read_cnt <= #1 H_CNT - 1'b1;
                 end
             end
         end
     end
-
-    localparam H_CNT = 1280;
-    reg [$clog2(H_CNT)-1:0] dbg_h_cnt /*synthesis PAP_MARK_DEBUG="true"*/;
 
     always_ff @(posedge rclk) begin
         if (read_en) begin
