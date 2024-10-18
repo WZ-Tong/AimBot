@@ -78,20 +78,20 @@ module pixel_combine (
             read_cnt <= #1 'b0;
             valid    <= #1 'b0;
         end else begin
-            if (read_cnt==H_CNT-1) begin
+            if (read_cnt==0) begin
                 valid <= #1 'b0;
             end else begin
-                read_cnt <= #1 read_cnt + 1'b1;
+                read_cnt <= #1 read_cnt - 1'b1;
             end
 
             if (read_en) begin
                 if (empty_1 || empty_2) begin
                     read_en <= #1 'b0;
                 end
-            end begin
+            end else begin
                 if (~aempty_1 && ~aempty_2) begin
                     read_en  <= #1 'b1;
-                    read_cnt <= #1 'b0;
+                    read_cnt <= #1 H_CNT-1;
                     valid    <= #1 'b1;
                 end
             end
