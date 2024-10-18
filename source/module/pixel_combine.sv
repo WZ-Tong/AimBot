@@ -1,5 +1,5 @@
 module pixel_combine (
-    input             rclk    ,
+    input             rclk      /*synthesis PAP_MARK_DEBUG="true"*/,
     input             rstn    ,
     output     [15:0] pixel_1 ,
     output     [15:0] pixel_2 ,
@@ -8,14 +8,14 @@ module pixel_combine (
 
     input             inited_1,
     input             hsync_1   /*synthesis PAP_MARK_DEBUG="true"*/,
-    input             pclk_1  ,
-    input             href_1  ,
+    input             pclk_1    /*synthesis PAP_MARK_DEBUG="true"*/,
+    input             href_1    /*synthesis PAP_MARK_DEBUG="true"*/,
     input      [15:0] data_1  ,
 
     input             inited_2,
     input             hsync_2   /*synthesis PAP_MARK_DEBUG="true"*/,
-    input             pclk_2  ,
-    input             href_2  ,
+    input             pclk_2    /*synthesis PAP_MARK_DEBUG="true"*/,
+    input             href_2    /*synthesis PAP_MARK_DEBUG="true"*/,
     input      [15:0] data_2
 );
 

@@ -5,7 +5,8 @@ module pll (
     output pll_lock,
     output clkout0 ,
     output clkout1 ,
-    output clkout2
+    output clkout2 ,
+    output clkout3
 );
 
 endmodule : pll
