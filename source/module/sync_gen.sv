@@ -1,6 +1,6 @@
 module sync_gen #(
     parameter V_DELAY = 5   ,
-    parameter V_FP    = 13  ,
+    parameter V_FP    = 15  ,
     parameter V_ACT   = 720 ,
 
     parameter H_FP    = 150 ,
