@@ -94,4 +94,15 @@ module pixel_combine (
         end
     end
 
+    localparam H_CNT = 720;
+    reg [$clog2(H_CNT)-1:0] dbg_h_cnt /*synthesis PAP_MARK_DEBUG="true"*/;
+
+    always_ff @(posedge rclk) begin
+        if (read_en) begin
+            dbg_h_cnt <= #1 dbg_h_cnt + 1'b1;
+        end else begin
+            dbg_h_cnt <= #1 'b0;
+        end
+    end
+
 endmodule : pixel_combine
