@@ -161,14 +161,14 @@ module AimBot #(
     assign comb_err = ~comb_err_w;
 
     tick #(.TICK(((1280*720)/1280)*30), .DBG_CNT(10240)) u_buf_tick (
-        .clk (hdmi_clk),
+        .clk (hdmi_clk ),
         .rstn(rstn     ),
         .trig(comb_href),
         .tick(buf_tick )
     );
 
     sync_gen u_sync_gen (
-        .clk      (hdmi_clk ),
+        .clk      (hdmi_clk  ),
         .rstn     (rstn      ),
         .cam_href (comb_href ),
         .cam_vsync(cam1_vsync),
