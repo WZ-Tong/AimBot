@@ -131,7 +131,6 @@ module AimBot #(
         .cfg_rstn    (cam2_rstn    )
     );
 
-    wire comb_err_p, comb_err_w;
     wire comb_href /*synthesis PAP_MARK_DEBUG="true"*/;
     wire [15:0] comb_pix_1, comb_pix_2 /*synthesis PAP_MARK_DEBUG="true"*/;
 
@@ -140,7 +139,7 @@ module AimBot #(
         .rstn    (rstn         ),
         .pixel_1 (comb_pix_1   ),
         .pixel_2 (comb_pix_2   ),
-        .error   (comb_err_p   ),
+        .error   (comb_err     ),
         .valid   (comb_href    ),
         // Cam 1
         .inited_1(cam1_inited  ),
@@ -153,12 +152,6 @@ module AimBot #(
         .href_2  (cam2_href    ),
         .data_2  (cam2_data_565)
     );
-    rstn_gen #(.TICK(500000)) u_comb_err_gen (
-        .clk   (clk        ),
-        .i_rstn(~comb_err_p),
-        .o_rstn(comb_err_w )
-    );
-    assign comb_err = ~comb_err_w;
 
     tick #(.TICK(((1280*720)/1280)*30), .DBG_CNT(10240)) u_buf_tick (
         .clk (hdmi_clk ),

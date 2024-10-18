@@ -4,7 +4,7 @@ module pixel_combine (
     output     [15:0] pixel_1 ,
     output     [15:0] pixel_2 ,
     output reg        valid     /*synthesis PAP_MARK_DEBUG="true"*/,
-    output reg        error     /*synthesis PAP_MARK_DEBUG="true"*/,
+    output            error     /*synthesis PAP_MARK_DEBUG="true"*/,
 
     input             inited_1,
     input             pclk_1    /*synthesis PAP_MARK_DEBUG="true"*/,
@@ -69,14 +69,6 @@ module pixel_combine (
         end
     end
 
-    always_ff @(posedge rclk or negedge rstn) begin
-        if(~rstn) begin
-            error <= #1 'b0;
-        end else begin
-            error <= #1 full_1 || full_2;
-        end
-    end
-
     localparam H_CNT = 1280;
     reg [$clog2(H_CNT)-1:0] read_cnt /*synthesis PAP_MARK_DEBUG="true"*/;
 
@@ -105,5 +97,22 @@ module pixel_combine (
             end
         end
     end
+
+    reg full;
+    always_ff @(posedge rclk or negedge rstn) begin
+        if(~rstn) begin
+            full <= #1 'b0;
+        end else begin
+            full <= #1 full_1 || full_2;
+        end
+    end
+
+    wire comb_err;
+    rstn_gen #(.TICK(500000)) u_comb_err_gen (
+        .clk   (clk     ),
+        .i_rstn(~full   ),
+        .o_rstn(comb_err)
+    );
+    assign error = ~comb_err;
 
 endmodule : pixel_combine
