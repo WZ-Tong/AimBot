@@ -109,7 +109,7 @@ module pixel_combine (
 
     wire comb_err;
     rstn_gen #(.TICK(500000)) u_comb_err_gen (
-        .clk   (clk     ),
+        .clk   (rclk    ),
         .i_rstn(~full   ),
         .o_rstn(comb_err)
     );
