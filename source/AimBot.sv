@@ -182,14 +182,23 @@ module AimBot #(
     assign hdmi_g = {comb_pix_1[10:05], 2'b0};
     assign hdmi_b = {comb_pix_1[04:00], 3'b0};
 
-    wire svg_vs, svg_hs, svg_de, svg_dre /*synthesis PAP_MARK_DEBUG="true"*/;
-    sync_vg u_sync_vg (
-        .clk   (clk37_125),
-        .rstn  (rstn     ),
-        .vs_out(svg_vs   ),
-        .hs_out(svg_hs   ),
-        .de_out(svg_de   ),
-        .de_re (svg_dre  )
+    wire svg1_vsync, svg1_hsync, svg1_de, svg1_dre /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire svg2_vsync, svg2_hsync, svg2_de, svg2_dre /*synthesis PAP_MARK_DEBUG="true"*/;
+    sync_vg u_sync_vg_1 (
+        .clk   (hdmi_clk  ),
+        .rstn  (rstn      ),
+        .vs_out(svg1_vsync),
+        .hs_out(svg1_hsync),
+        .de_out(svg1_de   ),
+        .de_re (svg1_dre  )
+    );
+    sync_vg u_sync_vg_2 (
+        .clk   (clk37_125 ),
+        .rstn  (rstn      ),
+        .vs_out(svg2_vsync),
+        .hs_out(svg2_hsync),
+        .de_out(svg2_de   ),
+        .de_re (svg2_dre  )
     );
 
     wire         ddr_clk, ddr_clkl;

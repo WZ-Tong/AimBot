@@ -3,7 +3,7 @@ module pixel_combine (
     input             rstn    ,
     output     [15:0] pixel_1 ,
     output     [15:0] pixel_2 ,
-    output            valid   ,
+    output            valid     /*synthesis PAP_MARK_DEBUG="true"*/,
     output reg        error     /*synthesis PAP_MARK_DEBUG="true"*/,
 
     input             inited_1,
