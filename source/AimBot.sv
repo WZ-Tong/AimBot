@@ -60,7 +60,7 @@ module AimBot #(
     output        comb_err
 );
 
-    wire clk10, clk25, clk37_125, clk245, clkl;
+    wire clk10, clk25, clk37_125, clk150, clkl;
     pll u_pll (
         .pll_rst (~rstn    ),
         .clkin1  (clk      ),
@@ -68,12 +68,12 @@ module AimBot #(
         .clkout0 (clk37_125),
         .clkout1 (clk25    ),
         .clkout2 (clk10    ),
-        .clkout3 (clk245   )
+        .clkout3 (clk150   )
     );
     assign hdmi_clk = clk37_125;
 
     wire debug_clk /*synthesis PAP_MARK_DEBUG="true"*/;
-    assign debug_clk = clk245;
+    assign debug_clk = clk150;
 
     // HDMI configure
     hdmi_ctrl u_hdmi_ctrl (
