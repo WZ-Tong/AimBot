@@ -161,15 +161,15 @@ module AimBot #(
     );
 
     sync_gen u_sync_gen (
-        .clk      (hdmi_clk  ),
-        .rstn     (rstn      ),
-        .cam_href (comb_href ),
-        .cam_vsync(cam1_vsync),
-        .hsync    (hdmi_hsync),
-        .vsync    (hdmi_vsync)
+        // .clk      (hdmi_clk  ),
+        // .rstn     (rstn      ),
+        // .cam_href (comb_href ),
+        // .cam_vsync(cam1_vsync),
+        // .hsync    (hdmi_hsync),
+        // .vsync    (hdmi_vsync)
     );
 
-    assign hdmi_de = comb_href;
+    // assign hdmi_de = comb_href;
 
     assign hdmi_r = {comb_pix_1[15:11], 3'b0};
     assign hdmi_g = {comb_pix_1[10:05], 2'b0};
@@ -185,6 +185,10 @@ module AimBot #(
         .de_out(svg1_de   ),
         .de_re (svg1_dre  )
     );
+    assign hdmi_de = svg1_de;
+    assign hdmi_hsync = svg1_hsync;
+    assign hdmi_vsync = svg1_vsync;
+
     sync_vg u_sync_vg_2 (
         .clk   (clk37_125 ),
         .rstn  (rstn      ),
