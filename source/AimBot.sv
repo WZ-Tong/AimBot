@@ -60,7 +60,7 @@ module AimBot #(
     output        comb_err
 );
 
-    wire clk10, clk25, clk37_125, clk36_9, clk150, clkl;
+    wire clk10, clk25, clk37_125, clk150, clkl;
     pll u_pll (
         .pll_rst (~rstn    ),
         .clkin1  (clk      ),
@@ -68,10 +68,9 @@ module AimBot #(
         .clkout0 (clk37_125),
         .clkout1 (clk25    ),
         .clkout2 (clk10    ),
-        .clkout3 (clk150   ),
-        .clkout4 (clk36_9  )
+        .clkout3 (clk150   )
     );
-    assign hdmi_clk = clk36_9;
+    assign hdmi_clk = clk37_125;
 
     wire debug_clk /*synthesis PAP_MARK_DEBUG="true"*/;
     assign debug_clk = clk150;
@@ -131,6 +130,18 @@ module AimBot #(
         .cfg_rstn    (cam2_rstn    )
     );
 
+    wire data_en;
+    wire read_en /*synthesis PAP_MARK_DEBUG="true"*/;
+    sync_gen #(.H_FP(392-250), .V_FP(18-8)) u_sync_gen (
+        .clk    (hdmi_clk  ),
+        .rstn   (rstn      ),
+        .vsync  (hdmi_vsync),
+        .hsync  (hdmi_hsync),
+        .data_en(data_en   ),
+        .read_en(read_en   )
+    );
+    assign hdmi_de = data_en;
+
     wire comb_href /*synthesis PAP_MARK_DEBUG="true"*/;
     wire [15:0] comb_pix_1, comb_pix_2 /*synthesis PAP_MARK_DEBUG="true"*/;
 
@@ -160,43 +171,9 @@ module AimBot #(
         .tick(buf_tick )
     );
 
-    sync_gen u_sync_gen (
-        // .clk      (hdmi_clk  ),
-        // .rstn     (rstn      ),
-        // .cam_href (comb_href ),
-        // .cam_vsync(cam1_vsync),
-        // .hsync    (hdmi_hsync),
-        // .vsync    (hdmi_vsync)
-    );
-
-    // assign hdmi_de = comb_href;
-
     assign hdmi_r = {comb_pix_1[15:11], 3'b0};
     assign hdmi_g = {comb_pix_1[10:05], 2'b0};
     assign hdmi_b = {comb_pix_1[04:00], 3'b0};
-
-    wire svg1_vsync, svg1_hsync, svg1_de, svg1_dre /*synthesis PAP_MARK_DEBUG="true"*/;
-    wire svg2_vsync, svg2_hsync, svg2_de, svg2_dre /*synthesis PAP_MARK_DEBUG="true"*/;
-    sync_vg u_sync_vg_1 (
-        .clk   (hdmi_clk  ),
-        .rstn  (rstn      ),
-        .vs_out(svg1_vsync),
-        .hs_out(svg1_hsync),
-        .de_out(svg1_de   ),
-        .de_re (svg1_dre  )
-    );
-    assign hdmi_de = svg1_de;
-    assign hdmi_hsync = svg1_hsync;
-    assign hdmi_vsync = svg1_vsync;
-
-    sync_vg u_sync_vg_2 (
-        .clk   (clk37_125 ),
-        .rstn  (rstn      ),
-        .vs_out(svg2_vsync),
-        .hs_out(svg2_hsync),
-        .de_out(svg2_de   ),
-        .de_re (svg2_dre  )
-    );
 
     wire         ddr_clk, ddr_clkl;
     wire [ 27:0] axi_awaddr     ;
