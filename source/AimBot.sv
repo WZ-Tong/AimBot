@@ -143,7 +143,7 @@ module AimBot #(
         .DELAY  (1649*(V_BLANK-1)-WAIT_THRESH)
     ) u_sync_gen (
         .clk     (hdmi_clk     ),
-        .rstn    (rstn         ),
+        .rstn    (svg_rstn     ),
         .cam_href(cam1_href_565),
         .vsync   (hdmi_vsync   ),
         .hsync   (hdmi_hsync   ),

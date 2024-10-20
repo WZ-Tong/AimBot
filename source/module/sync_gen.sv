@@ -37,15 +37,16 @@ module sync_gen #(
 
     localparam H_BLANK_TOTAL = (V_TOTAL-V_ACT) * H_TOTAL;
 
-    localparam UNINIT  = 2'b00;
-    localparam WAITING = 2'b01;
-    localparam INITED  = 2'b10;
+    localparam UNINIT   = 2'b00;
+    localparam WAITING  = 2'b01;
+    localparam DELAYING = 2'b01;
+    localparam INITED   = 2'b10;
 
-    reg [1:0] state;
+    reg [1:0] state /*synthesis PAP_MARK_DEBUG="true"*/;
 
-    reg svg_rstn, href_d;
+    reg svg_rstn, href_d /*synthesis PAP_MARK_DEBUG="true"*/;
 
-    reg [$clog2(H_BLANK_TOTAL)-1:0] cnt;
+    reg [$clog2(H_BLANK_TOTAL)-1:0] cnt /*synthesis PAP_MARK_DEBUG="true"*/;
 
     always_ff @(posedge clk or negedge rstn) begin
         if(~rstn) begin
@@ -57,16 +58,22 @@ module sync_gen #(
             case (state)
                 UNINIT : begin
                     if (cam_href==0 && href_d==1) begin
-                        cnt <= #1 cnt + 1'b1;
-                    end else begin
-                        cnt <= #1 'b0;
-                    end
-                    if (cnt==THREASH-1) begin
-                        cnt   <= #1 'b0;
                         state <= #1 WAITING;
+                        cnt   <= #1 'b0;
                     end
                 end
                 WAITING : begin
+                    if (cam_href==1) begin
+                        state <= #1 UNINIT;
+                    end else begin
+                        cnt <= #1 cnt + 1'b1;
+                        if (cnt==THREASH-1) begin
+                            cnt   <= #1 'b0;
+                            state <= #1 DELAYING;
+                        end
+                    end
+                end
+                DELAYING : begin
                     cnt <= #1 cnt + 1'b1;
                     if (cnt==DELAY-1) begin
                         state <= #1 INITED;
@@ -74,9 +81,6 @@ module sync_gen #(
                 end
                 INITED : begin
                     svg_rstn <= #1 'b1;
-                end
-                default: begin
-                    state <= #1 UNINIT;
                 end
             endcase
         end
