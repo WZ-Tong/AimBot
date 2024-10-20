@@ -1,24 +1,20 @@
 module sync_gen #(
-    parameter  THREASH   = 1                           ,
-    parameter  DELAY     = 1                           ,
-    parameter  V_BLANK   = 1                           ,
-    parameter  H_BLANK   = 1                           ,
+    parameter  THREASH   = 0                           ,
+    parameter  DELAY     = 0                           ,
 
-    localparam V_BP      = 5                           ,
-    localparam V_SYNC    = 5                           ,
-    localparam H_BP      = 200                         ,
-    localparam H_SYNC    = 50                          ,
+    parameter  V_FP      = 0                           ,
+    parameter  V_SYNC    = 0                           ,
+    parameter  V_BP      = 0                           ,
+
+    parameter  H_FP      = 0                           ,
+    parameter  H_SYNC    = 0                           ,
+    parameter  H_BP      = 0                           ,
 
     localparam HV_OFFSET = 0                           ,
-    localparam V_ACT     = 720                         ,
     localparam H_ACT     = 1280                        ,
-
-    localparam V_FP      = V_BLANK - V_BP - V_SYNC     ,
-    localparam H_FP      = H_BLANK - H_BP - H_SYNC     ,
-
+    localparam V_ACT     = 720                         ,
     localparam H_TOTAL   = H_ACT + H_FP + H_SYNC + H_BP,
     localparam V_TOTAL   = V_ACT + V_FP + V_SYNC + V_BP,
-
     localparam X_BITS    = $clog2(H_TOTAL)             ,
     localparam Y_BITS    = $clog2(V_TOTAL)
 ) (
@@ -35,7 +31,18 @@ module sync_gen #(
     output [Y_BITS-1:0] y
 );
 
-    localparam H_BLANK_TOTAL = (V_TOTAL-V_ACT) * H_TOTAL;
+
+    localparam V_BLANK = 28 ;
+    localparam H_BLANK = 369;
+
+    if (H_TOTAL-H_ACT!=H_BLANK && THREASH!=0) begin
+        wrong_h u_error_h();
+    end
+    if (V_TOTAL-V_ACT!=V_BLANK && THREASH!=0) begin
+        wrong_v u_error_v();
+    end
+
+    localparam H_BLANK_TOTAL = H_TOTAL * V_FP;
 
     localparam UNINIT   = 2'b00;
     localparam WAITING  = 2'b01;
