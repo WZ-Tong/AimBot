@@ -31,18 +31,19 @@ module hdmi_display (
         end
     end
 
-    localparam V_FP   = 14544  ;
-    localparam V_BP   = 3530644;
-    localparam V_SYNC = 5688   ;
-    localparam V_ACT  = 720    ;
-
-    localparam H_FP   = 750 ;
-    localparam H_BP   = 750 ;
-    localparam H_SYNC = 64  ;
+    localparam H_FP   = 300 ;
+    localparam H_BP   = 300 ;
+    localparam H_SYNC = 12  ;
     localparam H_ACT  = 1280;
 
-    localparam V_TOTAL = V_FP + V_BP + V_SYNC + V_ACT;
-    localparam H_TOTAL = H_FP + H_BP + H_SYNC + H_ACT;
+    localparam H_TOTAL = H_FP + H_BP + H_SYNC + H_ACT; // 1892
+
+    localparam V_FP   = 9  ;
+    localparam V_BP   = 9  ;
+    localparam V_SYNC = 2  ; // 3784
+    localparam V_ACT  = 720;
+
+    localparam V_TOTAL = V_FP + V_BP + V_SYNC + V_ACT; // 38560
 
     sync_vg #(
         .V_TOTAL  (V_TOTAL),
