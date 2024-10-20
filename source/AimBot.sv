@@ -60,17 +60,17 @@ module AimBot #(
     output        comb_err
 );
 
-    wire clk10, clk25, clk37, clk150, clkl;
+    wire clk10, clk25, clk36_946, clk150, clkl;
     pll u_pll (
-        .pll_rst (~rstn ),
-        .clkin1  (clk   ),
-        .pll_lock(clkl  ),
-        .clkout0 (clk37 ),
-        .clkout1 (clk25 ),
-        .clkout2 (clk10 ),
-        .clkout3 (clk150)
+        .pll_rst (~rstn    ),
+        .clkin1  (clk      ),
+        .pll_lock(clkl     ),
+        .clkout0 (clk36_946),
+        .clkout1 (clk25    ),
+        .clkout2 (clk10    ),
+        .clkout3 (clk150   )
     );
-    assign hdmi_clk = clk37;
+    assign hdmi_clk = clk36_946;
 
     wire debug_clk;
     assign debug_clk = clk150;
@@ -141,7 +141,7 @@ module AimBot #(
         .V_FP  (V_FP            ),
         .V_SYNC(2               ),
         .V_BP  (11             ),
-        .H_FP  (182             ),
+        .H_FP  (184             ),
         .H_SYNC(5               ),
         .H_BP  (193             )
     ) u_sync_gen (
