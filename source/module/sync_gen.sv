@@ -1,5 +1,5 @@
 module sync_gen #(
-    parameter  THRESH   = 0                           ,
+    parameter  THRESH    = 0                           ,
     parameter  DELAY     = 0                           ,
 
     parameter  V_FP      = 0                           ,
@@ -10,6 +10,9 @@ module sync_gen #(
     parameter  H_SYNC    = 0                           ,
     parameter  H_BP      = 0                           ,
 
+    parameter  V_BLANK   = 0                           ,
+    parameter  H_BLANK   = 0                           ,
+
     localparam HV_OFFSET = 0                           ,
     localparam H_ACT     = 1280                        ,
     localparam V_ACT     = 720                         ,
@@ -18,27 +21,23 @@ module sync_gen #(
     localparam X_BITS    = $clog2(H_TOTAL)             ,
     localparam Y_BITS    = $clog2(V_TOTAL)
 ) (
-    input               clk     ,
-    input               rstn    ,
-    input               cam_href,
+    input               clk    ,
+    input               rstn   ,
+    input               href   ,
 
-    output              vsync   ,
-    output              hsync   ,
-    output              data_en ,
-    output              read_en ,
+    output              vsync  ,
+    output              hsync  ,
+    output              data_en,
+    output              read_en,
 
-    output [X_BITS-1:0] x       ,
+    output [X_BITS-1:0] x      ,
     output [Y_BITS-1:0] y
 );
 
-
-    localparam V_BLANK = 21 ;
-    localparam H_BLANK = 382;
-
-    if (H_TOTAL-H_ACT!=H_BLANK && THRESH!=0) begin
+    if (H_TOTAL-H_ACT!=H_BLANK) begin
         wrong_h u_error_h();
     end
-    if (V_TOTAL-V_ACT!=V_BLANK && THRESH!=0) begin
+    if (V_TOTAL-V_ACT!=V_BLANK) begin
         wrong_v u_error_v();
     end
 
@@ -62,18 +61,18 @@ module sync_gen #(
             state    <= #1 UNINIT;
             svg_rstn <= #1 'b0;
         end else begin
-            href_d <= #1 cam_href;
+            href_d <= #1 href;
             case (state)
                 UNINIT : begin
                     svg_rstn <= #1 'b0;
-                    if (cam_href==0 && href_d==1) begin
+                    if (href==0 && href_d==1) begin
                         state <= #1 WAITING;
                         cnt   <= #1 'b0;
                     end
                 end
                 WAITING : begin
                     svg_rstn <= #1 'b0;
-                    if (cam_href==1) begin
+                    if (href==1) begin
                         state <= #1 UNINIT;
                     end else begin
                         cnt <= #1 cnt + 1'b1;

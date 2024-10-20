@@ -131,30 +131,34 @@ module AimBot #(
         .cfg_rstn    (cam2_rstn    )
     );
 
-    wire [15:0] disp_data;
+    wire [7:0] cam_r, cam_g, cam_b;
 
     wire disp_clk ;
     wire disp_href;
     if (CAM_DISPLAY==1) begin
         assign disp_clk  = cam1_pclk_565;
         assign disp_href = cam1_href_565;
-        assign disp_data = cam1_data_565;
+        assign cam_r     = {cam1_data_565[15:11], 3'b0};
+        assign cam_g     = {cam1_data_565[10:05], 2'b0};
+        assign cam_b     = {cam1_data_565[04:00], 3'b0};
     end else if (CAM_DISPLAY==2) begin
         assign disp_clk  = cam2_pclk_565;
         assign disp_href = cam2_href_565;
-        assign disp_data = cam2_data_565;
+        assign cam_r     = {cam2_data_565[15:11], 3'b0};
+        assign cam_g     = {cam2_data_565[10:05], 2'b0};
+        assign cam_b     = {cam2_data_565[04:00], 3'b0};
     end
+    assign hdmi_clk = disp_clk;
+    assign hdmi_r   = cam_r;
+    assign hdmi_g   = cam_g;
+    assign hdmi_b   = cam_b;
     hdmi_display u_hdmi_display (
         .clk    (disp_clk  ),
         .href   (disp_href ),
-        .data   (disp_data ),
         .hsync  (hdmi_hsync),
         .vsync  (hdmi_vsync),
-        .data_en(hdmi_de   ),
-        .r      (hdmi_r    ),
-        .g      (hdmi_g    ),
-        .b      (hdmi_b    )
+        .data_en(hdmi_de   )
     );
-    assign hdmi_clk = disp_clk;
+
 
 endmodule : AimBot
