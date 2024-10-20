@@ -185,10 +185,13 @@ module AimBot #(
         .o_b     (win_b     )
     );
 
-    assign hdmi_r   = win_r;
-    assign hdmi_g   = win_g;
-    assign hdmi_b   = win_b;
-    assign hdmi_clk = cam_clk;
+    assign hdmi_r     = win_r     ;
+    assign hdmi_g     = win_g     ;
+    assign hdmi_b     = win_b     ;
+    assign hdmi_de    = disp_de   ;
+    assign hdmi_vsync = disp_vsync;
+    assign hdmi_hsync = disp_hsync;
+    assign hdmi_clk   = cam_clk   ;
 
     wire         ddr_clk, ddr_clkl;
     wire [ 27:0] axi_awaddr     ;

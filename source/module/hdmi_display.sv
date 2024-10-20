@@ -68,10 +68,10 @@ module hdmi_display (
         .y_act (o_y       )
     );
 
-    localparam DELAY = 5;
+    localparam DELAY = 25;
     reg [15:0] data_ds [DELAY-1:0];
 
-    int i;
+    integer i;
     always_ff @(posedge clk) begin
         for (i = 0; i < DELAY-1; i=i+1) begin
             data_ds[i+1] <= #1 data_ds[i];
