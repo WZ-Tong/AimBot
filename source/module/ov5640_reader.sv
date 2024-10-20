@@ -52,18 +52,15 @@ module ov5640_reader (
         href_d  <= #1 href ;
     end
 
-    wire [15:0] cam_pix_565;
     cmos_8_16bit cam_pix_reader (
-        .pclk     (pclk       ),
-        .rst_n    (inited     ),
-        .pdata_i  (data_d     ),
-        .de_i     (href_d     ),
-        .vs_i     (vsync_d    ),
-        .pixel_clk(pclk_565   ),
-        .pdata_o  (cam_pix_565),
-        .de_o     (href_565   )
+        .pclk     (pclk    ),
+        .rst_n    (inited  ),
+        .pdata_i  (data_d  ),
+        .de_i     (href_d  ),
+        .vs_i     (vsync_d ),
+        .pixel_clk(pclk_565),
+        .pdata_o  (data_565),
+        .de_o     (href_565)
     );
-
-    assign data_565 = {cam_pix_565[4:0], cam_pix_565[10:5], cam_pix_565[15:11]};
 
 endmodule : ov5640_reader

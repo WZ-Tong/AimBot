@@ -12,7 +12,6 @@ module hdmi_display (
     output [ 9:0] o_y
 );
 
-    wire read_en  /*synthesis PAP_MARK_DEBUG="true"*/;
     reg  svg_rstn /*synthesis PAP_MARK_DEBUG="true"*/;
     reg  vsync_d ;
 
@@ -59,22 +58,26 @@ module hdmi_display (
         .Y_BITS   (10     ),
         .HV_OFFSET(0      )
     ) u_sync_vg (
-        .clk   (clk     ),
-        .rstn  (svg_rstn),
-        .vs_out(o_vsync ),
-        .hs_out(o_hsync ),
-        .de_out(o_de    ),
-        .de_re (read_en ),
-        .x_act (o_x     ),
-        .y_act (o_y     )
+        .clk   (clk       ),
+        .rstn  (svg_rstn  ),
+        .vs_out(o_vsync   ),
+        .hs_out(o_hsync   ),
+        .de_out(o_de      ),
+        .de_re (/*unused*/),
+        .x_act (o_x       ),
+        .y_act (o_y       )
     );
 
-    reg [15:0] data_d  /*synthesis PAP_MARK_DEBUG="true"*/;
-    reg [15:0] data_dd /*synthesis PAP_MARK_DEBUG="true"*/;
+    localparam DELAY = 5;
+    reg [15:0] data_ds [DELAY-1:0];
+
+    int i;
     always_ff @(posedge clk) begin
-        data_d  <= #1 i_data;
-        data_dd <= #1 data_d;
+        for (i = 0; i < DELAY-1; i=i+1) begin
+            data_ds[i+1] <= #1 data_ds[i];
+        end
+        data_ds[0] <= #1 i_data;
     end
-    assign o_data = data_dd;
+    assign o_data = data_ds[DELAY-1];
 
 endmodule : hdmi_display
