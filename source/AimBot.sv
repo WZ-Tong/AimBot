@@ -160,4 +160,74 @@ module AimBot #(
     assign hdmi_g   = {disp_data[10:05], 2'b0};
     assign hdmi_b   = {disp_data[04:00], 3'b0};
 
+
+    wire         ddr_clk, ddr_clkl;
+    wire [ 27:0] axi_awaddr     ;
+    wire         axi_awuser_ap  ;
+    wire [  3:0] axi_awuser_id  ;
+    wire [  3:0] axi_awlen      ;
+    wire         axi_awready    ;
+    wire         axi_awvalid    ;
+    wire [255:0] axi_wdata      ;
+    wire [ 31:0] axi_wstrb      ;
+    wire         axi_wready     ;
+    wire [  3:0] axi_wusero_id  ;
+    wire         axi_wusero_last;
+    wire [ 27:0] axi_araddr     ;
+    wire         axi_aruser_ap  ;
+    wire [  3:0] axi_aruser_id  ;
+    wire [  3:0] axi_arlen      ;
+    wire         axi_arready    ;
+    wire         axi_arvalid    ;
+    wire [255:0] axi_rdata      ;
+    wire [  3:0] axi_rid        ;
+    wire         axi_rlast      ;
+    wire         axi_rvalid     ;
+
+    ddr3_32 u_ddr3_32 (
+        .clk            (clk            ),
+        .rstn           (rstn           ),
+        .inited         (ddr_inited     ),
+        .phy_clk        (ddr_clk        ),
+        .phy_clkl       (ddr_clkl       ),
+        // AXI
+        .axi_awaddr     (axi_awaddr     ),
+        .axi_awuser_ap  (axi_awuser_ap  ),
+        .axi_awuser_id  (axi_awuser_id  ),
+        .axi_awlen      (axi_awlen      ),
+        .axi_awready    (axi_awready    ),
+        .axi_awvalid    (axi_awvalid    ),
+        .axi_wdata      (axi_wdata      ),
+        .axi_wstrb      (axi_wstrb      ),
+        .axi_wready     (axi_wready     ),
+        .axi_wusero_id  (axi_wusero_id  ),
+        .axi_wusero_last(axi_wusero_last),
+        .axi_araddr     (axi_araddr     ),
+        .axi_aruser_ap  (axi_aruser_ap  ),
+        .axi_aruser_id  (axi_aruser_id  ),
+        .axi_arlen      (axi_arlen      ),
+        .axi_arready    (axi_arready    ),
+        .axi_arvalid    (axi_arvalid    ),
+        .axi_rdata      (axi_rdata      ),
+        .axi_rid        (axi_rid        ),
+        .axi_rlast      (axi_rlast      ),
+        .axi_rvalid     (axi_rvalid     ),
+        // MEM
+        .mem_rst_n      (mem_rst_n      ),
+        .mem_ck         (mem_ck         ),
+        .mem_ck_n       (mem_ck_n       ),
+        .mem_cke        (mem_cke        ),
+        .mem_cs_n       (mem_cs_n       ),
+        .mem_ras_n      (mem_ras_n      ),
+        .mem_cas_n      (mem_cas_n      ),
+        .mem_we_n       (mem_we_n       ),
+        .mem_odt        (mem_odt        ),
+        .mem_a          (mem_a          ),
+        .mem_ba         (mem_ba         ),
+        .mem_dqs        (mem_dqs        ),
+        .mem_dqs_n      (mem_dqs_n      ),
+        .mem_dq         (mem_dq         ),
+        .mem_dm         (mem_dm         )
+    );
+
 endmodule : AimBot
