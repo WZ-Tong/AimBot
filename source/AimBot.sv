@@ -60,17 +60,17 @@ module AimBot #(
     output        comb_err
 );
 
-    wire clk10, clk25, clk37_25, clk150, clkl;
+    wire clk10, clk25, clk37, clk150, clkl;
     pll u_pll (
         .pll_rst (~rstn ),
         .clkin1  (clk   ),
         .pll_lock(clkl  ),
-        .clkout0 (clk37_25 ),
+        .clkout0 (clk37 ),
         .clkout1 (clk25 ),
         .clkout2 (clk10 ),
         .clkout3 (clk150)
     );
-    assign hdmi_clk = clk37_25;
+    assign hdmi_clk = clk37;
 
     wire debug_clk;
     assign debug_clk = clk150;
@@ -130,7 +130,7 @@ module AimBot #(
         .cfg_rstn    (cam2_rstn    )
     );
 
-    localparam V_FP = 8;
+    localparam V_FP   = 8     ;
     localparam THRESH = 1649*2;
 
     wire data_en;
@@ -139,8 +139,8 @@ module AimBot #(
         .THRESH(THRESH          ),
         .DELAY (1649*V_FP-THRESH),
         .V_FP  (V_FP            ),
-        .V_SYNC(3               ),
-        .V_BP  (17              ),
+        .V_SYNC(2               ),
+        .V_BP  (11             ),
         .H_FP  (182             ),
         .H_SYNC(5               ),
         .H_BP  (193             )

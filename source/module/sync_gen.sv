@@ -32,7 +32,7 @@ module sync_gen #(
 );
 
 
-    localparam V_BLANK = 28 ;
+    localparam V_BLANK = 21 ;
     localparam H_BLANK = 380;
 
     if (H_TOTAL-H_ACT!=H_BLANK && THRESH!=0) begin
