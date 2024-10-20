@@ -130,17 +130,22 @@ module AimBot #(
         .cfg_rstn    (cam2_rstn    )
     );
 
-    localparam V_BLANK     = 28  ;
-    localparam H_BLANK     = 369 ;
-    localparam WAIT_THRESH = 1500;
+    localparam V_BLANK = 28                     ;
+    localparam V_BP    = 14                     ;
+    localparam V_SYNC  = 5                      ;
+    localparam V_FP    = V_BLANK - V_BP - V_SYNC;
+
+    localparam H_BLANK     = 369    ;
+    localparam H_TOTAL     = 1649   ;
+    localparam WAIT_THRESH = H_TOTAL;
 
     wire data_en;
     wire read_en /*synthesis PAP_MARK_DEBUG="true"*/;
     sync_gen #(
-        .H_BLANK(H_BLANK                     ),
-        .V_BLANK(V_BLANK                     ),
-        .THREASH(WAIT_THRESH                 ),
-        .DELAY  (1649*(V_BLANK-1)-WAIT_THRESH)
+        .H_BLANK(H_BLANK               ),
+        .V_BLANK(V_BLANK               ),
+        .THREASH(WAIT_THRESH           ),
+        .DELAY  (H_TOTAL*V_FP-WAIT_THRESH)
     ) u_sync_gen (
         .clk     (hdmi_clk     ),
         .rstn    (svg_rstn     ),

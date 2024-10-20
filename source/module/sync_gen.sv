@@ -39,8 +39,8 @@ module sync_gen #(
 
     localparam UNINIT   = 2'b00;
     localparam WAITING  = 2'b01;
-    localparam DELAYING = 2'b01;
-    localparam INITED   = 2'b10;
+    localparam DELAYING = 2'b10;
+    localparam INITED   = 2'b11;
 
     reg [1:0] state /*synthesis PAP_MARK_DEBUG="true"*/;
 
