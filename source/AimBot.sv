@@ -128,49 +128,49 @@ module AimBot #(
         .cfg_rstn    (cam2_rstn    )
     );
 
-    wire [15:0] cam_data, disp_data;
 
     wire [10:0] x;
     wire [ 9:0] y;
 
-    wire disp_clk  ;
-    wire disp_vsync;
+    wire [15:0] cam_data;
+    wire        cam_clk, cam_vsync;
+
+    wire [15:0] disp_data ;
+    wire        disp_vsync, disp_hsync, disp_de;
     if (CAM_DISPLAY==1) begin
-        assign disp_vsync = cam1_vsync;
-        assign disp_clk   = cam1_pclk_565;
-        assign cam_data   = cam1_data_565;
+        assign cam_vsync = cam1_vsync;
+        assign cam_clk   = cam1_pclk_565;
+        assign cam_data  = cam1_data_565;
     end else if (CAM_DISPLAY==2) begin
-        assign disp_vsync = cam2_vsync;
-        assign disp_clk   = cam2_pclk_565;
-        assign cam_data   = cam2_data_565;
+        assign cam_vsync = cam2_vsync;
+        assign cam_clk   = cam2_pclk_565;
+        assign cam_data  = cam2_data_565;
     end
     hdmi_display u_hdmi_display (
-        .clk    (disp_clk  ),
+        .clk    (cam_clk   ),
         .rstn   (svg_rstn  ),
-        .i_vsync(disp_vsync),
+        .i_vsync(cam_vsync ),
         .i_data (cam_data  ),
-        .o_hsync(hdmi_hsync),
-        .o_vsync(hdmi_vsync),
-        .o_de   (hdmi_de   ),
+        .o_hsync(disp_hsync),
+        .o_vsync(disp_vsync),
+        .o_de   (disp_de   ),
         .o_data (disp_data ),
         .o_x    (x         ),
         .o_y    (y         )
     );
 
     wire [7:0] disp_r, disp_g, disp_b;
-
     assign disp_r = {disp_data[15:11], 3'b0};
     assign disp_g = {disp_data[10:05], 2'b0};
     assign disp_b = {disp_data[04:00], 3'b0};
 
+    wire [7:0] win_r, win_g, win_b;
     draw_window #(
-        .H_ACT      (1280),
-        .V_ACT      (720 ),
-        .V_BOX_WIDTH(40  ),
-        .H_BOX_WIDTH(20  ),
-        .N_BOX      (1   )
+        .V_BOX_WIDTH(40),
+        .H_BOX_WIDTH(20),
+        .N_BOX      (1 )
     ) u_draw_window (
-        .pix_clk (pix_clk   ),
+        .clk     (cam_clk   ),
         .hsync   (hdmi_hsync),
         .vsync   (hdmi_vsync),
         .x       (x         ),
@@ -179,16 +179,19 @@ module AimBot #(
         .start_ys(10'd200   ),
         .end_xs  (11'd200   ),
         .end_ys  (10'd400   ),
-        .colors  (24'h303841),
+        .colors  (24'hFFFFFF),
         .i_r     (disp_r    ),
         .i_g     (disp_g    ),
         .i_b     (disp_b    ),
-        .o_r     (hdmi_r    ),
-        .o_g     (hdmi_g    ),
-        .o_b     (hdmi_b    )
+        .o_r     (win_r     ),
+        .o_g     (win_g     ),
+        .o_b     (win_b     )
     );
 
-    assign hdmi_clk = disp_clk;
+    assign hdmi_r   = win_r;
+    assign hdmi_g   = win_g;
+    assign hdmi_b   = win_b;
+    assign hdmi_clk = cam_clk;
 
     wire         ddr_clk, ddr_clkl;
     wire [ 27:0] axi_awaddr     ;

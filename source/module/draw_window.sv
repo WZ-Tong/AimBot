@@ -1,14 +1,14 @@
 `timescale 1ns / 1ps
 
 module draw_window #(
-    parameter V_ACT       = 12'd720 ,
-    parameter H_ACT       = 12'd1280,
-
     parameter V_BOX_WIDTH = 1'b1    ,
     parameter H_BOX_WIDTH = 1'b1    ,
-    parameter N_BOX       = 1
+    parameter N_BOX       = 1       ,
+
+    parameter V_ACT       = 12'd720 ,
+    parameter H_ACT       = 12'd1280
 ) (
-    input                                pix_clk ,
+    input                                clk     ,
     input                                hsync   ,
     input                                vsync   ,
 
@@ -32,19 +32,7 @@ module draw_window #(
     output reg [                    7:0] o_b
 );
 
-    localparam H_SYNC_ACTIVE = 1'b1;
-    localparam V_SYNC_ACTIVE = 1'b1;
-
-    reg  last_hsync, last_vsync;
-    wire hsync_pulse, vsync_pulse;
-    always_ff @(posedge pix_clk) begin
-        last_hsync <= #1 hsync;
-        last_vsync <= #1 vsync;
-    end
-    assign hsync_pulse = last_hsync!=H_SYNC_ACTIVE && hsync==H_SYNC_ACTIVE;
-    assign vsync_pulse = last_vsync!=V_SYNC_ACTIVE && vsync==V_SYNC_ACTIVE;
-
-    wire [N_BOX-1:0] active;
+    wire [N_BOX-1:0] active /*synthesis PAP_MARK_DEBUG="true"*/;
     wire [7:0] color_r [N_BOX-1:0];
     wire [7:0] color_g [N_BOX-1:0];
     wire [7:0] color_b [N_BOX-1:0];
