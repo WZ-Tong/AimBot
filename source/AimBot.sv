@@ -132,34 +132,35 @@ module AimBot #(
 
     wire [15:0] cam_data, disp_data;
 
-    wire disp_clk ;
-    wire disp_href;
+    wire disp_clk  ;
+    wire disp_vsync;
     if (CAM_DISPLAY==1) begin
-        assign disp_clk  = cam1_pclk_565;
-        assign disp_href = cam1_href_565;
-        assign cam_data  = cam1_data_565;
+        assign disp_vsync = cam1_vsync;
+        assign disp_clk   = cam1_pclk_565;
+        assign cam_data   = cam1_data_565;
     end else if (CAM_DISPLAY==2) begin
-        assign disp_clk  = cam2_pclk_565;
-        assign disp_href = cam2_href_565;
-        assign cam_data  = cam2_data_565;
+        assign disp_vsync = cam2_vsync;
+        assign disp_clk   = cam2_pclk_565;
+        assign cam_data   = cam2_data_565;
     end
     hdmi_display u_hdmi_display (
         .clk    (disp_clk  ),
         .rstn   (rstn      ),
-        .href   (disp_href ),
+        .i_vsync(disp_vsync),
         .i_data (cam_data  ),
-        .error  (disp_err  ),
-        .hsync  (hdmi_hsync),
-        .vsync  (hdmi_vsync),
+        .o_error(disp_err  ),
+        .o_hsync(hdmi_hsync),
+        .o_vsync(hdmi_vsync),
+        .o_de   (hdmi_de   ),
         .o_data (disp_data ),
-        .data_en(hdmi_de   )
+        .o_x    (/*unused*/),
+        .o_y    (/*unused*/)
     );
 
     assign hdmi_clk = disp_clk;
     assign hdmi_r   = {disp_data[15:11], 3'b0};
     assign hdmi_g   = {disp_data[10:05], 2'b0};
     assign hdmi_b   = {disp_data[04:00], 3'b0};
-
 
     wire         ddr_clk, ddr_clkl;
     wire [ 27:0] axi_awaddr     ;

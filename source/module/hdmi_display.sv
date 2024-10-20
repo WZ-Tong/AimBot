@@ -1,100 +1,72 @@
 module hdmi_display (
     input         clk    ,
     input         rstn   ,
-    input         href   ,
+    input         i_vsync,
     input  [15:0] i_data ,
 
-    output        error  ,
-    output        hsync  ,
-    output        vsync  ,
-    output        data_en,
+    output        o_error,
+    output        o_hsync,
+    output        o_vsync,
+    output        o_de   ,
     output [15:0] o_data ,
-    output [10:0] x      ,
-    output [ 9:0] y
+    output [10:0] o_x    ,
+    output [ 9:0] o_y
 );
 
-    wire read_en;
+    wire read_en ;
+    reg  svg_rstn;
+    reg  vsync_d ;
 
-    localparam THRESH  = 0; // TODO
-    localparam DELAY   = 0; // TODO
-    localparam V_FP    = 0; // TODO
-    localparam V_SYNC  = 0; // TODO
-    localparam V_BP    = 0; // TODO
-    localparam H_FP    = 0; // TODO
-    localparam H_SYNC  = 0; // TODO
-    localparam H_BP    = 0; // TODO
-    localparam V_BLANK = 0; // TODO
-    localparam H_BLANK = 0; // TODO
-
-    localparam UNINIT   = 2'b00;
-    localparam WAITING  = 2'b01;
-    localparam DELAYING = 2'b10;
-    localparam INITED   = 2'b11;
-
-    reg [10:0] cnt /*synthesis PAP_MARK_DEBUG="true"*/;
-    reg [1:0] state /*synthesis PAP_MARK_DEBUG="true"*/;
-    reg svg_rstn, href_d /*synthesis PAP_MARK_DEBUG="true"*/;
     always_ff @(posedge clk or negedge rstn) begin
         if(~rstn) begin
-            cnt      <= #1 'b0;
-            href_d   <= #1 'b1;
-            state    <= #1 UNINIT;
             svg_rstn <= #1 'b0;
+            vsync_d  <= #1 'b0;
         end else begin
-            href_d   <= #1 href;
-            svg_rstn <= #1 'b0;
-            case (state)
-                UNINIT : begin
-                    if (href==0 && href_d==1) begin
-                        state <= #1 WAITING;
-                        cnt   <= #1 'b0;
-                    end
-                end
-                WAITING : begin
-                    if (href==1) begin
-                        state <= #1 UNINIT;
-                    end else begin
-                        cnt <= #1 cnt + 1'b1;
-                        if (cnt==THRESH-1) begin
-                            cnt   <= #1 'b0;
-                            state <= #1 DELAYING;
-                        end
-                    end
-                end
-                DELAYING : begin
-                    cnt <= #1 cnt + 1'b1;
-                    if (cnt==DELAY-1) begin
-                        state <= #1 INITED;
-                    end
-                end
-                INITED : begin
+            vsync_d <= #1 i_vsync;
+            if (~svg_rstn) begin
+                if (vsync_d==0 && i_vsync==1) begin
                     svg_rstn <= #1 'b1;
                 end
-            endcase
+            end
         end
     end
-    
-    sync_gen #(
-        .THRESH (THRESH ),
-        .DELAY  (DELAY  ),
-        .V_FP   (V_FP   ),
-        .V_SYNC (V_SYNC ),
-        .V_BP   (V_BP   ),
-        .H_FP   (H_FP   ),
-        .H_SYNC (H_SYNC ),
-        .H_BP   (H_BP   ),
-        .V_BLANK(V_BLANK),
-        .H_BLANK(H_BLANK)
-    ) u_sync_gen (
-        .clk    (clk     ),
-        .rstn   (svg_rstn),
-        .href   (href    ),
-        .vsync  (vsync   ),
-        .hsync  (hsync   ),
-        .data_en(data_en ),
-        .x      (x       ),
-        .y      (y       ),
-        .read_en(read_en )
+
+    localparam V_FP   = 14544  ;
+    localparam V_BP   = 3530644;
+    localparam V_SYNC = 5688   ;
+    localparam V_ACT  = 720    ;
+
+    localparam H_FP   = 750 ;
+    localparam H_BP   = 750 ;
+    localparam H_SYNC = 64  ;
+    localparam H_ACT  = 1280;
+
+    localparam V_TOTAL = V_FP + V_BP + V_SYNC + V_ACT;
+    localparam H_TOTAL = H_FP + H_BP + H_SYNC + H_ACT;
+
+    sync_vg #(
+        .V_TOTAL  (V_TOTAL),
+        .V_FP     (V_FP   ),
+        .V_BP     (V_BP   ),
+        .V_SYNC   (V_SYNC ),
+        .V_ACT    (V_ACT  ),
+        .H_TOTAL  (H_TOTAL),
+        .H_FP     (H_FP   ),
+        .H_BP     (H_BP   ),
+        .H_SYNC   (H_SYNC ),
+        .H_ACT    (H_ACT  ),
+        .X_BITS   (11     ),
+        .Y_BITS   (10     ),
+        .HV_OFFSET(0      )
+    ) u_sync_vg (
+        .clk   (clk     ),
+        .rstn  (svg_rstn),
+        .vs_out(o_vsync ),
+        .hs_out(o_hsync ),
+        .de_out(o_de    ),
+        .de_re (read_en ),
+        .x_act (o_x     ),
+        .y_act (o_y     )
     );
 
     wire full, err_fulln;
