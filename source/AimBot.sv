@@ -56,8 +56,7 @@ module AimBot #(
 
     // Debug signals
     output        hdmi_inited,
-    output        cam_inited ,
-    output        disp_err
+    output        cam_inited 
 );
 
     wire clk10, clk25, clk150, clkl;
@@ -147,7 +146,6 @@ module AimBot #(
         .rstn   (svg_rstn  ),
         .i_vsync(disp_vsync),
         .i_data (cam_data  ),
-        .o_error(disp_err  ),
         .o_hsync(hdmi_hsync),
         .o_vsync(hdmi_vsync),
         .o_de   (hdmi_de   ),

@@ -4,7 +4,6 @@ module hdmi_display (
     input         i_vsync,
     input  [15:0] i_data ,
 
-    output        o_error,
     output        o_hsync  /*synthesis PAP_MARK_DEBUG="true"*/,
     output        o_vsync  /*synthesis PAP_MARK_DEBUG="true"*/,
     output        o_de     /*synthesis PAP_MARK_DEBUG="true"*/,
@@ -70,35 +69,12 @@ module hdmi_display (
         .y_act (o_y     )
     );
 
-    wire full, err_fulln;
-    rstn_gen #(.TICK(500_000)) u_err_full (
-        .clk   (clk      ),
-        .i_rstn(~full    ),
-        .o_rstn(err_fulln)
-    );
-    assign err_full = ~err_fulln;
-
-    wire empty, err_emptyn;
-    rstn_gen #(.TICK(500_000)) u_err_empty (
-        .clk   (clk       ),
-        .i_rstn(~empty    ),
-        .o_rstn(err_emptyn)
-    );
-    assign err_empty = ~err_emptyn;
-
-    assign error = err_full || err_empty;
-
-    sync_fifo u_sync_fifo (
-        .clk         (clk       ),
-        .rst         (svg_rstn  ),
-        .wr_data     (i_data    ),
-        .wr_en       (href      ),
-        .wr_full     (full      ),
-        .almost_full (/*unused*/),
-        .rd_data     (o_data    ),
-        .rd_en       (read_en   ),
-        .rd_empty    (empty     ),
-        .almost_empty(/*unused*/)
-    );
+    reg [15:0] data_d  /*synthesis PAP_MARK_DEBUG="true"*/;
+    reg [15:0] data_dd /*synthesis PAP_MARK_DEBUG="true"*/;
+    always_ff @(posedge clk) begin
+        data_d  <= #1 i_data;
+        data_dd <= #1 data_d;
+    end
+    assign o_data = data_dd;
 
 endmodule : hdmi_display
