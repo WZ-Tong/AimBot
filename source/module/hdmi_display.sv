@@ -5,16 +5,16 @@ module hdmi_display (
     input  [15:0] i_data ,
 
     output        o_error,
-    output        o_hsync,
-    output        o_vsync,
-    output        o_de   ,
+    output        o_hsync  /*synthesis PAP_MARK_DEBUG="true"*/,
+    output        o_vsync  /*synthesis PAP_MARK_DEBUG="true"*/,
+    output        o_de     /*synthesis PAP_MARK_DEBUG="true"*/,
     output [15:0] o_data ,
     output [10:0] o_x    ,
     output [ 9:0] o_y
 );
 
-    wire read_en ;
-    reg  svg_rstn;
+    wire read_en  /*synthesis PAP_MARK_DEBUG="true"*/;
+    reg  svg_rstn /*synthesis PAP_MARK_DEBUG="true"*/;
     reg  vsync_d ;
 
     always_ff @(posedge clk or negedge rstn) begin
