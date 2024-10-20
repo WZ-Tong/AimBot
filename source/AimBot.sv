@@ -3,7 +3,8 @@
 module AimBot #(
     parameter V_BOX_WIDTH = 1'b1,
     parameter H_BOX_WIDTH = 1'b1,
-    parameter N_BOX       = 1'b1
+    parameter N_BOX       = 1'b1,
+    parameter CAM_DISPLAY = 1
 ) (
     input         clk        ,
     input         rstn       ,
@@ -89,11 +90,11 @@ module AimBot #(
     );
 
     // OV5640 configure & read
-    wire cam1_inited, cam2_inited;
+    wire [15:0] cam1_data_565, cam2_data_565;
 
+    wire cam1_inited, cam2_inited;
     wire cam1_pclk_565, cam2_pclk_565;
-    wire        cam1_href_565, cam2_href_565 /*synthesis PAP_MARK_DEBUG="true"*/;
-    wire [15:0] cam1_data_565, cam2_data_565 /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire cam1_href_565, cam2_href_565;
     assign cam_inited = cam1_inited && cam2_inited;
 
     ov5640_reader u_cam1_reader (
@@ -130,130 +131,30 @@ module AimBot #(
         .cfg_rstn    (cam2_rstn    )
     );
 
-    localparam V_FP   = 8     ;
-    localparam THRESH = 1649*2;
+    wire [15:0] disp_data;
 
-    wire data_en;
-    wire read_en /*synthesis PAP_MARK_DEBUG="true"*/;
-    sync_gen #(
-        .THRESH(THRESH          ),
-        .DELAY (1649*V_FP-THRESH),
-        .V_FP  (V_FP            ),
-        .V_SYNC(2               ),
-        .V_BP  (11             ),
-        .H_FP  (184             ),
-        .H_SYNC(5               ),
-        .H_BP  (193             )
-    ) u_sync_gen (
-        .clk     (hdmi_clk     ),
-        .rstn    (svg_rstn     ),
-        .cam_href(cam1_href_565),
-        .vsync   (hdmi_vsync   ),
-        .hsync   (hdmi_hsync   ),
-        .data_en (data_en      ),
-        .read_en (read_en      )
+    wire disp_clk ;
+    wire disp_href;
+    if (CAM_DISPLAY==1) begin
+        assign disp_clk  = cam1_pclk_565;
+        assign disp_href = cam1_href_565;
+        assign disp_data = cam1_data_565;
+    end else if (CAM_DISPLAY==2) begin
+        assign disp_clk  = cam2_pclk_565;
+        assign disp_href = cam2_href_565;
+        assign disp_data = cam2_data_565;
+    end
+    hdmi_display u_hdmi_display (
+        .clk    (disp_clk  ),
+        .href   (disp_href ),
+        .data   (disp_data ),
+        .hsync  (hdmi_hsync),
+        .vsync  (hdmi_vsync),
+        .data_en(hdmi_de   ),
+        .r      (hdmi_r    ),
+        .g      (hdmi_g    ),
+        .b      (hdmi_b    )
     );
-    assign hdmi_de = data_en;
-
-    wire [15:0] comb_pix_1, comb_pix_2 /*synthesis PAP_MARK_DEBUG="true"*/;
-
-    pixel_combine u_pixel_combine (
-        .rclk    (hdmi_clk     ),
-        .rstn    (rstn         ),
-        .read_en (read_en      ),
-        .pixel_1 (comb_pix_1   ),
-        .pixel_2 (comb_pix_2   ),
-        .error   (comb_err     ),
-        // Cam 1
-        .inited_1(cam1_inited  ),
-        .pclk_1  (cam1_pclk_565),
-        .href_1  (cam1_href    ),
-        .data_1  (cam1_data_565),
-        // Cam 2
-        .inited_2(cam2_inited  ),
-        .pclk_2  (cam2_pclk_565),
-        .href_2  (cam2_href    ),
-        .data_2  (cam2_data_565)
-    );
-
-    tick #(.TICK(((1280*720)/1280)*30), .DBG_CNT(10240)) u_buf_tick (
-        .clk (hdmi_clk  ),
-        .rstn(rstn      ),
-        .trig(hdmi_vsync),
-        .tick(buf_tick  )
-    );
-
-    assign hdmi_r = {comb_pix_1[15:11], 3'b0};
-    assign hdmi_g = {comb_pix_1[10:05], 2'b0};
-    assign hdmi_b = {comb_pix_1[04:00], 3'b0};
-
-    wire         ddr_clk, ddr_clkl;
-    wire [ 27:0] axi_awaddr     ;
-    wire         axi_awuser_ap  ;
-    wire [  3:0] axi_awuser_id  ;
-    wire [  3:0] axi_awlen      ;
-    wire         axi_awready    ;
-    wire         axi_awvalid    ;
-    wire [255:0] axi_wdata      ;
-    wire [ 31:0] axi_wstrb      ;
-    wire         axi_wready     ;
-    wire [  3:0] axi_wusero_id  ;
-    wire         axi_wusero_last;
-    wire [ 27:0] axi_araddr     ;
-    wire         axi_aruser_ap  ;
-    wire [  3:0] axi_aruser_id  ;
-    wire [  3:0] axi_arlen      ;
-    wire         axi_arready    ;
-    wire         axi_arvalid    ;
-    wire [255:0] axi_rdata      ;
-    wire [  3:0] axi_rid        ;
-    wire         axi_rlast      ;
-    wire         axi_rvalid     ;
-
-    ddr3_32 u_ddr3_32 (
-        .clk            (clk            ),
-        .rstn           (rstn           ),
-        .inited         (ddr_inited     ),
-        .phy_clk        (ddr_clk        ),
-        .phy_clkl       (ddr_clkl       ),
-        // AXI
-        .axi_awaddr     (axi_awaddr     ),
-        .axi_awuser_ap  (axi_awuser_ap  ),
-        .axi_awuser_id  (axi_awuser_id  ),
-        .axi_awlen      (axi_awlen      ),
-        .axi_awready    (axi_awready    ),
-        .axi_awvalid    (axi_awvalid    ),
-        .axi_wdata      (axi_wdata      ),
-        .axi_wstrb      (axi_wstrb      ),
-        .axi_wready     (axi_wready     ),
-        .axi_wusero_id  (axi_wusero_id  ),
-        .axi_wusero_last(axi_wusero_last),
-        .axi_araddr     (axi_araddr     ),
-        .axi_aruser_ap  (axi_aruser_ap  ),
-        .axi_aruser_id  (axi_aruser_id  ),
-        .axi_arlen      (axi_arlen      ),
-        .axi_arready    (axi_arready    ),
-        .axi_arvalid    (axi_arvalid    ),
-        .axi_rdata      (axi_rdata      ),
-        .axi_rid        (axi_rid        ),
-        .axi_rlast      (axi_rlast      ),
-        .axi_rvalid     (axi_rvalid     ),
-        // MEM
-        .mem_rst_n      (mem_rst_n      ),
-        .mem_ck         (mem_ck         ),
-        .mem_ck_n       (mem_ck_n       ),
-        .mem_cke        (mem_cke        ),
-        .mem_cs_n       (mem_cs_n       ),
-        .mem_ras_n      (mem_ras_n      ),
-        .mem_cas_n      (mem_cas_n      ),
-        .mem_we_n       (mem_we_n       ),
-        .mem_odt        (mem_odt        ),
-        .mem_a          (mem_a          ),
-        .mem_ba         (mem_ba         ),
-        .mem_dqs        (mem_dqs        ),
-        .mem_dqs_n      (mem_dqs_n      ),
-        .mem_dq         (mem_dq         ),
-        .mem_dm         (mem_dm         )
-    );
+    assign hdmi_clk = disp_clk;
 
 endmodule : AimBot
