@@ -33,7 +33,7 @@ module sync_gen #(
 
 
     localparam V_BLANK = 28 ;
-    localparam H_BLANK = 369;
+    localparam H_BLANK = 380;
 
     if (H_TOTAL-H_ACT!=H_BLANK && THRESH!=0) begin
         wrong_h u_error_h();
