@@ -60,17 +60,17 @@ module AimBot #(
     output        comb_err
 );
 
-    wire clk10, clk25, clk37_2, clk150, clkl;
+    wire clk10, clk25, clk37, clk150, clkl;
     pll u_pll (
         .pll_rst (~rstn  ),
         .clkin1  (clk    ),
         .pll_lock(clkl   ),
-        .clkout0 (clk37_2),
+        .clkout0 (clk37),
         .clkout1 (clk25  ),
         .clkout2 (clk10  ),
         .clkout3 (clk150 )
     );
-    assign hdmi_clk = clk37_2;
+    assign hdmi_clk = clk37;
 
     wire debug_clk;
     assign debug_clk = clk150;
