@@ -58,7 +58,7 @@ module pixel_combine (
 
     // ErrorGen: FIFO should not be full
     wire errorn;
-    rstn_gen #(.TICK(500000)) u_comb_err_gen (
+    rstn_gen #(.TICK(500000)) u_disp_err_gen (
         .clk   (rclk             ),
         .i_rstn(~(full_1||full_2)),
         .o_rstn(errorn           )

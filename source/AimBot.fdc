@@ -442,13 +442,13 @@ define_attribute {p:buf_tick} {PAP_IO_DRIVE} {8}
 define_attribute {p:buf_tick} {PAP_IO_NONE} {TRUE}
 define_attribute {p:buf_tick} {PAP_IO_SLEW} {SLOW}
 
-define_attribute {p:comb_err} {PAP_IO_DIRECTION} {OUTPUT}
-define_attribute {p:comb_err} {PAP_IO_LOC} {A3}
-define_attribute {p:comb_err} {PAP_IO_VCCIO} {3.3}
-define_attribute {p:comb_err} {PAP_IO_STANDARD} {LVCMOS33}
-define_attribute {p:comb_err} {PAP_IO_DRIVE} {8}
-define_attribute {p:comb_err} {PAP_IO_NONE} {TRUE}
-define_attribute {p:comb_err} {PAP_IO_SLEW} {SLOW}
+define_attribute {p:disp_err} {PAP_IO_DIRECTION} {OUTPUT}
+define_attribute {p:disp_err} {PAP_IO_LOC} {A3}
+define_attribute {p:disp_err} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:disp_err} {PAP_IO_STANDARD} {LVCMOS33}
+define_attribute {p:disp_err} {PAP_IO_DRIVE} {8}
+define_attribute {p:disp_err} {PAP_IO_NONE} {TRUE}
+define_attribute {p:disp_err} {PAP_IO_SLEW} {SLOW}
 
 # DDR
 define_attribute {p:mem_a[0]} {PAP_IO_DIRECTION} {OUTPUT}
