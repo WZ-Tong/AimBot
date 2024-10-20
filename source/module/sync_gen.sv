@@ -55,16 +55,17 @@ module sync_gen #(
             state    <= #1 UNINIT;
             svg_rstn <= #1 'b0;
         end else begin
-            svg_rstn <= #1 'b0;
-            href_d   <= #1 cam_href;
+            href_d <= #1 cam_href;
             case (state)
                 UNINIT : begin
+                    svg_rstn <= #1 'b0;
                     if (cam_href==0 && href_d==1) begin
                         state <= #1 WAITING;
                         cnt   <= #1 'b0;
                     end
                 end
                 WAITING : begin
+                    svg_rstn <= #1 'b0;
                     if (cam_href==1) begin
                         state <= #1 UNINIT;
                     end else begin
@@ -76,7 +77,8 @@ module sync_gen #(
                     end
                 end
                 DELAYING : begin
-                    cnt <= #1 cnt + 1'b1;
+                    svg_rstn <= #1 'b0;
+                    cnt      <= #1 cnt + 1'b1;
                     if (cnt==DELAY-1) begin
                         state <= #1 INITED;
                     end
