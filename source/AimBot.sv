@@ -12,9 +12,9 @@ module AimBot #(
 
     inout         cam1_scl   ,
     inout         cam1_sda   ,
-    input         cam1_vsync ,
-    input         cam1_href  ,
-    input         cam1_pclk  ,
+    input         cam1_vsync   /*synthesis PAP_MARK_DEBUG="true"*/,
+    input         cam1_href    /*synthesis PAP_MARK_DEBUG="true"*/,
+    input         cam1_pclk    /*synthesis PAP_MARK_DEBUG="true"*/,
     input  [ 7:0] cam1_data  ,
     output        cam1_rstn  ,
 
@@ -57,7 +57,6 @@ module AimBot #(
     // Debug signals
     output        hdmi_inited,
     output        cam_inited ,
-    output        buf_tick   ,
     output        disp_err
 );
 
@@ -145,7 +144,7 @@ module AimBot #(
     end
     hdmi_display u_hdmi_display (
         .clk    (disp_clk  ),
-        .rstn   (rstn      ),
+        .rstn   (svg_rstn  ),
         .i_vsync(disp_vsync),
         .i_data (cam_data  ),
         .o_error(disp_err  ),
