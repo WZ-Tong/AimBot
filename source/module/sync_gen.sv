@@ -50,11 +50,13 @@ module sync_gen #(
 
     always_ff @(posedge clk or negedge rstn) begin
         if(~rstn) begin
-            cnt    <= #1 'b0;
-            href_d <= #1 'b1;
-            state  <= #1 UNINIT;
+            cnt      <= #1 'b0;
+            href_d   <= #1 'b1;
+            state    <= #1 UNINIT;
+            svg_rstn <= #1 'b0;
         end else begin
-            href_d <= #1 cam_href;
+            svg_rstn <= #1 'b0;
+            href_d   <= #1 cam_href;
             case (state)
                 UNINIT : begin
                     if (cam_href==0 && href_d==1) begin
