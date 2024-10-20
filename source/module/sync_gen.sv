@@ -1,5 +1,5 @@
 module sync_gen #(
-    parameter  THREASH   = 0                           ,
+    parameter  THRESH   = 0                           ,
     parameter  DELAY     = 0                           ,
 
     parameter  V_FP      = 0                           ,
@@ -35,10 +35,10 @@ module sync_gen #(
     localparam V_BLANK = 28 ;
     localparam H_BLANK = 369;
 
-    if (H_TOTAL-H_ACT!=H_BLANK && THREASH!=0) begin
+    if (H_TOTAL-H_ACT!=H_BLANK && THRESH!=0) begin
         wrong_h u_error_h();
     end
-    if (V_TOTAL-V_ACT!=V_BLANK && THREASH!=0) begin
+    if (V_TOTAL-V_ACT!=V_BLANK && THRESH!=0) begin
         wrong_v u_error_v();
     end
 
@@ -77,7 +77,7 @@ module sync_gen #(
                         state <= #1 UNINIT;
                     end else begin
                         cnt <= #1 cnt + 1'b1;
-                        if (cnt==THREASH-1) begin
+                        if (cnt==THRESH-1) begin
                             cnt   <= #1 'b0;
                             state <= #1 DELAYING;
                         end
