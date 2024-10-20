@@ -170,9 +170,6 @@ module AimBot #(
         .H_BOX_WIDTH(20),
         .N_BOX      (1 )
     ) u_draw_window (
-        .clk     (cam_clk   ),
-        .hsync   (hdmi_hsync),
-        .vsync   (hdmi_vsync),
         .x       (x         ),
         .y       (y         ),
         .start_xs(11'd100   ),

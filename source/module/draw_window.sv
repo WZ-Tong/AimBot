@@ -8,10 +8,6 @@ module draw_window #(
     parameter V_ACT       = 12'd720 ,
     parameter H_ACT       = 12'd1280
 ) (
-    input                                clk     ,
-    input                                hsync   ,
-    input                                vsync   ,
-
     input      [      $clog2(H_ACT)-1:0] x       ,
     input      [      $clog2(V_ACT)-1:0] y       ,
 
