@@ -1,25 +1,24 @@
 module pixel_combine (
-    input             rclk      /*synthesis PAP_MARK_DEBUG="true"*/,
-    input             rstn    ,
-    output     [15:0] pixel_1 ,
-    output     [15:0] pixel_2 ,
-    output reg        valid     /*synthesis PAP_MARK_DEBUG="true"*/,
-    output            error     /*synthesis PAP_MARK_DEBUG="true"*/,
+    input         rclk    ,
+    input         rstn    ,
+    input         read_en ,
+    output [15:0] pixel_1 ,
+    output [15:0] pixel_2 ,
+    output        error   ,
 
-    input             inited_1,
-    input             pclk_1    /*synthesis PAP_MARK_DEBUG="true"*/,
-    input             href_1    /*synthesis PAP_MARK_DEBUG="true"*/,
-    input      [15:0] data_1  ,
+    input         inited_1,
+    input         pclk_1  ,
+    input         href_1  ,
+    input  [15:0] data_1  ,
 
-    input             inited_2,
-    input             pclk_2    /*synthesis PAP_MARK_DEBUG="true"*/,
-    input             href_2    /*synthesis PAP_MARK_DEBUG="true"*/,
-    input      [15:0] data_2
+    input         inited_2,
+    input         pclk_2  ,
+    input         href_2  ,
+    input  [15:0] data_2
 );
 
-    reg read_en /*synthesis PAP_MARK_DEBUG="true"*/;
-
-    reg fifo_rst /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire fifo_rst;
+    assign fifo_rst = 1'b0;
 
     wire full_1, empty_1, aempty_1 /*synthesis PAP_MARK_DEBUG="true"*/;
     async_fifo u_sync_1 (
@@ -57,62 +56,13 @@ module pixel_combine (
         .almost_empty(aempty_2  )
     );
 
-    always_ff @(posedge rclk or negedge rstn) begin
-        if(~rstn) begin
-            fifo_rst <= #1 'b1;
-        end else begin
-            if (href_1==0 && href_2==0 && empty_1 && empty_2) begin
-                fifo_rst <= #1 'b1;
-            end else begin
-                fifo_rst <= #1 'b0;
-            end
-        end
-    end
-
-    localparam H_CNT = 1280;
-    reg [$clog2(H_CNT)-1:0] read_cnt /*synthesis PAP_MARK_DEBUG="true"*/;
-
-    always_ff @(posedge rclk or negedge rstn) begin
-        if(~rstn) begin
-            read_en  <= #1 'b0;
-            read_cnt <= #1 'b0;
-            valid    <= #1 'b0;
-        end else begin
-            if (read_cnt==0) begin
-                valid <= #1 'b0;
-            end else begin
-                read_cnt <= #1 read_cnt - 1'b1;
-            end
-
-            if (read_en) begin
-                if (empty_1 || empty_2) begin
-                    read_en <= #1 'b0;
-                end
-            end else begin
-                if (~aempty_1 && ~aempty_2) begin
-                    read_en  <= #1 'b1;
-                    read_cnt <= #1 H_CNT-1;
-                    valid    <= #1 'b1;
-                end
-            end
-        end
-    end
-
-    reg full;
-    always_ff @(posedge rclk or negedge rstn) begin
-        if(~rstn) begin
-            full <= #1 'b0;
-        end else begin
-            full <= #1 full_1 || full_2;
-        end
-    end
-
-    wire comb_err;
+    // ErrorGen: FIFO should not be full
+    wire errorn;
     rstn_gen #(.TICK(500000)) u_comb_err_gen (
-        .clk   (rclk    ),
-        .i_rstn(~full   ),
-        .o_rstn(comb_err)
+        .clk   (rclk             ),
+        .i_rstn(~(full_1||full_2)),
+        .o_rstn(errorn           )
     );
-    assign error = ~comb_err;
+    assign error = ~errorn;
 
 endmodule : pixel_combine

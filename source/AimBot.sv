@@ -60,19 +60,19 @@ module AimBot #(
     output        comb_err
 );
 
-    wire clk10, clk25, clk37_125, clk150, clkl;
+    wire clk10, clk25, clk37_2, clk150, clkl;
     pll u_pll (
-        .pll_rst (~rstn    ),
-        .clkin1  (clk      ),
-        .pll_lock(clkl     ),
-        .clkout0 (clk37_125),
-        .clkout1 (clk25    ),
-        .clkout2 (clk10    ),
-        .clkout3 (clk150   )
+        .pll_rst (~rstn  ),
+        .clkin1  (clk    ),
+        .pll_lock(clkl   ),
+        .clkout0 (clk37_2),
+        .clkout1 (clk25  ),
+        .clkout2 (clk10  ),
+        .clkout3 (clk150 )
     );
-    assign hdmi_clk = clk37_125;
+    assign hdmi_clk = clk37_2;
 
-    wire debug_clk /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire debug_clk;
     assign debug_clk = clk150;
 
     // HDMI configure
@@ -91,8 +91,8 @@ module AimBot #(
     // OV5640 configure & read
     wire cam1_inited, cam2_inited;
 
+    wire cam1_pclk_565, cam2_pclk_565;
     wire        cam1_href_565, cam2_href_565 /*synthesis PAP_MARK_DEBUG="true"*/;
-    wire        cam1_pclk_565, cam2_pclk_565 /*synthesis PAP_MARK_DEBUG="true"*/;
     wire [15:0] cam1_data_565, cam2_data_565 /*synthesis PAP_MARK_DEBUG="true"*/;
     assign cam_inited = cam1_inited && cam2_inited;
 
@@ -132,26 +132,26 @@ module AimBot #(
 
     wire data_en;
     wire read_en /*synthesis PAP_MARK_DEBUG="true"*/;
-    sync_gen #(.H_FP(392-250), .V_FP(18-8)) u_sync_gen (
-        .clk    (hdmi_clk  ),
-        .rstn   (rstn      ),
-        .vsync  (hdmi_vsync),
-        .hsync  (hdmi_hsync),
-        .data_en(data_en   ),
-        .read_en(read_en   )
+    sync_gen #(.H_FP(369-250), .V_FP(32-10)) u_sync_gen (
+        .clk     (hdmi_clk     ),
+        .rstn    (rstn         ),
+        .cam_href(cam1_href_565),
+        .vsync   (hdmi_vsync   ),
+        .hsync   (hdmi_hsync   ),
+        .data_en (data_en      ),
+        .read_en (read_en      )
     );
     assign hdmi_de = data_en;
 
-    wire comb_href /*synthesis PAP_MARK_DEBUG="true"*/;
     wire [15:0] comb_pix_1, comb_pix_2 /*synthesis PAP_MARK_DEBUG="true"*/;
 
     pixel_combine u_pixel_combine (
         .rclk    (hdmi_clk     ),
         .rstn    (rstn         ),
+        .read_en (read_en      ),
         .pixel_1 (comb_pix_1   ),
         .pixel_2 (comb_pix_2   ),
         .error   (comb_err     ),
-        .valid   (comb_href    ),
         // Cam 1
         .inited_1(cam1_inited  ),
         .pclk_1  (cam1_pclk_565),
@@ -165,10 +165,10 @@ module AimBot #(
     );
 
     tick #(.TICK(((1280*720)/1280)*30), .DBG_CNT(10240)) u_buf_tick (
-        .clk (hdmi_clk ),
-        .rstn(rstn     ),
-        .trig(comb_href),
-        .tick(buf_tick )
+        .clk (hdmi_clk  ),
+        .rstn(rstn      ),
+        .trig(hdmi_vsync),
+        .tick(buf_tick  )
     );
 
     assign hdmi_r = {comb_pix_1[15:11], 3'b0};

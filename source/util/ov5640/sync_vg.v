@@ -60,8 +60,8 @@ module sync_vg # (
     output reg [Y_BITS-1:0] y_act
 );
 
-    reg [X_BITS-1:0] h_count /*synthesis PAP_MARK_DEBUG="true"*/;
-    reg [Y_BITS-1:0] v_count /*synthesis PAP_MARK_DEBUG="true"*/;
+    reg [X_BITS-1:0] h_count;
+    reg [Y_BITS-1:0] v_count;
     
     /* horizontal counter */
     always @(posedge clk)

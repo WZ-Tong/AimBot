@@ -17,15 +17,16 @@ module sync_gen #(
     localparam X_BITS    = $clog2(H_TOTAL)             ,
     localparam Y_BITS    = $clog2(V_TOTAL)
 ) (
-    input               clk    ,
-    input               rstn   ,
+    input               clk     ,
+    input               rstn    ,
+    input               cam_href,
 
-    output              vsync  ,
-    output              hsync  ,
-    output              data_en,
-    output              read_en,
+    output              vsync   ,
+    output              hsync   ,
+    output              data_en ,
+    output              read_en ,
 
-    output [X_BITS-1:0] x      ,
+    output [X_BITS-1:0] x       ,
     output [Y_BITS-1:0] y
 );
 
