@@ -62,13 +62,13 @@ module AimBot #(
 
     wire clk10, clk25, clk37, clk150, clkl;
     pll u_pll (
-        .pll_rst (~rstn  ),
-        .clkin1  (clk    ),
-        .pll_lock(clkl   ),
-        .clkout0 (clk37),
-        .clkout1 (clk25  ),
-        .clkout2 (clk10  ),
-        .clkout3 (clk150 )
+        .pll_rst (~rstn ),
+        .clkin1  (clk   ),
+        .pll_lock(clkl  ),
+        .clkout0 (clk37 ),
+        .clkout1 (clk25 ),
+        .clkout2 (clk10 ),
+        .clkout3 (clk150)
     );
     assign hdmi_clk = clk37;
 
@@ -130,9 +130,18 @@ module AimBot #(
         .cfg_rstn    (cam2_rstn    )
     );
 
+    localparam V_BLANK     = 28  ;
+    localparam H_BLANK     = 369 ;
+    localparam WAIT_THRESH = 1500;
+
     wire data_en;
     wire read_en /*synthesis PAP_MARK_DEBUG="true"*/;
-    sync_gen #(.H_FP(369-250), .V_FP(32-10)) u_sync_gen (
+    sync_gen #(
+        .H_BLANK(H_BLANK                     ),
+        .V_BLANK(V_BLANK                     ),
+        .THREASH(WAIT_THRESH                 ),
+        .DELAY  (1649*(V_BLANK-1)-WAIT_THRESH)
+    ) u_sync_gen (
         .clk     (hdmi_clk     ),
         .rstn    (rstn         ),
         .cam_href(cam1_href_565),
