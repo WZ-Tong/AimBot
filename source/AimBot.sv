@@ -154,6 +154,7 @@ module AimBot #(
     assign hdmi_b   = cam_b;
     hdmi_display u_hdmi_display (
         .clk    (disp_clk  ),
+        .rstn   (rstn      ),
         .href   (disp_href ),
         .hsync  (hdmi_hsync),
         .vsync  (hdmi_vsync),

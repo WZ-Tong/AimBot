@@ -41,61 +41,6 @@ module sync_gen #(
         wrong_v u_error_v();
     end
 
-    localparam H_BLANK_TOTAL = H_TOTAL * V_FP;
-
-    localparam UNINIT   = 2'b00;
-    localparam WAITING  = 2'b01;
-    localparam DELAYING = 2'b10;
-    localparam INITED   = 2'b11;
-
-    reg [1:0] state /*synthesis PAP_MARK_DEBUG="true"*/;
-
-    reg svg_rstn, href_d /*synthesis PAP_MARK_DEBUG="true"*/;
-
-    reg [$clog2(H_BLANK_TOTAL)-1:0] cnt /*synthesis PAP_MARK_DEBUG="true"*/;
-
-    always_ff @(posedge clk or negedge rstn) begin
-        if(~rstn) begin
-            cnt      <= #1 'b0;
-            href_d   <= #1 'b1;
-            state    <= #1 UNINIT;
-            svg_rstn <= #1 'b0;
-        end else begin
-            href_d <= #1 href;
-            case (state)
-                UNINIT : begin
-                    svg_rstn <= #1 'b0;
-                    if (href==0 && href_d==1) begin
-                        state <= #1 WAITING;
-                        cnt   <= #1 'b0;
-                    end
-                end
-                WAITING : begin
-                    svg_rstn <= #1 'b0;
-                    if (href==1) begin
-                        state <= #1 UNINIT;
-                    end else begin
-                        cnt <= #1 cnt + 1'b1;
-                        if (cnt==THRESH-1) begin
-                            cnt   <= #1 'b0;
-                            state <= #1 DELAYING;
-                        end
-                    end
-                end
-                DELAYING : begin
-                    svg_rstn <= #1 'b0;
-                    cnt      <= #1 cnt + 1'b1;
-                    if (cnt==DELAY-1) begin
-                        state <= #1 INITED;
-                    end
-                end
-                INITED : begin
-                    svg_rstn <= #1 'b1;
-                end
-            endcase
-        end
-    end
-
     sync_vg #(
         .X_BITS   (X_BITS   ),
         .Y_BITS   (Y_BITS   ),
