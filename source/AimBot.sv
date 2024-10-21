@@ -6,41 +6,57 @@ module AimBot #(
     parameter N_BOX       = 1'b1,
     parameter CAM_DISPLAY = 1
 ) (
-    input         clk        ,
-    input         rstn       ,
-    input         svg_rstn   ,
+    input        clk          ,
+    input        rstn         ,
+    input        svg_rstn     ,
 
-    inout         cam1_scl   ,
-    inout         cam1_sda   ,
-    input         cam1_vsync   /*synthesis PAP_MARK_DEBUG="true"*/,
-    input         cam1_href    /*synthesis PAP_MARK_DEBUG="true"*/,
-    input         cam1_pclk    /*synthesis PAP_MARK_DEBUG="true"*/,
-    input  [ 7:0] cam1_data  ,
-    output        cam1_rstn  ,
+    inout        cam1_scl     ,
+    inout        cam1_sda     ,
+    input        cam1_vsync     /*synthesis PAP_MARK_DEBUG="true"*/,
+    input        cam1_href      /*synthesis PAP_MARK_DEBUG="true"*/,
+    input        cam1_pclk      /*synthesis PAP_MARK_DEBUG="true"*/,
+    input  [7:0] cam1_data    ,
+    output       cam1_rstn    ,
 
-    inout         cam2_scl   ,
-    inout         cam2_sda   ,
-    input         cam2_vsync ,
-    input         cam2_href  ,
-    input         cam2_pclk  ,
-    input  [ 7:0] cam2_data  ,
-    output        cam2_rstn  ,
+    inout        cam2_scl     ,
+    inout        cam2_sda     ,
+    input        cam2_vsync   ,
+    input        cam2_href    ,
+    input        cam2_pclk    ,
+    input  [7:0] cam2_data    ,
+    output       cam2_rstn    ,
 
-    output        hdmi_clk   ,
-    output        hdmi_hsync ,
-    output        hdmi_vsync ,
-    output        hdmi_de    ,
-    output [ 7:0] hdmi_r     ,
-    output [ 7:0] hdmi_g     ,
-    output [ 7:0] hdmi_b     ,
+    output       hdmi_clk     ,
+    output       hdmi_hsync   ,
+    output       hdmi_vsync   ,
+    output       hdmi_de      ,
+    output [7:0] hdmi_r       ,
+    output [7:0] hdmi_g       ,
+    output [7:0] hdmi_b       ,
 
-    output        hdmi_rstn  ,
-    output        hdmi_scl   ,
-    inout         hdmi_sda   ,
+    output       hdmi_rstn    ,
+    output       hdmi_scl     ,
+    inout        hdmi_sda     ,
+
+    input        rgmii1_rxc   ,
+    input        rgmii1_rx_ctl,
+    input  [3:0] rgmii1_rxd   ,
+
+    output       rgmii1_txc   ,
+    output       rgmii1_tx_ctl,
+    output [3:0] rgmii1_txd   ,
+
+    input        rgmii2_rxc   ,
+    input        rgmii2_rx_ctl,
+    input  [3:0] rgmii2_rxd   ,
+
+    output       rgmii2_txc   ,
+    output       rgmii2_tx_ctl,
+    output [3:0] rgmii2_txd   ,
 
     // Debug signals
-    output        hdmi_inited,
-    output        cam_inited
+    output       hdmi_inited  ,
+    output       cam_inited
 );
 
     wire clk10, clk25;
@@ -172,5 +188,7 @@ module AimBot #(
     assign hdmi_vsync = win_vsync;
     assign hdmi_hsync = win_hsync;
     assign hdmi_clk   = win_clk  ;
+
+
 
 endmodule : AimBot
