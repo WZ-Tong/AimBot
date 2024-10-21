@@ -173,10 +173,6 @@ module AimBot #(
         .N_BOX      (1 )
     ) u_draw_window (
         .clk     (disp_clk  ),
-        .i_hsync (disp_hsync),
-        .i_vsync (disp_vsync),
-        .o_hsync (win_hsync ),
-        .o_vsync (win_vsync ),
         .x       (x         ),
         .y       (y         ),
         .start_xs(11'd100   ),
@@ -184,9 +180,13 @@ module AimBot #(
         .end_xs  (11'd200   ),
         .end_ys  (10'd400   ),
         .colors  (24'hFFFFFF),
+        .i_hsync (disp_hsync),
+        .i_vsync (disp_vsync),
         .i_r     (disp_r    ),
         .i_g     (disp_g    ),
         .i_b     (disp_b    ),
+        .o_hsync (win_hsync ),
+        .o_vsync (win_vsync ),
         .o_r     (win_r     ),
         .o_g     (win_g     ),
         .o_b     (win_b     )

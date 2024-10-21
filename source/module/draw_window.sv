@@ -9,10 +9,6 @@ module draw_window #(
     parameter H_ACT       = 12'd1280
 ) (
     input                                clk     ,
-    input                                i_hsync ,
-    input                                i_vsync ,
-    output reg                           o_hsync ,
-    output reg                           o_vsync ,
 
     input      [      $clog2(H_ACT)-1:0] x       ,
     input      [      $clog2(V_ACT)-1:0] y       ,
@@ -25,10 +21,14 @@ module draw_window #(
 
     input      [           N_BOX*24-1:0] colors  ,
 
+    input                                i_hsync ,
+    input                                i_vsync ,
     input      [                    7:0] i_r     ,
     input      [                    7:0] i_g     ,
     input      [                    7:0] i_b     ,
 
+    output reg                           o_hsync ,
+    output reg                           o_vsync ,
     output reg [                    7:0] o_r     ,
     output reg [                    7:0] o_g     ,
     output reg [                    7:0] o_b
