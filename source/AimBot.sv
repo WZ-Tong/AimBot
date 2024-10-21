@@ -38,22 +38,6 @@ module AimBot #(
     output        hdmi_scl   ,
     inout         hdmi_sda   ,
 
-    output        mem_rst_n  ,
-    output        mem_ck     ,
-    output        mem_ck_n   ,
-    output        mem_cke    ,
-    output        mem_cs_n   ,
-    output        mem_ras_n  ,
-    output        mem_cas_n  ,
-    output        mem_we_n   ,
-    output        mem_odt    ,
-    output [14:0] mem_a      ,
-    output [ 2:0] mem_ba     ,
-    inout  [ 3:0] mem_dqs    ,
-    inout  [ 3:0] mem_dqs_n  ,
-    inout  [31:0] mem_dq     ,
-    output [ 3:0] mem_dm     ,
-
     // Debug signals
     output        hdmi_inited,
     output        cam_inited
