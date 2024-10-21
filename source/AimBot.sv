@@ -202,9 +202,9 @@ module AimBot #(
     assign hdmi_hsync = win_hsync;
     assign hdmi_clk   = win_clk  ;
 
-    wire         ddr_clk, ddr_clkl;
+    wire ddr_clk, ddr_clkl;
+
     wire [ 27:0] axi_awaddr     ;
-    wire         axi_awuser_ap  ;
     wire [  3:0] axi_awlen      ;
     wire         axi_awready    ;
     wire         axi_awvalid    ;
@@ -220,7 +220,6 @@ module AimBot #(
         .trig           (/*unused*/     ),
         .ddr_clk        (ddr_clk        ),
         .axi_awaddr     (axi_awaddr     ),
-        .axi_awuser_ap  (axi_awuser_ap  ),
         .axi_awlen      (axi_awlen      ),
         .axi_awready    (axi_awready    ),
         .axi_awvalid    (axi_awvalid    ),
@@ -231,7 +230,6 @@ module AimBot #(
     );
 
     wire [ 27:0] axi_araddr     ;
-    wire         axi_aruser_ap  ;
     wire [  3:0] axi_aruser_id  ;
     wire [  3:0] axi_arlen      ;
     wire         axi_arready    ;
@@ -247,21 +245,17 @@ module AimBot #(
         .inited         (ddr_inited     ),
         .phy_clk        (ddr_clk        ),
         .phy_clkl       (ddr_clkl       ),
-        // AXI
+        // AXI Write
         .axi_awaddr     (axi_awaddr     ),
-        .axi_awuser_ap  (axi_awuser_ap  ),
-        .axi_awuser_id  (4'b0000        ),
         .axi_awlen      (axi_awlen      ),
         .axi_awready    (axi_awready    ),
         .axi_awvalid    (axi_awvalid    ),
         .axi_wdata      (axi_wdata      ),
         .axi_wstrb      (axi_wstrb      ),
         .axi_wready     (axi_wready     ),
-        .axi_wusero_id  (/*unused*/     ),
         .axi_wusero_last(axi_wusero_last),
+        // AXI Read
         .axi_araddr     (axi_araddr     ),
-        .axi_aruser_ap  (axi_aruser_ap  ),
-        .axi_aruser_id  (axi_aruser_id  ),
         .axi_arlen      (axi_arlen      ),
         .axi_arready    (axi_arready    ),
         .axi_arvalid    (axi_arvalid    ),
