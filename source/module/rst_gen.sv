@@ -6,7 +6,7 @@ module rst_gen #(parameter TICK = 1) (
 
     reg [$clog2(TICK)-1:0] cnt;
 
-    always_ff @(posedge clk or negedge i_rst) begin
+    always_ff @(posedge clk or posedge i_rst) begin
         if(i_rst) begin
             cnt   <= #1 'b0;
             o_rst <= #1 'b1;
