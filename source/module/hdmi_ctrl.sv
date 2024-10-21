@@ -3,24 +3,23 @@
 `timescale 1ns / 1ps
 
 module hdmi_ctrl (
-    input  clk10       ,
-    input  clk10_locked,
-    input  rstn        ,
-    output inited      ,
+    input  clk10    ,
+    input  rstn     ,
+    output inited   ,
 
-    output iic_rstn    ,
-    output iic_i_scl   ,
-    inout  iic_i_sda   ,
-    output iic_o_scl   ,
+    output iic_rstn ,
+    output iic_i_scl,
+    inout  iic_i_sda,
+    output iic_o_scl,
     inout  iic_o_sda
 );
 
     localparam RSTN_HOLD_CNT = 10_000_000;
 
     rstn_gen #(.TICK(RSTN_HOLD_CNT)) ms72xx_rstn_gen (
-        .clk   (clk10            ),
-        .i_rstn(rstn&clk10_locked),
-        .o_rstn(iic_rstn         )
+        .clk   (clk10   ),
+        .i_rstn(rstn    ),
+        .o_rstn(iic_rstn)
     );
 
     ms72xx_ctl ms72xx_ctl (

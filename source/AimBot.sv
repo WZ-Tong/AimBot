@@ -56,29 +56,17 @@ module AimBot #(
 
     // Debug signals
     output        hdmi_inited,
-    output        cam_inited ,
-    output        wddr_err
+    output        cam_inited
 );
 
-    wire clk10, clk25, clk150, clkl;
-    pll u_pll (
-        .pll_rst (~rstn     ),
-        .clkin1  (clk       ),
-        .pll_lock(clkl      ),
-        .clkout0 (/*unused*/),
-        .clkout1 (clk25     ),
-        .clkout2 (clk10     ),
-        .clkout3 (clk150    )
-    );
-
-    wire debug_clk;
-    assign debug_clk = clk150;
+    wire clk10, clk25;
+    clk_div #(.CNT(10_000_000)) u_clk10_gen (.i_clk(clk), .o_clk(clk10));
+    clk_div #(.CNT(25_000_000)) u_clk25_gen (.i_clk(clk), .o_clk(clk25));
 
     // HDMI configure
     hdmi_ctrl u_hdmi_ctrl (
         .rstn        (rstn       ),
         .clk10       (clk10      ),
-        .clk10_locked(clkl       ),
         .inited      (hdmi_inited),
         .iic_rstn    (hdmi_rstn  ),
         .iic_i_scl   (/*unused*/ ),
@@ -97,7 +85,6 @@ module AimBot #(
 
     ov5640_reader u_cam1_reader (
         .clk25       (clk25        ),
-        .clk25_locked(clkl         ),
         .rstn        (rstn         ),
         .vsync       (cam1_vsync   ),
         .href        (cam1_href    ),
@@ -113,20 +100,19 @@ module AimBot #(
     );
 
     ov5640_reader u_cam2_reader (
-        .clk25       (clk25        ),
-        .clk25_locked(clkl         ),
-        .rstn        (rstn         ),
-        .vsync       (cam2_vsync   ),
-        .href        (cam2_href    ),
-        .pclk        (cam2_pclk    ),
-        .data        (cam2_data    ),
-        .inited      (cam2_inited  ),
-        .href_565    (cam2_href_565),
-        .pclk_565    (cam2_pclk_565),
-        .data_565    (cam2_data_565),
-        .cfg_scl     (cam2_scl     ),
-        .cfg_sda     (cam2_sda     ),
-        .cfg_rstn    (cam2_rstn    )
+        .clk25   (clk25        ),
+        .rstn    (rstn         ),
+        .vsync   (cam2_vsync   ),
+        .href    (cam2_href    ),
+        .pclk    (cam2_pclk    ),
+        .data    (cam2_data    ),
+        .inited  (cam2_inited  ),
+        .href_565(cam2_href_565),
+        .pclk_565(cam2_pclk_565),
+        .data_565(cam2_data_565),
+        .cfg_scl (cam2_scl     ),
+        .cfg_sda (cam2_sda     ),
+        .cfg_rstn(cam2_rstn    )
     );
 
 
@@ -202,91 +188,5 @@ module AimBot #(
     assign hdmi_vsync = win_vsync;
     assign hdmi_hsync = win_hsync;
     assign hdmi_clk   = win_clk  ;
-
-    wire ddr_clk, ddr_clkl;
-
-    wire [ 27:0] axi_awaddr     ;
-    wire [  3:0] axi_awlen      ;
-    wire         axi_awready    ;
-    wire         axi_awvalid    ;
-    wire [255:0] axi_wdata      ;
-    wire [ 31:0] axi_wstrb      ;
-    wire         axi_wready     ;
-    wire         axi_wusero_last;
-
-    ddr_writer u_ddr_writer (
-        .rstn           (rstn           ),
-        .trig           (trig           ),
-        .cam1_pclk      (cam1_pclk      ),
-        .cam1_href      (cam1_href_565  ),
-        .cam1_vsync     (cam1_vsync     ),
-        .cam1_data      (cam1_data_565  ),
-        .cam2_pclk      (cam2_pclk      ),
-        .cam2_href      (cam2_href_565  ),
-        .cam2_vsync     (cam2_vsync     ),
-        .cam2_data      (cam2_data_565  ),
-        .error          (error          ),
-        .ddr_clk        (ddr_clk        ),
-        .axi_awaddr     (axi_awaddr     ),
-        .axi_awlen      (axi_awlen      ),
-        .axi_awready    (axi_awready    ),
-        .axi_awvalid    (axi_awvalid    ),
-        .axi_wdata      (axi_wdata      ),
-        .axi_wstrb      (axi_wstrb      ),
-        .axi_wready     (axi_wready     ),
-        .axi_wusero_last(axi_wusero_last)
-    );
-
-    wire [ 27:0] axi_araddr   ;
-    wire [  3:0] axi_aruser_id;
-    wire [  3:0] axi_arlen    ;
-    wire         axi_arready  ;
-    wire         axi_arvalid  ;
-    wire [255:0] axi_rdata    ;
-    wire [  3:0] axi_rid      ;
-    wire         axi_rlast    ;
-    wire         axi_rvalid   ;
-
-    ddr3_32 u_ddr3_32 (
-        .clk            (clk            ),
-        .rstn           (rstn           ),
-        .inited         (ddr_inited     ),
-        .phy_clk        (ddr_clk        ),
-        .phy_clkl       (ddr_clkl       ),
-        // AXI Write
-        .axi_awaddr     (axi_awaddr     ),
-        .axi_awlen      (axi_awlen      ),
-        .axi_awready    (axi_awready    ),
-        .axi_awvalid    (axi_awvalid    ),
-        .axi_wdata      (axi_wdata      ),
-        .axi_wstrb      (axi_wstrb      ),
-        .axi_wready     (axi_wready     ),
-        .axi_wusero_last(axi_wusero_last),
-        // AXI Read
-        .axi_araddr     (axi_araddr     ),
-        .axi_arlen      (axi_arlen      ),
-        .axi_arready    (axi_arready    ),
-        .axi_arvalid    (axi_arvalid    ),
-        .axi_rdata      (axi_rdata      ),
-        .axi_rid        (axi_rid        ),
-        .axi_rlast      (axi_rlast      ),
-        .axi_rvalid     (axi_rvalid     ),
-        // MEM
-        .mem_rst_n      (mem_rst_n      ),
-        .mem_ck         (mem_ck         ),
-        .mem_ck_n       (mem_ck_n       ),
-        .mem_cke        (mem_cke        ),
-        .mem_cs_n       (mem_cs_n       ),
-        .mem_ras_n      (mem_ras_n      ),
-        .mem_cas_n      (mem_cas_n      ),
-        .mem_we_n       (mem_we_n       ),
-        .mem_odt        (mem_odt        ),
-        .mem_a          (mem_a          ),
-        .mem_ba         (mem_ba         ),
-        .mem_dqs        (mem_dqs        ),
-        .mem_dqs_n      (mem_dqs_n      ),
-        .mem_dq         (mem_dq         ),
-        .mem_dm         (mem_dm         )
-    );
 
 endmodule : AimBot

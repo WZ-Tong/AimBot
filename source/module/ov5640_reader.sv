@@ -1,21 +1,20 @@
 module ov5640_reader (
-    input         clk25       ,
-    input         clk25_locked,
-    input         rstn        ,
+    input         clk25   ,
+    input         rstn    ,
 
-    input         vsync       ,
-    input         href        ,
-    input         pclk        ,
-    input  [ 7:0] data        ,
+    input         vsync   ,
+    input         href    ,
+    input         pclk    ,
+    input  [ 7:0] data    ,
 
-    output        inited      ,
-    output        href_565    ,
-    output        pclk_565    ,
-    output [15:0] data_565    ,
+    output        inited  ,
+    output        href_565,
+    output        pclk_565,
+    output [15:0] data_565,
 
     // Configure
-    inout         cfg_scl     ,
-    inout         cfg_sda     ,
+    inout         cfg_scl ,
+    inout         cfg_sda ,
     output        cfg_rstn
 );
 
@@ -26,9 +25,9 @@ module ov5640_reader (
     localparam H_SYNC_ACTIVE = 1'b1            ;
 
     rstn_gen #(.TICK(CFG_RSTN_HOLD)) cam_cfg_rstn_gen (
-        .clk   (cfg_clk          ),
-        .i_rstn(rstn&clk25_locked),
-        .o_rstn(cfg_rstn         )
+        .clk   (cfg_clk ),
+        .i_rstn(rstn    ),
+        .o_rstn(cfg_rstn)
     );
 
     reg_config cam_reg_config (
