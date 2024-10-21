@@ -55,4 +55,10 @@ module white_balance #(
         end
     end
 
+    wire [31:0] rev_r, rev_g, rev_b;
+
+    Reciprocal u_rev_r (.Average(r_v), .Recip(rev_r));
+    Reciprocal u_rev_g (.Average(g_v), .Recip(rev_g));
+    Reciprocal u_rev_b (.Average(b_v), .Recip(rev_b));
+
 endmodule : white_balance

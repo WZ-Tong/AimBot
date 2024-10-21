@@ -10,6 +10,7 @@
 			"-y$project_path\\source",
 			"-y$project_path\\source\\stub",
 			"-y$project_path\\source\\module",
+			"-y$project_path\\source\\util",
 			"-y$project_path\\source\\util\\convert",
 			"-y$project_path\\source\\util\\hdmi",
 			"-y$project_path\\source\\util\\ov5640",
