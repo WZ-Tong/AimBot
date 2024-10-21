@@ -217,6 +217,7 @@ module AimBot #(
         .pix_clk        (/*unused*/     ),
         .pix_href       (/*unused*/     ),
         .pix_vsync      (/*unused*/     ),
+        .pix_data       (/*unused*/     ),
         .trig           (/*unused*/     ),
         .ddr_clk        (ddr_clk        ),
         .axi_awaddr     (axi_awaddr     ),

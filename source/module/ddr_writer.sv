@@ -2,6 +2,7 @@ module ddr_writer (
     input          pix_clk        ,
     input          pix_href       ,
     input          pix_vsync      ,
+    input  [ 15:0] pix_data       ,
     input          trig           ,
 
     input          ddr_clk        ,
@@ -20,18 +21,20 @@ module ddr_writer (
 );
 
     async_fifo u_pix_buffer (
-        .wr_data     (),
-        .wr_en       (),
-        .wr_clk      (),
-        .wr_rst      (),
-        .wr_full     (),
-        .almost_full (),
-        .rd_data     (),
-        .rd_en       (),
-        .rd_clk      (),
-        .rd_rst      (),
-        .rd_empty    (),
-        .almost_empty()
+        // Write
+        .wr_clk      (pix_clk  ),
+        .wr_rst      (pix_vsync),
+        .wr_en       (pix_href ),
+        .wr_data     (pix_data ),
+        .wr_full     (         ),
+        .almost_full (         ),
+        // Read
+        .rd_clk      (ddr_clk  ),
+        .rd_rst      (         ),
+        .rd_en       (         ),
+        .rd_data     (         ),
+        .rd_empty    (         ),
+        .almost_empty(         )
     );
 
 
