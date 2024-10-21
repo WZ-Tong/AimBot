@@ -43,12 +43,10 @@ module ddr_writer (
         .almost_empty(          )
     );
 
-    wire write_fulln;
-    rstn_gen #(.TICK(375_000)) u_rstn_gen (
-        .clk   (pix_clk    ),
-        .i_rstn(~write_full),
-        .o_rstn(write_fulln)
+    rst_gen #(.TICK(375_000)) u_err_gen (
+        .clk  (pix_clk   ),
+        .i_rst(write_full),
+        .o_rst(error     )
     );
-    assign error = ~write_fulln;
 
 endmodule : ddr_writer
