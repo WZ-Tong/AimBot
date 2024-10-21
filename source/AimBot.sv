@@ -215,13 +215,17 @@ module AimBot #(
     wire         axi_wusero_last;
 
     ddr_writer u_ddr_writer (
-        .pix_clk        (/*unused*/     ),
-        .pix_href       (/*unused*/     ),
-        .pix_vsync      (/*unused*/     ),
-        .pix_data       (/*unused*/     ),
-        .trig           (/*unused*/     ),
+        .trig           (trig           ),
+        .cam1_pclk      (cam1_pclk      ),
+        .cam1_href_565  (cam1_href_565  ),
+        .cam1_vsync     (cam1_vsync     ),
+        .cam1_data_565  (cam1_data_565  ),
+        .cam2_pclk      (cam2_pclk      ),
+        .cam2_href_565  (cam2_href_565  ),
+        .cam2_vsync     (cam2_vsync     ),
+        .cam2_data_565  (cam2_data_565  ),
+        .error          (error          ),
         .ddr_clk        (ddr_clk        ),
-        .error          (wddr_err       ),
         .axi_awaddr     (axi_awaddr     ),
         .axi_awlen      (axi_awlen      ),
         .axi_awready    (axi_awready    ),
@@ -232,15 +236,15 @@ module AimBot #(
         .axi_wusero_last(axi_wusero_last)
     );
 
-    wire [ 27:0] axi_araddr     ;
-    wire [  3:0] axi_aruser_id  ;
-    wire [  3:0] axi_arlen      ;
-    wire         axi_arready    ;
-    wire         axi_arvalid    ;
-    wire [255:0] axi_rdata      ;
-    wire [  3:0] axi_rid        ;
-    wire         axi_rlast      ;
-    wire         axi_rvalid     ;
+    wire [ 27:0] axi_araddr   ;
+    wire [  3:0] axi_aruser_id;
+    wire [  3:0] axi_arlen    ;
+    wire         axi_arready  ;
+    wire         axi_arvalid  ;
+    wire [255:0] axi_rdata    ;
+    wire [  3:0] axi_rid      ;
+    wire         axi_rlast    ;
+    wire         axi_rvalid   ;
 
     ddr3_32 u_ddr3_32 (
         .clk            (clk            ),

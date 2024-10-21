@@ -1,13 +1,19 @@
 module ddr_writer (
-    input          pix_clk        ,
-    input          pix_href       ,
-    input          pix_vsync      ,
-    input  [ 15:0] pix_data       ,
     input          trig           ,
 
-    input          ddr_clk        ,
+    input          cam1_pclk      ,
+    input          cam1_href      ,
+    input          cam1_vsync     ,
+    input  [ 15:0] cam1_data      ,
+
+    input          cam2_pclk      ,
+    input          cam2_href      ,
+    input          cam2_vsync     ,
+    input  [ 15:0] cam2_data      ,
 
     output         error          ,
+
+    input          ddr_clk        ,
 
     // Write address
     output [ 27:0] axi_awaddr     ,
@@ -28,10 +34,10 @@ module ddr_writer (
 
     async_fifo u_pix_buffer (
         // Write
-        .wr_clk      (pix_clk   ),
+        .wr_clk      (          ),
         .wr_rst      (write_rst ),
-        .wr_en       (pix_href  ),
-        .wr_data     (pix_data  ),
+        .wr_en       (          ),
+        .wr_data     (          ),
         .wr_full     (write_full),
         .almost_full (          ),
         // Read
