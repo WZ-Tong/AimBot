@@ -56,7 +56,7 @@ module AimBot #(
 
     // Debug signals
     output        hdmi_inited,
-    output        cam_inited 
+    output        cam_inited
 );
 
     wire clk10, clk25, clk150, clkl;
@@ -202,10 +202,10 @@ module AimBot #(
     assign hdmi_hsync = win_hsync;
     assign hdmi_clk   = win_clk  ;
 
-    wire        ddr_clk, ddr_clkl;
-    wire [27:0] axi_awaddr   ;
-    wire        axi_awuser_ap;
-    wire [ 3:0] axi_awuser_id;
+    wire         ddr_clk, ddr_clkl;
+    wire [ 27:0] axi_awaddr     ;
+    wire         axi_awuser_ap  ;
+    wire [  3:0] axi_awuser_id  ;
     wire [  3:0] axi_awlen      ;
     wire         axi_awready    ;
     wire         axi_awvalid    ;
@@ -214,6 +214,26 @@ module AimBot #(
     wire         axi_wready     ;
     wire [  3:0] axi_wusero_id  ;
     wire         axi_wusero_last;
+
+    ddr_writer u_ddr_writer (
+        .pix_clk        (/*unused*/     ),
+        .pix_href       (/*unused*/     ),
+        .pix_vsync      (/*unused*/     ),
+        .trig           (/*unused*/     ),
+        .ddr_clk        (ddr_clk        ),
+        .axi_awaddr     (axi_awaddr     ),
+        .axi_awuser_ap  (axi_awuser_ap  ),
+        .axi_awuser_id  (axi_awuser_id  ),
+        .axi_awlen      (axi_awlen      ),
+        .axi_awready    (axi_awready    ),
+        .axi_awvalid    (axi_awvalid    ),
+        .axi_wdata      (axi_wdata      ),
+        .axi_wstrb      (axi_wstrb      ),
+        .axi_wready     (axi_wready     ),
+        .axi_wusero_id  (axi_wusero_id  ),
+        .axi_wusero_last(axi_wusero_last)
+    );
+
     wire [ 27:0] axi_araddr     ;
     wire         axi_aruser_ap  ;
     wire [  3:0] axi_aruser_id  ;
