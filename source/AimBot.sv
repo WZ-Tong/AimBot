@@ -205,14 +205,12 @@ module AimBot #(
     wire         ddr_clk, ddr_clkl;
     wire [ 27:0] axi_awaddr     ;
     wire         axi_awuser_ap  ;
-    wire [  3:0] axi_awuser_id  ;
     wire [  3:0] axi_awlen      ;
     wire         axi_awready    ;
     wire         axi_awvalid    ;
     wire [255:0] axi_wdata      ;
     wire [ 31:0] axi_wstrb      ;
     wire         axi_wready     ;
-    wire [  3:0] axi_wusero_id  ;
     wire         axi_wusero_last;
 
     ddr_writer u_ddr_writer (
@@ -223,14 +221,12 @@ module AimBot #(
         .ddr_clk        (ddr_clk        ),
         .axi_awaddr     (axi_awaddr     ),
         .axi_awuser_ap  (axi_awuser_ap  ),
-        .axi_awuser_id  (axi_awuser_id  ),
         .axi_awlen      (axi_awlen      ),
         .axi_awready    (axi_awready    ),
         .axi_awvalid    (axi_awvalid    ),
         .axi_wdata      (axi_wdata      ),
         .axi_wstrb      (axi_wstrb      ),
         .axi_wready     (axi_wready     ),
-        .axi_wusero_id  (axi_wusero_id  ),
         .axi_wusero_last(axi_wusero_last)
     );
 
@@ -254,14 +250,14 @@ module AimBot #(
         // AXI
         .axi_awaddr     (axi_awaddr     ),
         .axi_awuser_ap  (axi_awuser_ap  ),
-        .axi_awuser_id  (axi_awuser_id  ),
+        .axi_awuser_id  (4'b0000        ),
         .axi_awlen      (axi_awlen      ),
         .axi_awready    (axi_awready    ),
         .axi_awvalid    (axi_awvalid    ),
         .axi_wdata      (axi_wdata      ),
         .axi_wstrb      (axi_wstrb      ),
         .axi_wready     (axi_wready     ),
-        .axi_wusero_id  (axi_wusero_id  ),
+        .axi_wusero_id  (/*unused*/     ),
         .axi_wusero_last(axi_wusero_last),
         .axi_araddr     (axi_araddr     ),
         .axi_aruser_ap  (axi_aruser_ap  ),
