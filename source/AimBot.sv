@@ -215,15 +215,16 @@ module AimBot #(
     wire         axi_wusero_last;
 
     ddr_writer u_ddr_writer (
+        .rstn           (rstn           ),
         .trig           (trig           ),
         .cam1_pclk      (cam1_pclk      ),
-        .cam1_href_565  (cam1_href_565  ),
+        .cam1_href      (cam1_href_565  ),
         .cam1_vsync     (cam1_vsync     ),
-        .cam1_data_565  (cam1_data_565  ),
+        .cam1_data      (cam1_data_565  ),
         .cam2_pclk      (cam2_pclk      ),
-        .cam2_href_565  (cam2_href_565  ),
+        .cam2_href      (cam2_href_565  ),
         .cam2_vsync     (cam2_vsync     ),
-        .cam2_data_565  (cam2_data_565  ),
+        .cam2_data      (cam2_data_565  ),
         .error          (error          ),
         .ddr_clk        (ddr_clk        ),
         .axi_awaddr     (axi_awaddr     ),
