@@ -60,8 +60,8 @@ module AimBot #(
 );
 
     wire clk10, clk25;
-    clk_div #(.CNT(10_000_000)) u_clk10_gen (.i_clk(clk), .o_clk(clk10));
-    clk_div #(.CNT(25_000_000)) u_clk25_gen (.i_clk(clk), .o_clk(clk25));
+    clk_div #(.DIV(5)) u_clk10_gen (.i_clk(clk), .o_clk(clk10));
+    clk_div #(.DIV(2)) u_clk25_gen (.i_clk(clk), .o_clk(clk25));
 
     // HDMI configure
     hdmi_ctrl u_hdmi_ctrl (

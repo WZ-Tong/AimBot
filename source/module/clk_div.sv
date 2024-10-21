@@ -1,12 +1,12 @@
-module clk_div #(parameter CNT = 50_000_000) (
+module clk_div #(parameter DIV = 1) (
     input      i_clk,
     output reg o_clk
 );
 
-    reg [$clog2(CNT)-1:0] cnt;
+    reg [$clog2(DIV)-1:0] cnt;
 
     always_ff @(posedge i_clk) begin
-        if (cnt<CNT) begin
+        if (cnt<=DIV-1) begin
             cnt <= #1 cnt + 1'b1;
         end else begin
             cnt   <= #1 'b0;
