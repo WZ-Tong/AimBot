@@ -56,6 +56,8 @@ module ddr_writer (
         end
     end
 
+    wire r1_aempty;
+    wire [15:0] r1_data;
     async_fifo u_pix_buffer (
         // Write
         .wr_clk      (cam1_pclk ),
@@ -68,9 +70,9 @@ module ddr_writer (
         .rd_clk      (ddr_clk   ),
         .rd_rst      (          ),
         .rd_en       (          ),
-        .rd_data     (          ),
+        .rd_data     (r1_data   ),
         .rd_empty    (r1_empty  ),
-        .almost_empty(/*unused*/)
+        .almost_empty(r1_aempty )
     );
 
     rst_gen #(.TICK(BLINK_TICK)) u_err_gen (
