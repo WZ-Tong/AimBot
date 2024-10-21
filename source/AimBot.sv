@@ -56,7 +56,8 @@ module AimBot #(
 
     // Debug signals
     output        hdmi_inited,
-    output        cam_inited
+    output        cam_inited ,
+    output        wddr_err
 );
 
     wire clk10, clk25, clk150, clkl;
@@ -220,6 +221,7 @@ module AimBot #(
         .pix_data       (/*unused*/     ),
         .trig           (/*unused*/     ),
         .ddr_clk        (ddr_clk        ),
+        .error          (wddr_err       ),
         .axi_awaddr     (axi_awaddr     ),
         .axi_awlen      (axi_awlen      ),
         .axi_awready    (axi_awready    ),
