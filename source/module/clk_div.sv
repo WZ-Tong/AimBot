@@ -6,7 +6,7 @@ module clk_div #(parameter DIV = 1) (
     reg [$clog2(DIV)-1:0] cnt;
 
     always_ff @(posedge i_clk) begin
-        if (cnt<=DIV-1) begin
+        if (cnt<DIV-1) begin
             cnt <= #1 cnt + 1'b1;
         end else begin
             cnt   <= #1 'b0;
