@@ -136,7 +136,7 @@ module AimBot #(
     wire        cam_clk, cam_vsync;
 
     wire [15:0] disp_data ;
-    wire        disp_vsync, disp_hsync, disp_de;
+    wire        disp_vsync, disp_hsync, disp_de, disp_clk;
     if (CAM_DISPLAY==1) begin
         assign cam_vsync = cam1_vsync;
         assign cam_clk   = cam1_pclk_565;
@@ -158,6 +158,7 @@ module AimBot #(
         .o_x    (x         ),
         .o_y    (y         )
     );
+    assign disp_clk = cam_clk;
 
     wire [7:0] disp_r, disp_g, disp_b;
     assign disp_r = {disp_data[15:11], 3'b0};
@@ -165,11 +166,17 @@ module AimBot #(
     assign disp_b = {disp_data[04:00], 3'b0};
 
     wire [7:0] win_r, win_g, win_b;
+    wire       win_vsync, win_hsync, win_de, win_clk;
     draw_window #(
         .V_BOX_WIDTH(40),
         .H_BOX_WIDTH(20),
         .N_BOX      (1 )
     ) u_draw_window (
+        .clk     (disp_clk  ),
+        .i_hsync (disp_hsync),
+        .i_vsync (disp_vsync),
+        .o_hsync (win_hsync ),
+        .o_vsync (win_vsync ),
         .x       (x         ),
         .y       (y         ),
         .start_xs(11'd100   ),
@@ -184,19 +191,21 @@ module AimBot #(
         .o_g     (win_g     ),
         .o_b     (win_b     )
     );
+    assign win_clk = disp_clk;
+    assign win_de  = disp_de;
 
-    assign hdmi_r     = win_r     ;
-    assign hdmi_g     = win_g     ;
-    assign hdmi_b     = win_b     ;
-    assign hdmi_de    = disp_de   ;
-    assign hdmi_vsync = disp_vsync;
-    assign hdmi_hsync = disp_hsync;
-    assign hdmi_clk   = cam_clk   ;
+    assign hdmi_r     = win_r    ;
+    assign hdmi_g     = win_g    ;
+    assign hdmi_b     = win_b    ;
+    assign hdmi_de    = win_de   ;
+    assign hdmi_vsync = win_vsync;
+    assign hdmi_hsync = win_hsync;
+    assign hdmi_clk   = win_clk  ;
 
-    wire         ddr_clk, ddr_clkl;
-    wire [ 27:0] axi_awaddr     ;
-    wire         axi_awuser_ap  ;
-    wire [  3:0] axi_awuser_id  ;
+    wire        ddr_clk, ddr_clkl;
+    wire [27:0] axi_awaddr   ;
+    wire        axi_awuser_ap;
+    wire [ 3:0] axi_awuser_id;
     wire [  3:0] axi_awlen      ;
     wire         axi_awready    ;
     wire         axi_awvalid    ;

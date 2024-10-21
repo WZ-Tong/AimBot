@@ -8,6 +8,12 @@ module draw_window #(
     parameter V_ACT       = 12'd720 ,
     parameter H_ACT       = 12'd1280
 ) (
+    input                                clk     ,
+    input                                i_hsync ,
+    input                                i_vsync ,
+    output reg                           o_hsync ,
+    output reg                           o_vsync ,
+
     input      [      $clog2(H_ACT)-1:0] x       ,
     input      [      $clog2(V_ACT)-1:0] y       ,
 
@@ -76,17 +82,26 @@ module draw_window #(
     endgenerate
 
     integer j;
+    reg [7:0] r_r, r_g, r_b;
     always_comb begin
-        o_r = i_r;
-        o_g = i_g;
-        o_b = i_b;
+        r_r = i_r;
+        r_g = i_g;
+        r_b = i_b;
         for (j = 0; j < N_BOX; j=j+1) begin
             if (active[j]) begin
-                o_r = color_r[j];
-                o_g = color_g[j];
-                o_b = color_b[j];
+                r_r = color_r[j];
+                r_g = color_g[j];
+                r_b = color_b[j];
             end
         end
+    end
+
+    always_ff @(posedge clk) begin
+        o_r     <= #1 r_r;
+        o_g     <= #1 r_g;
+        o_b     <= #1 r_b;
+        o_hsync <= #1 i_hsync;
+        o_vsync <= #1 i_vsync;
     end
 
 endmodule : draw_window
