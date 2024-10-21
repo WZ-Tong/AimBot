@@ -65,7 +65,7 @@ module draw_window #(
             assign end_y1 = end_y2 - V_BOX_WIDTH;
 
             wire [8*3-1:0] color;
-            assign color = colors[(i+1)*$clog2(8*3)-1:i*$clog2(8*3)];
+            assign color = colors[(i+1)*(8*3)-1:i*(8*3)];
             assign {color_r[i], color_g[i], color_b[i]} = color;
 
             wire outer_active, inner_active;
