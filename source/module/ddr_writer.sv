@@ -19,4 +19,20 @@ module ddr_writer (
     input          axi_wusero_last
 );
 
+    async_fifo u_pix_buffer (
+        .wr_data     (),
+        .wr_en       (),
+        .wr_clk      (),
+        .wr_rst      (),
+        .wr_full     (),
+        .almost_full (),
+        .rd_data     (),
+        .rd_en       (),
+        .rd_clk      (),
+        .rd_rst      (),
+        .rd_empty    (),
+        .almost_empty()
+    );
+
+
 endmodule : ddr_writer
