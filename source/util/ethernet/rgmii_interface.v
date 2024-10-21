@@ -22,23 +22,23 @@
 
 module rgmii_interface(
     input        rst,
-    output       rgmii_clk/*synthesis PAP_MARK_DEBUG="1"*/,
+    output       rgmii_clk,
     input        rgmii_clk_90p,
     
-    input        mac_tx_data_valid/*synthesis PAP_MARK_DEBUG="1"*/,
-    input [7:0]  mac_tx_data/*synthesis PAP_MARK_DEBUG="1"*/,
+    input        mac_tx_data_valid,
+    input [7:0]  mac_tx_data,
     
     output reg       mac_rx_error,
-    output reg       mac_rx_data_valid/*synthesis PAP_MARK_DEBUG="1"*/,
-    output reg [7:0] mac_rx_data/*synthesis PAP_MARK_DEBUG="1"*/,
+    output reg       mac_rx_data_valid,
+    output reg [7:0] mac_rx_data,
     
     input        rgmii_rxc,
-    input        rgmii_rx_ctl/*synthesis PAP_MARK_DEBUG="1"*/,
-    input [3:0]  rgmii_rxd/*synthesis PAP_MARK_DEBUG="1"*/,
+    input        rgmii_rx_ctl,
+    input [3:0]  rgmii_rxd,
                  
     output       rgmii_txc,
-    output       rgmii_tx_ctl/*synthesis PAP_MARK_DEBUG="1"*/,
-    output [3:0] rgmii_txd/*synthesis PAP_MARK_DEBUG="1"*/ 
+    output       rgmii_tx_ctl,
+    output [3:0] rgmii_txd
 );
 
     //=============================================================

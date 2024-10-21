@@ -13,6 +13,7 @@
 			"-y$project_path\\source\\util\\convert",
 			"-y$project_path\\source\\util\\hdmi",
 			"-y$project_path\\source\\util\\ov5640",
+			"-y$project_path\\source\\util\\ethernet",
 		],
 		"SublimeLinter.linters.iverilog.disable": false,
 	},
