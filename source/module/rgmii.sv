@@ -10,8 +10,6 @@ module rgmii (
     output [3:0] rgmii_txd
 );
 
-    // TODO: Place a fifo here (maybe) to sync camera's data
-
     wire       mac_tx_data_valid;
     wire [7:0] mac_tx_data      ;
     wire       mac_rx_error     ;
