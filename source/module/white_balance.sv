@@ -34,8 +34,12 @@ module white_balance #(
     wire [$clog2(256*3)-1:0] s_v;
     assign s_v = r_v + g_v + b_v;
 
-    wire [$clog2(256)-1:0] k_v;
-    assign k_v = s_v / 3;
+    reg  [$clog2(256)-1:0] k_v  ;
+    wire [$clog2(256)-1:0] k_v_w;
+    assign k_v_w = s_v / 3;
+    always_ff @(posedge clk) begin
+        k_v <= #1 k_v_w;
+    end
 
     always_ff @(posedge clk) begin
         if (i_vsync) begin
@@ -55,10 +59,24 @@ module white_balance #(
         end
     end
 
-    wire [31:0] rev_r, rev_g, rev_b;
+    // Delay: 1, 8bit*8bit
+    reg [$clog2(256*256)-1:0] r_kv, g_kv, b_kv;
+    always_ff @(posedge clk) begin
+        r_kv <= #1 i_r * k_v;
+        g_kv <= #1 i_g * k_v;
+        b_kv <= #1 i_b * k_v;
+    end
 
-    Reciprocal u_rev_r (.Average(r_v), .Recip(rev_r));
-    Reciprocal u_rev_g (.Average(g_v), .Recip(rev_g));
-    Reciprocal u_rev_b (.Average(b_v), .Recip(rev_b));
+    wire [31:0] rev_r_v, rev_g_v, rev_b_v;
+    Reciprocal u_rev_r (.Average(r_v), .Recip(rev_r_v));
+    Reciprocal u_rev_g (.Average(g_v), .Recip(rev_g_v));
+    Reciprocal u_rev_b (.Average(b_v), .Recip(rev_b_v));
+
+    wire [47:0] r_new_full, g_new_full, b_new_full;
+    mul_32_16 u_mul_r (.clk(clk), .a(rev_r_v), .b(r_kv), .p(r_new_full));
+    mul_32_16 u_mul_g (.clk(clk), .a(rev_g_v), .b(g_kv), .p(g_new_full));
+    mul_32_16 u_mul_b (.clk(clk), .a(rev_b_v), .b(b_kv), .p(b_new_full));
+
+    // TODO
 
 endmodule : white_balance
