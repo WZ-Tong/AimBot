@@ -56,7 +56,8 @@ module AimBot #(
 
     // Debug signals
     output       hdmi_inited  ,
-    output       cam_inited
+    output       cam_inited   ,
+    output       frame_tick
 );
 
     wire clk10, clk25;
@@ -175,6 +176,13 @@ module AimBot #(
         .r    (hdmi_r    ),
         .g    (hdmi_g    ),
         .b    (hdmi_b    )
+    );
+
+    tick #(.TICK(30)) u_frame_tick (
+        .clk (hdmi_clk  ),
+        .rstn(rstn      ),
+        .trig(hdmi_vsync),
+        .tick(frame_tick)
     );
 
 endmodule : AimBot
