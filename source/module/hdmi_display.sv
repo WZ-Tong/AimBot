@@ -85,9 +85,9 @@ module hdmi_display (
         .hsync(o_hsync              ),
         .vsync(o_vsync              ),
         .de   (o_de                 ),
-        .r    ({o_data[15:11], 3'b0}),
+        .r    ({o_data[04:00], 3'b0}),
         .g    ({o_data[10:05], 2'b0}),
-        .b    ({o_data[04:00], 3'b0}),
+        .b    ({o_data[15:11], 3'b0}),
         .x    (o_x                  ),
         .y    (o_y                  ),
         .pack (o_pack               )
