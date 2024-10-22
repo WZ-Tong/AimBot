@@ -95,7 +95,7 @@ module white_balance #(
     mul_32_16 u_mul_g (.clk(clk), .a(rev_g_v), .b(g_kv), .p(g_new_full));
     mul_32_16 u_mul_b (.clk(clk), .a(rev_b_v), .b(b_kv), .p(b_new_full));
 
-    reg [15:0] r_new, g_new, b_new;
+    wire [15:0] r_new, g_new, b_new;
     assign r_new = r_new_full[47:32];
     assign g_new = g_new_full[47:32];
     assign b_new = b_new_full[47:32];
