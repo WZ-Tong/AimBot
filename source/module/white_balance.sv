@@ -34,9 +34,9 @@ module white_balance #(
     localparam FRAME_TOTAL = V_ACT*H_ACT;
     localparam TRIM_BITS = $clog2(FRAME_TOTAL);
 
-    reg [$clog2(FRAME_TOTAL*256)-1:0] r_last_sum, r_current_sum;
-    reg [$clog2(FRAME_TOTAL*256)-1:0] g_last_sum, g_current_sum;
-    reg [$clog2(FRAME_TOTAL*256)-1:0] b_last_sum, b_current_sum;
+    reg [$clog2(FRAME_TOTAL*256)-1:0] r_last_sum, r_current_sum /*synthesis PAP_MARK_DEBUG="true"*/;
+    reg [$clog2(FRAME_TOTAL*256)-1:0] g_last_sum, g_current_sum /*synthesis PAP_MARK_DEBUG="true"*/;
+    reg [$clog2(FRAME_TOTAL*256)-1:0] b_last_sum, b_current_sum /*synthesis PAP_MARK_DEBUG="true"*/;
 
     wire [$clog2(256)-1:0] r_v;
     wire [$clog2(256)-1:0] g_v;
@@ -78,19 +78,19 @@ module white_balance #(
     end
 
     // Delay: 1, 8bit*8bit
-    reg [15:0] r_kv, g_kv, b_kv;
+    reg [15:0] r_kv, g_kv, b_kv /*synthesis PAP_MARK_DEBUG="true"*/;
     always_ff @(posedge clk) begin
         r_kv <= #1 i_r * k_v;
         g_kv <= #1 i_g * k_v;
         b_kv <= #1 i_b * k_v;
     end
 
-    wire [31:0] rev_r_v, rev_g_v, rev_b_v;
+    wire [31:0] rev_r_v, rev_g_v, rev_b_v /*synthesis PAP_MARK_DEBUG="true"*/;
     Reciprocal u_rev_r (.Average(r_v), .Recip(rev_r_v));
     Reciprocal u_rev_g (.Average(g_v), .Recip(rev_g_v));
     Reciprocal u_rev_b (.Average(b_v), .Recip(rev_b_v));
 
-    wire [47:0] r_new_full, g_new_full, b_new_full;
+    wire [47:0] r_new_full, g_new_full, b_new_full /*synthesis PAP_MARK_DEBUG="true"*/;
     mul_32_16 u_mul_r (.clk(clk), .a(rev_r_v), .b(r_kv), .p(r_new_full));
     mul_32_16 u_mul_g (.clk(clk), .a(rev_g_v), .b(g_kv), .p(g_new_full));
     mul_32_16 u_mul_b (.clk(clk), .a(rev_b_v), .b(b_kv), .p(b_new_full));
