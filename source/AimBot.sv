@@ -57,7 +57,10 @@ module AimBot #(
     // Debug signals
     output       hdmi_inited  ,
     output       cam_inited   ,
-    output       frame_tick
+    output       frame_tick   ,
+
+    input        wb_switch    ,
+    input        dw_switch
 );
 
     wire clk10, clk25;
@@ -121,9 +124,9 @@ module AimBot #(
 
     if (CAM_DISPLAY==1) begin
         assign cam_vsync = cam1_vsync;
-        assign cam_clk   = cam1_pclk_565;
-        assign cam_data  = cam1_data_565;
-        assign cam_href  = cam1_href_565;
+        assign cam_clk  = cam1_pclk_565;
+        assign cam_data = cam1_data_565;
+        assign cam_href = cam1_href_565;
     end else if (CAM_DISPLAY==2) begin
         assign cam_vsync = cam2_vsync;
         assign cam_clk   = cam2_pclk_565;
@@ -149,13 +152,22 @@ module AimBot #(
         .o_pack(wb_pack  )
     );
 
+    wire [49:0] wbs_pack;
+    filter_switch u_white_balance_filter (
+        .clk     (clk      ),
+        .switch  (wb_switch),
+        .i_pack_1(wb_pack  ),
+        .i_pack_2(disp_pack),
+        .o_pack  (wbs_pack )
+    );
+
     wire [49:0] win_pack;
     draw_window #(
         .V_BOX_WIDTH(40),
         .H_BOX_WIDTH(20),
         .N_BOX      (1 )
     ) u_draw_window (
-        .i_pack  (wb_pack   ),
+        .i_pack  (wbs_pack  ),
         .o_pack  (win_pack  ),
         .start_xs(11'd100   ),
         .start_ys(10'd200   ),
@@ -164,8 +176,17 @@ module AimBot #(
         .colors  (24'hFFFFFF)
     );
 
+    wire [49:0] wins_pack;
+    filter_switch u_draw_window_filter (
+        .clk     (clk      ),
+        .switch  (dw_switch),
+        .i_pack_1(win_pack ),
+        .i_pack_2(wbs_pack ),
+        .o_pack  (wins_pack)
+    );
+
     hdmi_unpack u_hdmi_output (
-        .pack (win_pack  ),
+        .pack (wins_pack ),
         .clk  (hdmi_clk  ),
         .hsync(hdmi_hsync),
         .vsync(hdmi_vsync),
