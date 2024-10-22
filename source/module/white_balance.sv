@@ -56,8 +56,11 @@ module white_balance #(
         k_v <= #1 k_v_w;
     end
 
+    reg i_vsync_d;
+
     always_ff @(posedge clk) begin
-        if (i_vsync) begin
+        i_vsync_d <= #1 i_vsync;
+        if (i_vsync==1 && i_vsync_d==0) begin
             r_current_sum <= #1 'b0;
             g_current_sum <= #1 'b0;
             b_current_sum <= #1 'b0;
