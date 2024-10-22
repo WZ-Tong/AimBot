@@ -2,19 +2,34 @@ module white_balance #(
     parameter H_ACT = 1280,
     parameter V_ACT = 720
 ) (
-    input            clk    ,
-    input            i_vsync,
-    input            i_hsync,
-    input            i_href ,
-    input      [7:0] i_r    ,
-    input      [7:0] i_g    ,
-    input      [7:0] i_b    ,
-    output reg       o_hsync,
-    output reg       o_vsync,
-    output reg       o_r    ,
-    output reg       o_g    ,
-    output reg       o_b
+    input  [49:0] i_pack,
+    output [49:0] o_pack
 );
+
+    wire                     clk    ;
+    wire                     i_vsync;
+    wire                     i_hsync;
+    wire                     i_href ;
+    wire                     i_de   ;
+    wire [              7:0] i_r    ;
+    wire [              7:0] i_g    ;
+    wire [              7:0] i_b    ;
+    wire [$clog2(H_ACT)-1:0] i_x    ;
+    wire [$clog2(V_ACT)-1:0] i_y    ;
+
+    hdmi_unpack u_hdmi_unpack (
+        .pack (i_pack ),
+        .clk  (clk    ),
+        .href (i_href ),
+        .hsync(i_hsync),
+        .vsync(i_vsync),
+        .de   (i_de   ),
+        .r    (i_r    ),
+        .g    (i_g    ),
+        .b    (i_b    ),
+        .x    (i_x    ),
+        .y    (i_y    )
+    );
 
     localparam FRAME_TOTAL = V_ACT*H_ACT;
     localparam TRIM_BITS = $clog2(FRAME_TOTAL);
@@ -60,7 +75,7 @@ module white_balance #(
     end
 
     // Delay: 1, 8bit*8bit
-    reg [$clog2(256*256)-1:0] r_kv, g_kv, b_kv;
+    reg [15:0] r_kv, g_kv, b_kv;
     always_ff @(posedge clk) begin
         r_kv <= #1 i_r * k_v;
         g_kv <= #1 i_g * k_v;
@@ -77,6 +92,31 @@ module white_balance #(
     mul_32_16 u_mul_g (.clk(clk), .a(rev_g_v), .b(g_kv), .p(g_new_full));
     mul_32_16 u_mul_b (.clk(clk), .a(rev_b_v), .b(b_kv), .p(b_new_full));
 
-    // TODO
+    reg [15:0] r_new, g_new, b_new;
+    assign r_new = r_new_full[47:32];
+    assign g_new = g_new_full[47:32];
+    assign b_new = b_new_full[47:32];
+
+    reg [7:0] r_r, r_g, r_b;
+    always_ff @(posedge clk) begin
+        r_r <= #1 r_new>=16'h00FF ? 8'hFF : r_new[7:0];
+        r_g <= #1 g_new>=16'h00FF ? 8'hFF : g_new[7:0];
+        r_b <= #1 b_new>=16'h00FF ? 8'hFF : b_new[7:0];
+    end
+
+    // TODO: Add sync delay
+    hdmi_pack u_hdmi_pack (
+        .clk  (clk    ),
+        .href (i_href ),
+        .hsync(i_hsync),
+        .vsync(i_vsync),
+        .de   (i_de   ),
+        .r    (r_r    ),
+        .g    (r_g    ),
+        .b    (r_b    ),
+        .x    (i_x    ),
+        .y    (i_y    ),
+        .pack (o_pack )
+    );
 
 endmodule : white_balance

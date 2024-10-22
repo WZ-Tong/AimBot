@@ -8,31 +8,22 @@ module draw_window #(
     parameter V_ACT       = 12'd720 ,
     parameter H_ACT       = 12'd1280
 ) (
-    input                                clk     ,
+    input  [                   49:0] i_pack  ,
+    output [                   49:0] o_pack  ,
 
-    input      [      $clog2(H_ACT)-1:0] x       ,
-    input      [      $clog2(V_ACT)-1:0] y       ,
+    input  [N_BOX*$clog2(H_ACT)-1:0] start_xs,
+    input  [N_BOX*$clog2(V_ACT)-1:0] start_ys,
 
-    input      [N_BOX*$clog2(H_ACT)-1:0] start_xs,
-    input      [N_BOX*$clog2(V_ACT)-1:0] start_ys,
+    input  [N_BOX*$clog2(H_ACT)-1:0] end_xs  ,
+    input  [N_BOX*$clog2(V_ACT)-1:0] end_ys  ,
 
-    input      [N_BOX*$clog2(H_ACT)-1:0] end_xs  ,
-    input      [N_BOX*$clog2(V_ACT)-1:0] end_ys  ,
-
-    input      [           N_BOX*24-1:0] colors  ,
-
-    input                                i_hsync ,
-    input                                i_vsync ,
-    input      [                    7:0] i_r     ,
-    input      [                    7:0] i_g     ,
-    input      [                    7:0] i_b     ,
-
-    output reg                           o_hsync ,
-    output reg                           o_vsync ,
-    output reg [                    7:0] o_r     ,
-    output reg [                    7:0] o_g     ,
-    output reg [                    7:0] o_b
+    input  [           N_BOX*24-1:0] colors
 );
+
+    wire clk;
+
+    wire [$clog2(H_ACT)-1:0] x;
+    wire [$clog2(V_ACT)-1:0] y;
 
     wire [N_BOX-1:0] active /*synthesis PAP_MARK_DEBUG="true"*/;
     wire [7:0] color_r [N_BOX-1:0];
@@ -81,27 +72,74 @@ module draw_window #(
         end
     endgenerate
 
+    wire [7:0] hdmi_r;
+    wire [7:0] hdmi_g;
+    wire [7:0] hdmi_b;
+
+    wire hdmi_href, hdmi_hsync, hdmi_vsync, hdmi_de;
+    hdmi_unpack u_hdmi_unpack (
+        .pack (i_pack    ),
+        .clk  (clk       ),
+        .href (hdmi_href ),
+        .hsync(hdmi_hsync),
+        .vsync(hdmi_vsync),
+        .de   (hdmi_de   ),
+        .r    (hdmi_r    ),
+        .g    (hdmi_g    ),
+        .b    (hdmi_b    ),
+        .x    (x         ),
+        .y    (y         )
+    );
+
     integer j;
-    reg [7:0] r_r, r_g, r_b;
+
+    logic [7:0] c_r, c_g, c_b;
+
     always_comb begin
-        r_r = i_r;
-        r_g = i_g;
-        r_b = i_b;
+        c_r = hdmi_r;
+        c_g = hdmi_g;
+        c_b = hdmi_b;
         for (j = 0; j < N_BOX; j=j+1) begin
             if (active[j]) begin
-                r_r = color_r[j];
-                r_g = color_g[j];
-                r_b = color_b[j];
+                c_r = color_r[j];
+                c_g = color_g[j];
+                c_b = color_b[j];
             end
         end
     end
 
+    reg r_hsync, r_vsync, r_href, r_de;
+
+    reg [7:0] r_r, r_g, r_b;
+
+    reg [10:0] r_x;
+    reg [ 9:0] r_y;
+
     always_ff @(posedge clk) begin
-        o_r     <= #1 r_r;
-        o_g     <= #1 r_g;
-        o_b     <= #1 r_b;
-        o_hsync <= #1 i_hsync;
-        o_vsync <= #1 i_vsync;
+        r_r     <= #1 c_r;
+        r_g     <= #1 c_g;
+        r_b     <= #1 c_b;
+        r_href  <= #1 hdmi_href;
+        r_hsync <= #1 hdmi_hsync;
+        r_vsync <= #1 hdmi_vsync;
+        r_de    <= #1 hdmi_de;
+        r_x     <= #1 x;
+        r_y     <= #1 y;
     end
+
+    hdmi_pack u_hdmi_pack (
+        .clk  (clk    ),
+        .href (r_href ),
+        .hsync(r_hsync),
+        .vsync(r_vsync),
+        .de   (r_de   ),
+        .r    (r_r    ),
+        .g    (r_g    ),
+        .b    (r_b    ),
+        .x    (r_x    ),
+        .y    (r_y    ),
+        .pack (o_pack )
+    );
+
 
 endmodule : draw_window
