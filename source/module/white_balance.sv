@@ -6,14 +6,16 @@ module white_balance #(
     output [49:0] o_pack
 );
 
-    wire clk    ;
+    wire clk /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire [7:0] i_r /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire [7:0] i_g /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire [7:0] i_b /*synthesis PAP_MARK_DEBUG="true"*/;
+
     wire i_vsync;
     wire i_hsync;
     wire i_href ;
     wire i_de   ;
-    wire [              7:0] i_r    /*synthesis PAP_MARK_DEBUG="true"*/;
-    wire [              7:0] i_g    /*synthesis PAP_MARK_DEBUG="true"*/;
-    wire [              7:0] i_b    /*synthesis PAP_MARK_DEBUG="true"*/;
+
     wire [$clog2(H_ACT)-1:0] i_x;
     wire [$clog2(V_ACT)-1:0] i_y;
 
@@ -31,33 +33,37 @@ module white_balance #(
         .y    (i_y    )
     );
 
-    localparam FRAME_TOTAL = V_ACT*H_ACT        ;
-    localparam TRIM_BITS   = $clog2(FRAME_TOTAL);
+    reg [27:0] r_last_sum, r_current_sum; // MAX=1280*720*256=235929600(e100000)
+    reg [27:0] g_last_sum, g_current_sum /*synthesis PAP_MARK_DEBUG="true"*/;
+    reg [27:0] b_last_sum, b_current_sum;
 
-    reg [$clog2(FRAME_TOTAL*256)-1:0] r_last_sum, r_current_sum /*synthesis PAP_MARK_DEBUG="true"*/;
-    reg [$clog2(FRAME_TOTAL*256)-1:0] g_last_sum, g_current_sum /*synthesis PAP_MARK_DEBUG="true"*/;
-    reg [$clog2(FRAME_TOTAL*256)-1:0] b_last_sum, b_current_sum /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire [8:0] r_v_trim;
+    wire [8:0] g_v_trim /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire [8:0] b_v_trim;
+    assign r_v_trim = r_last_sum[27:19];
+    assign g_v_trim = g_last_sum[27:19];
+    assign b_v_trim = b_last_sum[27:19];
 
-    wire [7:0] r_v /*synthesis PAP_MARK_DEBUG="true"*/;
-    wire [7:0] g_v /*synthesis PAP_MARK_DEBUG="true"*/;
-    wire [7:0] b_v /*synthesis PAP_MARK_DEBUG="true"*/;
+    localparam DIV_FRAME_TOTAL = 15'b100100011010001; // [(2^19)/(1280*720)] * (2^15)
 
-    assign r_v = r_last_sum[$clog2(FRAME_TOTAL*256)-1:TRIM_BITS];
-    assign g_v = g_last_sum[$clog2(FRAME_TOTAL*256)-1:TRIM_BITS];
-    assign b_v = b_last_sum[$clog2(FRAME_TOTAL*256)-1:TRIM_BITS];
+    wire [23:0] r_v; // =[r_sum/(2^19)] * [(2^19)/(1280*720)] * (2^15) = r_v * (2^15)
+    wire [23:0] g_v /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire [23:0] b_v;
+    mul_15_9 u_mul_r_v (.clk(clk), .a(DIV_FRAME_TOTAL), .b(r_v_trim), .p(r_v));
+    mul_15_9 u_mul_g_v (.clk(clk), .a(DIV_FRAME_TOTAL), .b(g_v_trim), .p(g_v));
+    mul_15_9 u_mul_b_v (.clk(clk), .a(DIV_FRAME_TOTAL), .b(b_v_trim), .p(b_v));
 
-    wire [$clog2(256*3)-1:0] s_v;
-    assign s_v = r_v + g_v + b_v;
-
-    reg  [7:0] k_v   /*synthesis PAP_MARK_DEBUG="true"*/;
-    wire [7:0] k_v_w;
+    wire [25:0] s_v;
+    wire [25:0] k_v_w;
+    assign s_v   = r_v + g_v + b_v;
     assign k_v_w = s_v / 3;
+
+    reg [23:0] k_v/*synthesis PAP_MARK_DEBUG="true"*/;
     always_ff @(posedge clk) begin
-        k_v <= #1 k_v_w;
+        k_v <= #1 k_v_w[23:0];
     end
 
     reg i_vsync_d;
-
     always_ff @(posedge clk) begin
         i_vsync_d <= #1 i_vsync;
         if (i_vsync==1 && i_vsync_d==0) begin
@@ -77,16 +83,18 @@ module white_balance #(
         end
     end
 
+    // TODO: Check upper bound
+
     // Delay: 1, 8bit*8bit
     wire [15:0] r_kv, g_kv, b_kv /*synthesis PAP_MARK_DEBUG="true"*/;
-    mul_8_8 u_mul_r_kv (.clk(clk), .a(i_r), .b(k_v), .p(r_kv));
-    mul_8_8 u_mul_g_kv (.clk(clk), .a(i_g), .b(k_v), .p(g_kv));
-    mul_8_8 u_mul_b_kv (.clk(clk), .a(i_b), .b(k_v), .p(b_kv));
+    mul_8_8 u_mul_r_kv (.clk(clk), .a(i_r), .b(k_v[22:15]), .p(r_kv));
+    mul_8_8 u_mul_g_kv (.clk(clk), .a(i_g), .b(k_v[22:15]), .p(g_kv));
+    mul_8_8 u_mul_b_kv (.clk(clk), .a(i_b), .b(k_v[22:15]), .p(b_kv));
 
     wire [31:0] rev_r_v, rev_g_v, rev_b_v /*synthesis PAP_MARK_DEBUG="true"*/;
-    Reciprocal u_rev_r (.Average(r_v), .Recip(rev_r_v));
-    Reciprocal u_rev_g (.Average(g_v), .Recip(rev_g_v));
-    Reciprocal u_rev_b (.Average(b_v), .Recip(rev_b_v));
+    Reciprocal u_rev_r (.Average(r_v[22:15]), .Recip(rev_r_v));
+    Reciprocal u_rev_g (.Average(g_v[22:15]), .Recip(rev_g_v));
+    Reciprocal u_rev_b (.Average(b_v[22:15]), .Recip(rev_b_v));
 
     wire [47:0] r_new_full, g_new_full, b_new_full /*synthesis PAP_MARK_DEBUG="true"*/;
     mul_32_16 u_mul_r (.clk(clk), .a(rev_r_v), .b(r_kv), .p(r_new_full));
