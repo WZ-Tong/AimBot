@@ -78,12 +78,10 @@ module white_balance #(
     end
 
     // Delay: 1, 8bit*8bit
-    reg [15:0] r_kv, g_kv, b_kv /*synthesis PAP_MARK_DEBUG="true"*/;
-    always_ff @(posedge clk) begin
-        r_kv <= #1 i_r * k_v;
-        g_kv <= #1 i_g * k_v;
-        b_kv <= #1 i_b * k_v;
-    end
+    wire [15:0] r_kv, g_kv, b_kv /*synthesis PAP_MARK_DEBUG="true"*/;
+    mul_8_8 u_mul_r_kv (.clk(clk), .a(i_r), .b(k_v), .p(r_kv));
+    mul_8_8 u_mul_g_kv (.clk(clk), .a(i_g), .b(k_v), .p(g_kv));
+    mul_8_8 u_mul_b_kv (.clk(clk), .a(i_b), .b(k_v), .p(b_kv));
 
     wire [31:0] rev_r_v, rev_g_v, rev_b_v /*synthesis PAP_MARK_DEBUG="true"*/;
     Reciprocal u_rev_r (.Average(r_v), .Recip(rev_r_v));
