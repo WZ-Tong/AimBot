@@ -21,12 +21,11 @@
 
 
 module udp_ip_mac_top #(
-    parameter       LOCAL_MAC = 48'h3C_2B_1A_09_4D_5E,
-    parameter       LOCAL_IP  = 32'hC0_A8_01_6E,
-    parameter       LOCL_PORT = 16'hF0F0,
-    parameter       DEST_MAC  = 48'h04_D9_F5_89_43_66,
-    parameter       DEST_IP   = 32'hC0_A8_01_69,
-    parameter       DEST_PORT = 16'hA0A0 
+    parameter       LOCAL_MAC  = 48'h3C_2B_1A_09_4D_5E,
+    parameter       LOCAL_IP   = 32'hC0_A8_01_6E,
+    parameter       LOCAL_PORT = 16'hF0F0,
+    parameter       DEST_IP    = 32'hC0_A8_01_69,
+    parameter       DEST_PORT  = 16'hA0A0
 )(
     input           rgmii_clk,
     input           rstn,
@@ -74,7 +73,7 @@ module udp_ip_mac_top #(
     wire  [7:0]      mac_rx_dataout;   
 
     udp_layer #(
-        .LOCAL_PORT_NUM          (  LOCL_PORT                ) //parameter LOCAL_PORT_NUM = 16'hf000    //源端口号
+        .LOCAL_PORT_NUM          (  LOCAL_PORT               ) //parameter LOCAL_PORT_NUM = 16'hf000    //源端口号
     )udp_layer (                                             
         .udp_send_clk            (  rgmii_clk                ),//input              udp_send_clk,               //时钟信号                                                                                                                                                                                                                                                                                                                                                                
         .rstn                    (  rstn                     ),//input              rstn,                       //复位信号，低电平有效                                                                                                                                                                                                                                                                                                                                                    
