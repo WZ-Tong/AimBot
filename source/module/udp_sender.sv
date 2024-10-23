@@ -1,10 +1,10 @@
 module udp_sender #(
-    parameter LOCAL_MAC = 48'h11_11_11_11_11_11,
-    parameter LOCAL_IP  = 32'hC0_A8_01_6E      , //192.168.1.110
-    parameter LOCL_PORT = 16'h8080             ,
+    parameter LOCAL_MAC  = 48'h11_11_11_11_11_11,
+    parameter LOCAL_IP   = 32'hC0_A8_01_6E      , //192.168.1.110
+    parameter LOCAL_PORT = 16'h8080             ,
 
-    parameter DEST_IP   = 32'hC0_A8_01_69      , //192.168.1.105
-    parameter DEST_PORT = 16'h8080
+    parameter DEST_IP    = 32'hC0_A8_01_69      , //192.168.1.105
+    parameter DEST_PORT  = 16'h8080
 ) (
     input        rstn        ,
     input        trig        ,
@@ -20,25 +20,26 @@ module udp_sender #(
 );
 
     wire       rgmii_clk;
-    wire       tx_valid ;
-    wire [7:0] tx_data  ;
-    wire       rx_error ;
-    wire       rx_valid ;
-    wire [7:0] rx_data  ;
+    wire       rgmii_tx_valid ;
+    wire [7:0] rgmii_tx_data  ;
+    wire       rgmii_rx_error ;
+    wire       rgmii_rx_valid ;
+    wire [7:0] rgmii_rx_data  ;
 
     rgmii u_rgmii (
-        .rgmii_clk   (rgmii_clk   ),
-        .rgmii_rxc   (rgmii_rxc   ),
-        .rgmii_rx_ctl(rgmii_rx_ctl),
-        .rgmii_rxd   (rgmii_rxd   ),
-        .rgmii_txc   (rgmii_txc   ),
-        .rgmii_tx_ctl(rgmii_tx_ctl),
-        .rgmii_txd   (rgmii_txd   ),
-        .tx_valid    (tx_valid    ),
-        .tx_data     (tx_data     ),
-        .rx_error    (rx_error    ),
-        .rx_valid    (rx_valid    ),
-        .rx_data     (rx_data     )
+        .tx_valid    (rgmii_tx_valid),
+        .tx_data     (rgmii_tx_data ),
+        .rx_error    (rgmii_rx_error),
+        .rx_valid    (rgmii_rx_valid),
+        .rx_data     (rgmii_rx_data ),
+        // Hardware
+        .rgmii_clk   (rgmii_clk     ),
+        .rgmii_rxc   (rgmii_rxc     ),
+        .rgmii_rx_ctl(rgmii_rx_ctl  ),
+        .rgmii_rxd   (rgmii_rxd     ),
+        .rgmii_txc   (rgmii_txc     ),
+        .rgmii_tx_ctl(rgmii_tx_ctl  ),
+        .rgmii_txd   (rgmii_txd     )
     );
 
     wire        app_data_in_valid  ;
@@ -59,11 +60,11 @@ module udp_sender #(
     wire [ 7:0] mac_rx_datain      ;
 
     udp_ip_mac_top #(
-        .LOCAL_MAC(LOCAL_MAC),
-        .LOCAL_IP (LOCAL_IP ),
-        .LOCL_PORT(LOCL_PORT),
-        .DEST_IP  (DEST_IP  ),
-        .DEST_PORT(DEST_PORT)
+        .LOCAL_MAC (LOCAL_MAC ),
+        .LOCAL_IP  (LOCAL_IP  ),
+        .LOCAL_PORT(LOCAL_PORT),
+        .DEST_IP   (DEST_IP   ),
+        .DEST_PORT (DEST_PORT )
     ) u_udp_ip_mac_top (
         .rgmii_clk          (rgmii_clk          ),
         .rstn               (rstn               ),
