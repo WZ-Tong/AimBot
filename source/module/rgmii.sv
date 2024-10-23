@@ -16,8 +16,6 @@ module rgmii (
     output [3:0] rgmii_txd
 );
 
-    // TODO: Place `udp_ip_mac_top` here
-
     rgmii_interface u_rgmii_interface (
         .rst              (/*unused*/  ),
         .rgmii_clk        (rgmii_clk   ),
