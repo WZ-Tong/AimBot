@@ -8,8 +8,8 @@ module draw_window #(
     parameter V_ACT       = 12'd720 ,
     parameter H_ACT       = 12'd1280
 ) (
-    input  [                   49:0] i_pack  ,
-    output [                   49:0] o_pack  ,
+    input  [                   48:0] i_pack  ,
+    output [                   48:0] o_pack  ,
 
     input  [N_BOX*$clog2(H_ACT)-1:0] start_xs,
     input  [N_BOX*$clog2(V_ACT)-1:0] start_ys,
@@ -76,11 +76,10 @@ module draw_window #(
     wire [7:0] hdmi_g;
     wire [7:0] hdmi_b;
 
-    wire hdmi_href, hdmi_hsync, hdmi_vsync, hdmi_de;
+    wire hdmi_hsync, hdmi_vsync, hdmi_de;
     hdmi_unpack u_hdmi_unpack (
         .pack (i_pack    ),
         .clk  (clk       ),
-        .href (hdmi_href ),
         .hsync(hdmi_hsync),
         .vsync(hdmi_vsync),
         .de   (hdmi_de   ),
@@ -108,7 +107,7 @@ module draw_window #(
         end
     end
 
-    reg r_hsync, r_vsync, r_href, r_de;
+    reg r_hsync, r_vsync, r_de;
 
     reg [7:0] r_r, r_g, r_b;
 
@@ -119,7 +118,6 @@ module draw_window #(
         r_r     <= #1 c_r;
         r_g     <= #1 c_g;
         r_b     <= #1 c_b;
-        r_href  <= #1 hdmi_href;
         r_hsync <= #1 hdmi_hsync;
         r_vsync <= #1 hdmi_vsync;
         r_de    <= #1 hdmi_de;
@@ -129,7 +127,6 @@ module draw_window #(
 
     hdmi_pack u_hdmi_pack (
         .clk  (clk    ),
-        .href (r_href ),
         .hsync(r_hsync),
         .vsync(r_vsync),
         .de   (r_de   ),
@@ -140,6 +137,5 @@ module draw_window #(
         .y    (r_y    ),
         .pack (o_pack )
     );
-
 
 endmodule : draw_window

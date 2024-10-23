@@ -1,6 +1,6 @@
 module frame_sender (
     input         trig        ,
-    input  [49:0] i_pack      ,
+    input  [48:0] i_pack      ,
 
     input         rgmii_rxc   ,
     input         rgmii_rx_ctl,
@@ -13,7 +13,6 @@ module frame_sender (
     wire cam_clk  ;
     wire rgmii_clk;
 
-    wire href ;
     wire hsync;
     wire vsync;
 
@@ -24,7 +23,6 @@ module frame_sender (
     hdmi_unpack u_hdmi_unpack (
         .pack (i_pack ),
         .clk  (cam_clk),
-        .href (href   ),
         .hsync(hsync  ),
         .vsync(vsync  ),
         .r    (r      ),

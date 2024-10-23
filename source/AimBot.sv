@@ -122,8 +122,7 @@ module AimBot #(
         .cfg_rstn(cam2_rstn    )
     );
 
-
-    wire [49:0] disp_pack_1;
+    wire [48:0] disp_pack_1;
     hdmi_display u_cam1_disp (
         .clk    (cam1_pclk_565),
         .rstn   (svg_rstn     ),
@@ -133,7 +132,7 @@ module AimBot #(
         .o_pack (disp_pack_1  )
     );
 
-    wire [49:0] disp_pack_2;
+    wire [48:0] disp_pack_2;
     hdmi_display u_cam2_disp (
         .clk    (cam2_pclk_565),
         .rstn   (svg_rstn     ),
@@ -143,7 +142,7 @@ module AimBot #(
         .o_pack (disp_pack_2  )
     );
 
-    wire [49:0] disp_pack;
+    wire [48:0] disp_pack;
     pack_switch u_switch_cam (
         .clk     (clk        ),
         .switch  (cam_switch ),
@@ -152,7 +151,7 @@ module AimBot #(
         .o_pack  (disp_pack  )
     );
 
-    wire [49:0] wb_pack;
+    wire [48:0] wb_pack;
     white_balance #(
         .H_ACT(1280),
         .V_ACT(720 )
@@ -161,7 +160,7 @@ module AimBot #(
         .o_pack(wb_pack  )
     );
 
-    wire [49:0] wbs_pack;
+    wire [48:0] wbs_pack;
     pack_switch u_switch_white_balance (
         .clk     (clk      ),
         .switch  (wb_switch),
@@ -170,7 +169,7 @@ module AimBot #(
         .o_pack  (wbs_pack )
     );
 
-    wire [49:0] win_pack;
+    wire [48:0] win_pack;
     draw_window #(
         .V_BOX_WIDTH(40),
         .H_BOX_WIDTH(20),
@@ -185,7 +184,7 @@ module AimBot #(
         .colors  (24'hFFFFFF)
     );
 
-    wire [49:0] wins_pack;
+    wire [48:0] wins_pack;
     pack_switch u_switch_draw_window (
         .clk     (clk      ),
         .switch  (dw_switch),

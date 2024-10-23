@@ -5,7 +5,7 @@ module hdmi_display (
     input         i_href ,
     input  [15:0] i_data ,
 
-    output [49:0] o_pack
+    output [48:0] o_pack
 );
 
     reg  svg_rstn /*synthesis PAP_MARK_DEBUG="true"*/;
@@ -81,7 +81,6 @@ module hdmi_display (
 
     hdmi_pack u_disp_pack (
         .clk  (clk                  ),
-        .href (i_href               ),
         .hsync(o_hsync              ),
         .vsync(o_vsync              ),
         .de   (o_de                 ),
@@ -92,6 +91,5 @@ module hdmi_display (
         .y    (o_y                  ),
         .pack (o_pack               )
     );
-
 
 endmodule : hdmi_display

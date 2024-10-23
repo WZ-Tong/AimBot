@@ -1,7 +1,6 @@
 module hdmi_unpack (
-    input  [49:0] pack ,
+    input  [48:0] pack ,
     output        clk  ,
-    output        href ,
     output        hsync,
     output        vsync,
     output        de   ,
@@ -12,6 +11,6 @@ module hdmi_unpack (
     output [ 9:0] y
 );
 
-    assign {clk, href, hsync, vsync, de, r, g, b, x, y} = pack;
+    assign {clk, hsync, vsync, de, r, g, b, x, y} = pack;
 
 endmodule : hdmi_unpack

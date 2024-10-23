@@ -2,8 +2,8 @@ module white_balance #(
     parameter H_ACT = 1280,
     parameter V_ACT = 720
 ) (
-    input  [49:0] i_pack,
-    output [49:0] o_pack
+    input  [48:0] i_pack,
+    output [48:0] o_pack
 );
 
     wire clk /*synthesis PAP_MARK_DEBUG="true"*/;
@@ -13,7 +13,6 @@ module white_balance #(
 
     wire i_vsync;
     wire i_hsync;
-    wire i_href ;
     wire i_de   ;
 
     wire [$clog2(H_ACT)-1:0] i_x;
@@ -22,7 +21,6 @@ module white_balance #(
     hdmi_unpack u_hdmi_unpack (
         .pack (i_pack ),
         .clk  (clk    ),
-        .href (i_href ),
         .hsync(i_hsync),
         .vsync(i_vsync),
         .de   (i_de   ),
@@ -75,7 +73,7 @@ module white_balance #(
             g_last_sum <= #1 g_current_sum;
             b_last_sum <= #1 b_current_sum;
         end else begin
-            if (i_href) begin
+            if (i_de) begin
                 r_current_sum <= #1 r_current_sum + i_r;
                 g_current_sum <= #1 g_current_sum + i_g;
                 b_current_sum <= #1 b_current_sum + i_b;
@@ -116,7 +114,6 @@ module white_balance #(
     // TODO: Add sync delay
     hdmi_pack u_hdmi_pack (
         .clk  (clk    ),
-        .href (i_href ),
         .hsync(i_hsync),
         .vsync(i_vsync),
         .de   (i_de   ),

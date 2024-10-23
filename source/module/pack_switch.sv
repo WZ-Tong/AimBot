@@ -1,9 +1,9 @@
 module pack_switch (
     input         clk     ,
     input         switch  ,
-    input  [49:0] i_pack_1,
-    input  [49:0] i_pack_2,
-    output [49:0] o_pack
+    input  [48:0] i_pack_1,
+    input  [48:0] i_pack_2,
+    output [48:0] o_pack
 );
 
     reg state = 0;

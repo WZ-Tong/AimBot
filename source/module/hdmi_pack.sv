@@ -1,6 +1,5 @@
 module hdmi_pack (
     input         clk  ,
-    input         href ,
     input         hsync,
     input         vsync,
     input         de   ,
@@ -10,9 +9,9 @@ module hdmi_pack (
     input  [10:0] x    ,
     input  [ 9:0] y    ,
 
-    output [49:0] pack
+    output [48:0] pack
 );
 
-    assign pack = {clk, href, hsync, vsync, de, r, g, b, x, y};
+    assign pack = {clk, hsync, vsync, de, r, g, b, x, y};
 
 endmodule : hdmi_pack
