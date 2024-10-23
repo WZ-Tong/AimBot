@@ -6,9 +6,11 @@ module udp_sender #(
     parameter DEST_IP    = 32'hC0_A8_01_69      , //192.168.1.105
     parameter DEST_PORT  = 16'h8080
 ) (
+    output       rgmii_clk   ,
     input        rstn        ,
     input        trig        ,
     input  [7:0] data        ,
+    output       connected   ,
 
     // Hardware
     input        rgmii_rxc   ,
@@ -19,7 +21,6 @@ module udp_sender #(
     output [3:0] rgmii_txd
 );
 
-    wire       rgmii_clk;
     wire       rgmii_tx_valid ;
     wire [7:0] rgmii_tx_data  ;
     wire       rgmii_rx_error ;
@@ -27,13 +28,13 @@ module udp_sender #(
     wire [7:0] rgmii_rx_data  ;
 
     rgmii u_rgmii (
+        .rgmii_clk   (rgmii_clk     ),
         .tx_valid    (rgmii_tx_valid),
         .tx_data     (rgmii_tx_data ),
         .rx_error    (rgmii_rx_error),
         .rx_valid    (rgmii_rx_valid),
         .rx_data     (rgmii_rx_data ),
         // Hardware
-        .rgmii_clk   (rgmii_clk     ),
         .rgmii_rxc   (rgmii_rxc     ),
         .rgmii_rx_ctl(rgmii_rx_ctl  ),
         .rgmii_rxd   (rgmii_rxd     ),
