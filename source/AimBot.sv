@@ -64,11 +64,11 @@ module AimBot #(
 );
 
     wire clk10, clk25;
-    clk_div #(
-        .DIV(5)) u_clk10_gen (.i_clk(clk),
-        .o_clk(clk10));
-             clk_div #(.DIV(2           )
-    ) u_clk25_gen (.i_clk(clk), .o_clk(clk25));
+    clk_div #(.DIV(5)) u_clk10_gen (
+        .i_clk(clk  ),
+        .o_clk(clk10)
+    );
+    clk_div #(.DIV(2)) u_clk25_gen (.i_clk(clk), .o_clk(clk25));
 
     // HDMI configure
     hdmi_ctrl u_hdmi_ctrl (
@@ -213,7 +213,7 @@ module AimBot #(
     );
 
     frame_sender u_cam1_sender (
-        .trig        (/*TODO*/   ),
+        .trig        (/*TODO*/     ),
         .i_pack      (disp_pack_1  ),
         .rgmii_rxc   (rgmii1_rxc   ),
         .rgmii_rx_ctl(rgmii1_rx_ctl),
@@ -224,7 +224,7 @@ module AimBot #(
     );
 
     frame_sender u_cam2_sender (
-        .trig        (/*TODO*/   ),
+        .trig        (/*TODO*/     ),
         .i_pack      (disp_pack_2  ),
         .rgmii_rxc   (rgmii2_rxc   ),
         .rgmii_rx_ctl(rgmii2_rx_ctl),
