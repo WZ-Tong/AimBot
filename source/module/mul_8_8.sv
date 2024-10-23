@@ -14,5 +14,4 @@ module mul_8_8 (
         .p  (p   )
     );
 
-
 endmodule : mul_8_8
