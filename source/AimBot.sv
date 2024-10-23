@@ -3,8 +3,7 @@
 module AimBot #(
     parameter V_BOX_WIDTH = 1'b1,
     parameter H_BOX_WIDTH = 1'b1,
-    parameter N_BOX       = 1'b1,
-    parameter CAM_DISPLAY = 1
+    parameter N_BOX       = 1'b1
 ) (
     input        clk          ,
     input        rstn         ,
@@ -59,13 +58,17 @@ module AimBot #(
     output       cam_inited   ,
     output       frame_tick   ,
 
+    input        cam_switch   ,
     input        wb_switch    ,
     input        dw_switch
 );
 
     wire clk10, clk25;
-    clk_div #(.DIV(5)) u_clk10_gen (.i_clk(clk), .o_clk(clk10));
-    clk_div #(.DIV(2)) u_clk25_gen (.i_clk(clk), .o_clk(clk25));
+    clk_div #(
+        .DIV(5)) u_clk10_gen (.i_clk(clk),
+        .o_clk(clk10));
+             clk_div #(.DIV(2           )
+    ) u_clk25_gen (.i_clk(clk), .o_clk(clk25));
 
     // HDMI configure
     hdmi_ctrl u_hdmi_ctrl (
@@ -119,28 +122,34 @@ module AimBot #(
         .cfg_rstn(cam2_rstn    )
     );
 
-    wire [15:0] cam_data;
-    wire        cam_clk, cam_vsync, cam_href;
 
-    if (CAM_DISPLAY==1) begin
-        assign cam_vsync = cam1_vsync;
-        assign cam_clk  = cam1_pclk_565;
-        assign cam_data = cam1_data_565;
-        assign cam_href = cam1_href_565;
-    end else if (CAM_DISPLAY==2) begin
-        assign cam_vsync = cam2_vsync;
-        assign cam_clk   = cam2_pclk_565;
-        assign cam_data  = cam2_data_565;
-        assign cam_href  = cam2_href_565;
-    end
+    wire [49:0] disp_pack_1;
+    hdmi_display u_cam1_disp (
+        .clk    (cam1_pclk_565),
+        .rstn   (svg_rstn     ),
+        .i_vsync(cam1_vsync   ),
+        .i_data (cam1_data_565),
+        .i_href (cam1_href_565),
+        .o_pack (disp_pack_1  )
+    );
+
+    wire [49:0] disp_pack_2;
+    hdmi_display u_cam2_disp (
+        .clk    (cam2_pclk_565),
+        .rstn   (svg_rstn     ),
+        .i_vsync(cam2_vsync   ),
+        .i_data (cam2_data_565),
+        .i_href (cam2_href_565),
+        .o_pack (disp_pack_2  )
+    );
+
     wire [49:0] disp_pack;
-    hdmi_display u_hdmi_display (
-        .clk    (cam_clk  ),
-        .rstn   (svg_rstn ),
-        .i_vsync(cam_vsync),
-        .i_data (cam_data ),
-        .i_href (cam_href ),
-        .o_pack (disp_pack)
+    pack_switch u_switch_cam (
+        .clk     (clk        ),
+        .switch  (cam_switch ),
+        .i_pack_1(disp_pack_1),
+        .i_pack_2(disp_pack_2),
+        .o_pack  (disp_pack  )
     );
 
     wire [49:0] wb_pack;
@@ -153,7 +162,7 @@ module AimBot #(
     );
 
     wire [49:0] wbs_pack;
-    filter_switch u_white_balance_filter (
+    pack_switch u_switch_white_balance (
         .clk     (clk      ),
         .switch  (wb_switch),
         .i_pack_1(wb_pack  ),
@@ -177,7 +186,7 @@ module AimBot #(
     );
 
     wire [49:0] wins_pack;
-    filter_switch u_draw_window_filter (
+    pack_switch u_switch_draw_window (
         .clk     (clk      ),
         .switch  (dw_switch),
         .i_pack_1(win_pack ),
@@ -201,6 +210,28 @@ module AimBot #(
         .rstn(rstn      ),
         .trig(hdmi_vsync),
         .tick(frame_tick)
+    );
+
+    frame_sender u_cam1_sender (
+        .trig        (/*TODO*/   ),
+        .i_pack      (disp_pack_1  ),
+        .rgmii_rxc   (rgmii1_rxc   ),
+        .rgmii_rx_ctl(rgmii1_rx_ctl),
+        .rgmii_rxd   (rgmii1_rxd   ),
+        .rgmii_txc   (rgmii1_txc   ),
+        .rgmii_tx_ctl(rgmii1_tx_ctl),
+        .rgmii_txd   (rgmii1_txd   )
+    );
+
+    frame_sender u_cam2_sender (
+        .trig        (/*TODO*/   ),
+        .i_pack      (disp_pack_2  ),
+        .rgmii_rxc   (rgmii2_rxc   ),
+        .rgmii_rx_ctl(rgmii2_rx_ctl),
+        .rgmii_rxd   (rgmii2_rxd   ),
+        .rgmii_txc   (rgmii2_txc   ),
+        .rgmii_tx_ctl(rgmii2_tx_ctl),
+        .rgmii_txd   (rgmii2_txd   )
     );
 
 endmodule : AimBot

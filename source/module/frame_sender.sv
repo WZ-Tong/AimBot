@@ -1,8 +1,6 @@
 module frame_sender (
     input         trig        ,
-    input         cam_pclk    ,
-    input         cam_href    ,
-    input  [15:0] cam_data    ,
+    input  [49:0] i_pack      ,
 
     input         rgmii_rxc   ,
     input         rgmii_rx_ctl,
@@ -13,9 +11,39 @@ module frame_sender (
     output [ 3:0] rgmii_txd
 );
 
-    // TODO: Place a fifo here (maybe) to sync camera's data
+    wire cam_clk, rgmii_clk;
 
-    wire rgmii_clk; // TODO: use this clock to read data
+    wire href ;
+    wire hsync;
+    wire vsync;
+    wire de   ;
+
+    wire [7:0] r;
+    wire [7:0] g;
+    wire [7:0] b;
+
+    wire [10:0] x;
+    wire [ 9:0] y;
+
+    hdmi_unpack u_hdmi_unpack (
+        .pack (i_pack ),
+        .clk  (cam_clk),
+        .href (href   ),
+        .hsync(hsync  ),
+        .vsync(vsync  ),
+        .de   (de     ),
+        .r    (r      ),
+        .g    (g      ),
+        .b    (b      ),
+        .x    (x      ),
+        .y    (y      )
+    );
+
+    wire       tx_valid;
+    wire [7:0] tx_data ;
+    wire       rx_error;
+    wire       rx_valid;
+    wire [7:0] rx_data ;
 
     rgmii u_rgmii (
         .rgmii_clk   (rgmii_clk   ),
@@ -24,7 +52,12 @@ module frame_sender (
         .rgmii_rxd   (rgmii_rxd   ),
         .rgmii_txc   (rgmii_txc   ),
         .rgmii_tx_ctl(rgmii_tx_ctl),
-        .rgmii_txd   (rgmii_txd   )
+        .rgmii_txd   (rgmii_txd   ),
+        .tx_valid    (tx_valid    ),
+        .tx_data     (tx_data     ),
+        .rx_error    (rx_error    ),
+        .rx_valid    (rx_valid    ),
+        .rx_data     (rx_data     )
     );
 
 

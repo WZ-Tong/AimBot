@@ -1,4 +1,4 @@
-module filter_switch (
+module pack_switch (
     input         clk     ,
     input         switch  ,
     input  [49:0] i_pack_1,
@@ -24,4 +24,4 @@ module filter_switch (
 
     assign o_pack = state ? i_pack_1 : i_pack_2;
 
-endmodule : filter_switch
+endmodule : pack_switch
