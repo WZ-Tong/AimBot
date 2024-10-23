@@ -35,28 +35,6 @@ module frame_sender #(
         .b    (b      )
     );
 
-    wire       rgmii_clk     ;
-    wire       rgmii_tx_valid;
-    wire [7:0] rgmii_tx_data ;
-    wire       rgmii_rx_error;
-    wire       rgmii_rx_valid;
-    wire [7:0] rgmii_rx_data ;
-
-    rgmii u_rgmii (
-        .rgmii_clk   (rgmii_clk     ),
-        .tx_valid    (rgmii_tx_valid),
-        .tx_data     (rgmii_tx_data ),
-        .rx_error    (rgmii_rx_error),
-        .rx_valid    (rgmii_rx_valid),
-        .rx_data     (rgmii_rx_data ),
-        .rgmii_rxc   (rgmii_rxc     ),
-        .rgmii_rx_ctl(rgmii_rx_ctl  ),
-        .rgmii_rxd   (rgmii_rxd     ),
-        .rgmii_txc   (rgmii_txc     ),
-        .rgmii_tx_ctl(rgmii_tx_ctl  ),
-        .rgmii_txd   (rgmii_txd     )
-    );
-
     async_fifo u_send_buffer (
         .wr_clk      (cam_clk   ),
         .wr_rst      (          ),   // TODO
