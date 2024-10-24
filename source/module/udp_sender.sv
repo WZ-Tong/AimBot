@@ -6,26 +6,28 @@ module udp_sender #(
     parameter DEST_IP    = 32'hC0_A8_01_69      , //192.168.1.105
     parameter DEST_PORT  = 16'h8080
 ) (
-    output       rgmii_clk   ,
-    input        rstn        ,
-    input        trig        ,
-    input  [7:0] data        ,
-    output       connected   ,
+    output           rgmii_clk   ,
+    input            arp_rstn    ,
+    input            trig        ,
+    input            valid       ,
+    input      [7:0] data        ,
+    output reg       read_en     ,
+    output reg       connected   ,
 
     // Hardware
-    input        rgmii_rxc   ,
-    input        rgmii_rx_ctl,
-    input  [3:0] rgmii_rxd   ,
-    output       rgmii_txc   ,
-    output       rgmii_tx_ctl,
-    output [3:0] rgmii_txd
+    input            rgmii_rxc   ,
+    input            rgmii_rx_ctl,
+    input      [3:0] rgmii_rxd   ,
+    output           rgmii_txc   ,
+    output           rgmii_tx_ctl,
+    output     [3:0] rgmii_txd
 );
 
-    wire       rgmii_tx_valid ;
-    wire [7:0] rgmii_tx_data  ;
-    wire       rgmii_rx_error ;
-    wire       rgmii_rx_valid ;
-    wire [7:0] rgmii_rx_data  ;
+    wire       rgmii_tx_valid;
+    wire [7:0] rgmii_tx_data ;
+    wire       rgmii_rx_error;
+    wire       rgmii_rx_valid;
+    wire [7:0] rgmii_rx_data ;
 
     rgmii u_rgmii (
         .rgmii_clk   (rgmii_clk     ),
@@ -46,11 +48,6 @@ module udp_sender #(
     wire        app_data_in_valid  ;
     wire [ 7:0] app_data_in        ;
     wire [15:0] app_data_length    ;
-    wire        app_data_request   ;
-    wire        udp_send_ack       ;
-    wire        arp_req            ;
-    wire        arp_found          ;
-    wire        mac_not_exist      ;
     wire        mac_send_end       ;
     wire [ 7:0] udp_rec_rdata      ;
     wire [15:0] udp_rec_data_length;
@@ -60,19 +57,97 @@ module udp_sender #(
     wire        rx_en              ;
     wire [ 7:0] mac_rx_datain      ;
 
-    localparam RGMII_1MS= 125_000;
+    localparam RGMII_1MS = 125_000;
 
-    localparam UNINITED = 4'b000;
-    localparam ARP_REQ  = 4'b001;
-    localparam ARP_WAIT = 4'b010;
+    reg [$clog2(RGMII_1MS)-1:0] rgmii_cnt;
+
+    localparam UNINITED  = 4'b0000;
+    localparam ARP_REQ   = 4'b0001;
+    localparam ARP_WAIT  = 4'b0010;
+    localparam CHECK_MAC = 4'b0011;
+    localparam IDLE      = 4'b0100;
+    localparam GEN_REQ   = 4'b0101;
+    localparam WRITE_RAM = 4'b0110;
 
     reg [3:0] state;
 
-    always_ff @(posedge rgmii_clk) begin
-        if(~rstn) begin
-            state <= #1 UNINITED;
+    reg  arp_req         ;
+    wire arp_found       ;
+    wire mac_not_exist   ;
+    reg  app_data_request;
+    wire udp_send_ack    ;
+    always_ff @(posedge rgmii_clk or negedge arp_rstn) begin
+        if(~arp_rstn) begin
+            state            <= #1 UNINITED;
+            rgmii_cnt        <= #1 'b0;
+            arp_req          <= #1 'b0;
+            app_data_request <= #1 'b0;
+            connected        <= #1 'b0;
         end else begin
+            case (state)
+                UNINITED : begin
+                    connected <= #1 'b0;
+                    if (rgmii_cnt!=RGMII_1MS-1) begin
+                        arp_req   <= #1 'b0;
+                        rgmii_cnt <= #1 rgmii_cnt + 1'b1;
+                    end else begin
+                        rgmii_cnt <= #1 'b0;
+                        state     <= #1 ARP_REQ;
+                    end
+                end
+                ARP_REQ : begin
+                    arp_req   <= #1 'b1;
+                    rgmii_cnt <= #1 'b0;
+                    state     <= #1 ARP_WAIT;
+                end
+                ARP_WAIT : begin
+                    arp_req <= #1 'b0;
+                    if (arp_found) begin
+                        rgmii_cnt <= #1 'b0;
+                        state     <= #1 CHECK_MAC;
+                    end else begin
+                        if (rgmii_cnt!=RGMII_1MS-1) begin
+                            rgmii_cnt <= #1 rgmii_cnt + 1'b1;
+                        end else begin
+                            rgmii_cnt <= #1 'b0;
+                            state     <= #1 UNINITED;
+                        end
+                    end
+                end
+                CHECK_MAC : begin
+                    if (rgmii_cnt!=RGMII_1MS-1) begin
+                        rgmii_cnt <= #1 rgmii_cnt + 1'b1;
+                    end else begin
+                        if (mac_not_exist) begin
+                            // Do not reset counter
+                            // So `UNINITED` will continue soon
+                            state <= #1 UNINITED;
+                        end else begin
+                            rgmii_cnt <= #1 'b0;
+                            state     <= #1 IDLE;
+                        end
+                    end
+                end
+                IDLE : begin
+                    connected        <= #1 'b1;
+                    app_data_request <= #1 'b0;
+                    if (trig) begin
+                        state <= #1 GEN_REQ;
+                    end
+                end
+                GEN_REQ : begin
+                    app_data_request <= #1 'b1;
+                    if (udp_send_ack) begin
+                        state <= #1 WRITE_RAM;
+                    end
+                end
+                WRITE_RAM : begin
 
+                end
+                default : begin
+                    state <= #1 UNINITED;
+                end
+            endcase
         end
     end
 
@@ -84,7 +159,7 @@ module udp_sender #(
         .DEST_PORT (DEST_PORT )
     ) u_udp_ip_mac_top (
         .rgmii_clk          (rgmii_clk          ),
-        .rstn               (rstn               ),
+        .rstn               (arp_rstn           ),
         // APP
         .app_data_in_valid  (app_data_in_valid  ),
         .app_data_in        (app_data_in        ),
