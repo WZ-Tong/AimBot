@@ -60,6 +60,22 @@ module udp_sender #(
     wire        rx_en              ;
     wire [ 7:0] mac_rx_datain      ;
 
+    localparam RGMII_1MS= 125_000;
+
+    localparam UNINITED = 4'b000;
+    localparam ARP_REQ  = 4'b001;
+    localparam ARP_WAIT = 4'b010;
+
+    reg [3:0] state;
+
+    always_ff @(posedge rgmii_clk) begin
+        if(~rstn) begin
+            state <= #1 UNINITED;
+        end else begin
+
+        end
+    end
+
     udp_ip_mac_top #(
         .LOCAL_MAC (LOCAL_MAC ),
         .LOCAL_IP  (LOCAL_IP  ),
