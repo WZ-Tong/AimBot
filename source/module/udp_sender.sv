@@ -6,21 +6,22 @@ module udp_sender #(
     parameter DEST_IP    = 32'hC0_A8_01_69      , //192.168.1.105
     parameter DEST_PORT  = 16'h8080
 ) (
-    output           rgmii_clk   ,
-    input            arp_rstn    ,
-    input            trig        ,
-    input            valid       ,
-    input      [7:0] data        ,
-    output reg       read_en     ,
-    output reg       connected   ,
+    output            rgmii_clk   ,
+    input             arp_rstn    ,
+    input             trig        ,
+    input             valid       ,
+    input      [ 7:0] data        ,
+    input      [15:0] data_len    ,
+    output reg        read_en     ,
+    output reg        connected   ,
 
     // Hardware
-    input            rgmii_rxc   ,
-    input            rgmii_rx_ctl,
-    input      [3:0] rgmii_rxd   ,
-    output           rgmii_txc   ,
-    output           rgmii_tx_ctl,
-    output     [3:0] rgmii_txd
+    input             rgmii_rxc   ,
+    input             rgmii_rx_ctl,
+    input      [ 3:0] rgmii_rxd   ,
+    output            rgmii_txc   ,
+    output            rgmii_tx_ctl,
+    output     [ 3:0] rgmii_txd
 );
 
     wire       rgmii_tx_valid;
@@ -58,8 +59,9 @@ module udp_sender #(
     wire [ 7:0] mac_rx_datain      ;
 
     localparam RGMII_1MS = 125_000;
+    localparam RGMII_INT = RGMII_1MS * 200;
 
-    reg [$clog2(RGMII_1MS)-1:0] rgmii_cnt;
+    reg [$clog2(RGMII_INT)-1:0] rgmii_cnt;
 
     localparam UNINITED  = 4'b0000;
     localparam ARP_REQ   = 4'b0001;
@@ -87,7 +89,7 @@ module udp_sender #(
             case (state)
                 UNINITED : begin
                     connected <= #1 'b0;
-                    if (rgmii_cnt!=RGMII_1MS-1) begin
+                    if (rgmii_cnt!=RGMII_INT-1) begin
                         arp_req   <= #1 'b0;
                         rgmii_cnt <= #1 rgmii_cnt + 1'b1;
                     end else begin
@@ -106,7 +108,7 @@ module udp_sender #(
                         rgmii_cnt <= #1 'b0;
                         state     <= #1 CHECK_MAC;
                     end else begin
-                        if (rgmii_cnt!=RGMII_1MS-1) begin
+                        if (rgmii_cnt!=RGMII_INT-1) begin
                             rgmii_cnt <= #1 rgmii_cnt + 1'b1;
                         end else begin
                             rgmii_cnt <= #1 'b0;
@@ -115,7 +117,7 @@ module udp_sender #(
                     end
                 end
                 CHECK_MAC : begin
-                    if (rgmii_cnt!=RGMII_1MS-1) begin
+                    if (rgmii_cnt!=RGMII_INT-1) begin
                         rgmii_cnt <= #1 rgmii_cnt + 1'b1;
                     end else begin
                         if (mac_not_exist) begin
