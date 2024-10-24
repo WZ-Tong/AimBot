@@ -6,8 +6,9 @@ module AimBot #(
     parameter N_BOX       = 1'b1
 ) (
     input        clk          ,
-    input        rstn         ,
-    input        svg_rstn     ,
+    input        cam_switch   ,
+    input        wb_switch    ,
+    input        dw_switch    ,
 
     inout        cam1_scl     ,
     inout        cam1_sda     ,
@@ -56,11 +57,7 @@ module AimBot #(
     // Debug signals
     output       hdmi_inited  ,
     output       cam_inited   ,
-    output       frame_tick   ,
-
-    input        cam_switch   ,
-    input        wb_switch    ,
-    input        dw_switch
+    output       frame_tick
 );
 
     wire clk10, clk25;
@@ -68,11 +65,21 @@ module AimBot #(
         .i_clk(clk  ),
         .o_clk(clk10)
     );
-    clk_div #(.DIV(2)) u_clk25_gen (.i_clk(clk), .o_clk(clk25));
+    clk_div #(.DIV(2)) u_clk25_gen (
+        .i_clk(clk  ),
+        .o_clk(clk25)
+    );
+
+    wire clk42, clk42l;
+    pll u_clk42_gen (
+        .clkin1  (clk   ),
+        .clkout0 (clk42 ),
+        .pll_lock(clk42l)
+    );
 
     // HDMI configure
     hdmi_ctrl u_hdmi_ctrl (
-        .rstn     (rstn       ),
+        .rstn     (clk42l     ),
         .clk10    (clk10      ),
         .inited   (hdmi_inited),
         .iic_rstn (hdmi_rstn  ),
@@ -92,7 +99,7 @@ module AimBot #(
 
     ov5640_reader u_cam1_reader (
         .clk25   (clk25        ),
-        .rstn    (rstn         ),
+        .rstn    (clk42l       ),
         .vsync   (cam1_vsync   ),
         .href    (cam1_href    ),
         .pclk    (cam1_pclk    ),
@@ -108,7 +115,7 @@ module AimBot #(
 
     ov5640_reader u_cam2_reader (
         .clk25   (clk25        ),
-        .rstn    (rstn         ),
+        .rstn    (clk42l       ),
         .vsync   (cam2_vsync   ),
         .href    (cam2_href    ),
         .pclk    (cam2_pclk    ),
@@ -124,22 +131,24 @@ module AimBot #(
 
     wire [48:0] disp_pack_1;
     hdmi_display u_cam1_disp (
-        .clk    (cam1_pclk_565),
-        .rstn   (svg_rstn     ),
-        .i_vsync(cam1_vsync   ),
-        .i_data (cam1_data_565),
-        .i_href (cam1_href_565),
-        .o_pack (disp_pack_1  )
+        .disp_clk(clk42),
+        .cam_clk (cam1_pclk_565),
+        .rstn    (clk42l       ),
+        .i_vsync (cam1_vsync   ),
+        .i_data  (cam1_data_565),
+        .i_href  (cam1_href_565),
+        .o_pack  (disp_pack_1  )
     );
 
     wire [48:0] disp_pack_2;
     hdmi_display u_cam2_disp (
-        .clk    (cam2_pclk_565),
-        .rstn   (svg_rstn     ),
-        .i_vsync(cam2_vsync   ),
-        .i_data (cam2_data_565),
-        .i_href (cam2_href_565),
-        .o_pack (disp_pack_2  )
+        .disp_clk(clk42        ),
+        .cam_clk (cam2_pclk_565),
+        .rstn    (clk42l       ),
+        .i_vsync (cam2_vsync   ),
+        .i_data  (cam2_data_565),
+        .i_href  (cam2_href_565),
+        .o_pack  (disp_pack_2  )
     );
 
     wire [48:0] disp_pack;
@@ -206,7 +215,7 @@ module AimBot #(
 
     tick #(.TICK(30)) u_frame_tick (
         .clk (hdmi_clk  ),
-        .rstn(rstn      ),
+        .rstn(clk42l    ),
         .trig(hdmi_vsync),
         .tick(frame_tick)
     );
