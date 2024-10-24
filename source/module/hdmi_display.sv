@@ -34,8 +34,8 @@ module hdmi_display (
 
     localparam H_TOTAL = H_FP + H_BP + H_SYNC + H_ACT; // 1892
 
-    localparam V_FP   = 8  ;
-    localparam V_BP   = 10 ;
+    localparam V_FP   = 7  ;
+    localparam V_BP   = 11 ;
     localparam V_SYNC = 2  ; // 3784
     localparam V_ACT  = 720;
 
@@ -72,14 +72,19 @@ module hdmi_display (
         .y_act (o_y       )
     );
 
+    reg [15:0] o_data;
+    always_ff @(posedge clk) begin
+        o_data <= #1 i_data;
+    end
+
     hdmi_pack u_disp_pack (
         .clk  (clk                  ),
         .hsync(o_hsync              ),
         .vsync(o_vsync              ),
         .de   (o_de                 ),
-        .r    ({i_data[04:00], 3'b0}),
-        .g    ({i_data[10:05], 2'b0}),
-        .b    ({i_data[15:11], 3'b0}),
+        .r    ({o_data[04:00], 3'b0}),
+        .g    ({o_data[10:05], 2'b0}),
+        .b    ({o_data[15:11], 3'b0}),
         .x    (o_x                  ),
         .y    (o_y                  ),
         .pack (o_pack               )
