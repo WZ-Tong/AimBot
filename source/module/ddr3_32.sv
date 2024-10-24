@@ -1,6 +1,5 @@
 module ddr3_32 (
     input          clk            ,
-    input          rstn           ,
     output         inited         ,
     output         phy_clk        ,
     output         phy_clkl       ,
@@ -48,7 +47,7 @@ module ddr3_32 (
     wire ddr3_rstn;
     rstn_gen #(.TICK(DDR3_RSTN_HOLD_CNT)) u_ddr3_rstn_gen (
         .clk   (clk      ),
-        .i_rstn(rstn     ),
+        .i_rstn(1'b1     ),
         .o_rstn(ddr3_rstn)
     );
 

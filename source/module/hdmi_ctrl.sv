@@ -4,7 +4,6 @@
 
 module hdmi_ctrl (
     input  clk10    ,
-    input  rstn     ,
     output inited   ,
 
     output iic_rstn ,
@@ -18,7 +17,7 @@ module hdmi_ctrl (
 
     rstn_gen #(.TICK(RSTN_HOLD_CNT)) ms72xx_rstn_gen (
         .clk   (clk10   ),
-        .i_rstn(rstn    ),
+        .i_rstn(1'b1    ),
         .o_rstn(iic_rstn)
     );
 

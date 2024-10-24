@@ -4,7 +4,7 @@ module rstn_gen #(parameter TICK = 1) (
     output reg o_rstn
 );
 
-    reg [$clog2(TICK)-1:0] cnt;
+    reg [$clog2(TICK)-1:0] cnt = 'b0;
 
     always_ff @(posedge clk or negedge i_rstn) begin
         if(~i_rstn) begin

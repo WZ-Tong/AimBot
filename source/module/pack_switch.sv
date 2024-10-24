@@ -12,7 +12,7 @@ module pack_switch (
     rstn_gen #(.TICK(5_000_000)) u_rstn_gen (
         .clk   (clk   ),
         .i_rstn(switch),
-        .o_rstn(press)
+        .o_rstn(press )
     );
 
     always_ff @(posedge clk) begin

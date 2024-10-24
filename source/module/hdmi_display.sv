@@ -1,6 +1,5 @@
 module hdmi_display (
     input         clk    ,
-    input         rstn   ,
     input         i_vsync,
     input         i_href ,
     input  [15:0] i_data ,
@@ -8,19 +7,15 @@ module hdmi_display (
     output [48:0] o_pack
 );
 
-    reg  svg_rstn /*synthesis PAP_MARK_DEBUG="true"*/;
-    reg  vsync_d ;
+    reg vsync_d;
 
-    always_ff @(posedge clk or negedge rstn) begin
-        if(~rstn) begin
-            svg_rstn <= #1 'b0;
-            vsync_d  <= #1 'b0;
-        end else begin
-            vsync_d <= #1 i_vsync;
-            if (~svg_rstn) begin
-                if (vsync_d==0 && i_vsync==1) begin
-                    svg_rstn <= #1 'b1;
-                end
+    reg svg_rstn = 'b0;
+
+    always_ff @(posedge clk) begin
+        vsync_d <= #1 i_vsync;
+        if (~svg_rstn) begin
+            if (vsync_d==0 && i_vsync==1) begin
+                svg_rstn <= #1 'b1;
             end
         end
     end
