@@ -6,6 +6,7 @@ module AimBot #(
     parameter N_BOX       = 1'b1
 ) (
     input        clk          ,
+    input        rstn         ,
     input        cam_switch   ,
     input        wb_switch    ,
     input        dw_switch    ,
@@ -73,6 +74,7 @@ module AimBot #(
     // HDMI configure
     hdmi_ctrl u_hdmi_ctrl (
         .clk10    (clk10      ),
+        .rstn     (rstn       ),
         .inited   (hdmi_inited),
         .iic_rstn (hdmi_rstn  ),
         .iic_i_scl(/*unused*/ ),
@@ -91,6 +93,7 @@ module AimBot #(
 
     ov5640_reader u_cam1_reader (
         .clk25   (clk25        ),
+        .rstn    (rstn         ),
         .vsync   (cam1_vsync   ),
         .href    (cam1_href    ),
         .pclk    (cam1_pclk    ),
@@ -106,6 +109,7 @@ module AimBot #(
 
     ov5640_reader u_cam2_reader (
         .clk25   (clk25        ),
+        .rstn    (rstn         ),
         .vsync   (cam2_vsync   ),
         .href    (cam2_href    ),
         .pclk    (cam2_pclk    ),
@@ -122,6 +126,7 @@ module AimBot #(
     wire [48:0] disp_pack_1;
     hdmi_display u_cam1_disp (
         .clk    (cam1_pclk_565),
+        .rstn   (rstn         ),
         .i_vsync(cam1_vsync   ),
         .i_data (cam1_data_565),
         .i_href (cam1_href_565),
@@ -131,6 +136,7 @@ module AimBot #(
     wire [48:0] disp_pack_2;
     hdmi_display u_cam2_disp (
         .clk    (cam2_pclk_565),
+        .rstn   (rstn         ),
         .i_vsync(cam2_vsync   ),
         .i_data (cam2_data_565),
         .i_href (cam2_href_565),

@@ -1,5 +1,6 @@
 module ov5640_reader (
     input         clk25   ,
+    input         rstn    ,
 
     input         vsync   ,
     input         href    ,
@@ -21,11 +22,10 @@ module ov5640_reader (
     assign cfg_clk = clk25;
 
     localparam CFG_RSTN_HOLD = 25_000_000;
-    localparam H_SYNC_ACTIVE = 1'b1            ;
 
     rstn_gen #(.TICK(CFG_RSTN_HOLD)) cam_cfg_rstn_gen (
         .clk   (cfg_clk ),
-        .i_rstn(1'b1    ),
+        .i_rstn(rstn    ),
         .o_rstn(cfg_rstn)
     );
 
