@@ -10,7 +10,7 @@ module AimBot #(
     input        cam_switch   ,
     input        wb_switch    ,
     input        dw_switch    ,
-    input        wb_en        ,
+    input        wb_rstn      ,
 
     inout        cam1_scl     ,
     inout        cam1_sda     ,
@@ -59,7 +59,8 @@ module AimBot #(
     // Debug signals
     output       hdmi_inited  ,
     output       cam_inited   ,
-    output       frame_tick
+    output       frame_tick   ,
+    output       connected
 );
 
     wire clk10, clk25;
@@ -159,7 +160,7 @@ module AimBot #(
         .V_ACT(720 )
     ) u_white_balance (
         .i_pack(disp_pack),
-        .wb_en (wb_en    ),
+        .wb_en (~wb_rstn ),
         .o_pack(wb_pack  )
     );
 
@@ -214,9 +215,19 @@ module AimBot #(
         .tick(frame_tick)
     );
 
-    frame_sender u_cam1_sender (
+    wire send1_conn;
+    frame_sender #(
+        .CAM_ID    (6'b111000            ),
+        .LOCAL_MAC (48'h01_02_03_04_05_06),
+        .LOCAL_IP  (32'hC0_A8_02_65      ),
+        .LOCAL_PORT(16'h1F92             ),
+        .DEST_IP   (32'hC0_A8_02_64      ),
+        .DEST_PORT (16'h1F91             )
+    ) u_cam1_sender (
+        .rstn        (rstn         ),
         .trig        (/*TODO*/     ),
         .i_pack      (disp_pack_1  ),
+        .connected   (send1_conn   ),
         .rgmii_rxc   (rgmii1_rxc   ),
         .rgmii_rx_ctl(rgmii1_rx_ctl),
         .rgmii_rxd   (rgmii1_rxd   ),
@@ -225,9 +236,19 @@ module AimBot #(
         .rgmii_txd   (rgmii1_txd   )
     );
 
-    frame_sender u_cam2_sender (
+    wire send2_conn;
+    frame_sender #(
+        .CAM_ID    (6'b000001            ),
+        .LOCAL_MAC (48'h01_02_03_04_05_06),
+        .LOCAL_IP  (32'hC0_A8_02_65      ),
+        .LOCAL_PORT(16'h1F90             ),
+        .DEST_IP   (32'hC0_A8_02_64      ),
+        .DEST_PORT (16'h1F90             )
+    ) u_cam2_sender (
+        .rstn        (rstn         ),
         .trig        (/*TODO*/     ),
         .i_pack      (disp_pack_2  ),
+        .connected   (send2_conn   ),
         .rgmii_rxc   (rgmii2_rxc   ),
         .rgmii_rx_ctl(rgmii2_rx_ctl),
         .rgmii_rxd   (rgmii2_rxd   ),
@@ -235,5 +256,7 @@ module AimBot #(
         .rgmii_tx_ctl(rgmii2_tx_ctl),
         .rgmii_txd   (rgmii2_txd   )
     );
+
+    assign connected = send1_conn && send2_conn;
 
 endmodule : AimBot

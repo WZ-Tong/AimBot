@@ -1,17 +1,17 @@
 module frame_sender #(
     parameter CAM_ID     = 6'b000000            ,
 
-    parameter LOCAL_MAC  = 48'h3C_2B_1A_09_4D_5E,
-    parameter LOCAL_IP   = 32'hC0_A8_01_6E      ,
-    parameter LOCAL_PORT = 16'hF0F0             ,
+    parameter LOCAL_MAC  = 48'h01_02_03_04_05_06,
+    parameter LOCAL_IP   = 32'hC0_A8_02_65      ,
+    parameter LOCAL_PORT = 16'h1F90             ,
 
-    parameter DEST_IP    = 32'hC0_A8_01_69      ,
-    parameter DEST_PORT  = 16'hA0A0
+    parameter DEST_IP    = 32'hC0_A8_02_64      ,
+    parameter DEST_PORT  = 16'h1F90
 ) (
     input         rstn        ,
     input         trig        ,
     input  [48:0] i_pack      ,
-    output        stat        , // Conn+TX+RX+Error
+    output        connected   ,
 
     input         rgmii_rxc   ,
     input         rgmii_rx_ctl,
@@ -20,6 +20,8 @@ module frame_sender #(
     output        rgmii_tx_ctl,
     output [ 3:0] rgmii_txd
 );
+
+    localparam PACKET_DATA_LEN = 16'd1280; // (1280/3) * 3(RGB)
 
     wire cam_clk;
     wire hsync  ;
@@ -44,7 +46,7 @@ module frame_sender #(
         .y    (y      )
     );
 
-    wire rgmii_clk;
+    wire rgmii_clk /*synthesis PAP_MARK_DEBUG="true"*/;
 
     async_fifo u_send_buffer (
         .wr_clk      (cam_clk   ),
@@ -68,8 +70,6 @@ module frame_sender #(
     wire        rx_valid      ;
     wire [ 7:0] rx_data       ;
     wire [15:0] rx_data_len   ;
-    wire        connected     ;
-    wire        rgmii_rx_error;
     udp_sender #(
         .LOCAL_MAC (LOCAL_MAC ),
         .LOCAL_IP  (LOCAL_IP  ),
@@ -77,34 +77,25 @@ module frame_sender #(
         .DEST_IP   (DEST_IP   ),
         .DEST_PORT (DEST_PORT )
     ) u_udp_sender (
-        .rgmii_clk     (rgmii_clk     ),
-        .arp_rstn      (rstn          ),
-        .trig          (              ),
-        .index         (              ),
-        .tx_read_en    (tx_read_en    ),
-        .tx_valid      (tx_valid      ),
-        .tx_data       (tx_data       ),
-        .tx_data_len   (tx_data_len   ),
-        .rx_valid      (rx_valid      ),
-        .rx_data       (rx_data       ),
-        .rx_data_len   (rx_data_len   ),
-        .connected     (connected     ),
-        .rgmii_rx_error(rgmii_rx_error),
-        .rgmii_rxc     (rgmii_rxc     ),
-        .rgmii_rx_ctl  (rgmii_rx_ctl  ),
-        .rgmii_rxd     (rgmii_rxd     ),
-        .rgmii_txc     (rgmii_txc     ),
-        .rgmii_tx_ctl  (rgmii_tx_ctl  ),
-        .rgmii_txd     (rgmii_txd     )
-    );
-
-    rgmii_stat u_rgmii_stat (
-        .clk   (rgmii_clk     ),
-        .inited(connected     ),
-        .error (rgmii_rx_error),
-        .tx    (tx_read_en    ),
-        .rx    (rx_valid      ),
-        .stat  (stat          )
+        .rgmii_clk   (rgmii_clk      ),
+        .arp_rstn    (rstn           ),
+        .trig        (1'b1           ),
+        .index       (index          ),
+        .tx_read_en  (tx_read_en     ),
+        .tx_valid    (1'b1           ),
+        .tx_data     (08'hA5         ),
+        .tx_data_len (PACKET_DATA_LEN),
+        .rx_valid    (/*unused*/     ),
+        .rx_data     (/*unused*/     ),
+        .rx_data_len (/*unused*/     ),
+        .rx_error    (/*unused*/     ),
+        .connected   (connected      ),
+        .rgmii_rxc   (rgmii_rxc      ),
+        .rgmii_rx_ctl(rgmii_rx_ctl   ),
+        .rgmii_rxd   (rgmii_rxd      ),
+        .rgmii_txc   (rgmii_txc      ),
+        .rgmii_tx_ctl(rgmii_tx_ctl   ),
+        .rgmii_txd   (rgmii_txd      )
     );
 
 endmodule : frame_sender

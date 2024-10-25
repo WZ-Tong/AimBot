@@ -16,12 +16,12 @@ module udp_sender #(
     input      [ 7:0] tx_data       ,
     input      [15:0] tx_data_len   ,
     // RX
-    input             rx_valid      ,
-    input      [ 7:0] rx_data       ,
-    input      [15:0] rx_data_len   ,
+    output             rx_valid      ,
+    output             rx_error      ,
+    output      [ 7:0] rx_data       ,
+    output      [15:0] rx_data_len   ,
 
     output reg        connected     ,
-    output            rgmii_rx_error,
 
     // Hardware
     input             rgmii_rxc     ,
@@ -38,7 +38,7 @@ module udp_sender #(
 
     localparam RGMII_CNT = RGMII_ARP_WAIT >= 16 ? RGMII_ARP_WAIT : 16; // 16: WIDTH(data_len)
 
-    reg [$clog2(RGMII_CNT)-1:0] rgmii_cnt;
+    reg [$clog2(RGMII_CNT)-1:0] rgmii_cnt /*synthesis PAP_MARK_DEBUG="true"*/;
 
     localparam UNINITED     = 4'b0000;
     localparam ARP_REQ      = 4'b0001;
@@ -51,20 +51,20 @@ module udp_sender #(
     localparam WRITE_IDX2   = 4'b1000;
     localparam WRITE_DATA   = 4'b1001;
 
-    reg [3:0] state;
+    reg [3:0] state /*synthesis PAP_MARK_DEBUG="true"*/;
 
-    reg         app_data_in_valid;
-    reg  [ 7:0] app_data_in      ;
-    wire [15:0] app_data_length  ;
-    reg         app_data_request ;
+    reg         app_data_in_valid /*synthesis PAP_MARK_DEBUG="true"*/;
+    reg  [ 7:0] app_data_in       /*synthesis PAP_MARK_DEBUG="true"*/;
+    reg         app_data_request  /*synthesis PAP_MARK_DEBUG="true"*/;
 
-    reg  arp_req  ;
-    wire arp_found;
+    reg  arp_req   /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire arp_found /*synthesis PAP_MARK_DEBUG="true"*/;
 
-    wire mac_send_end ;
-    wire mac_not_exist;
-    wire udp_send_ack ;
+    wire mac_send_end  /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire mac_not_exist /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire udp_send_ack  /*synthesis PAP_MARK_DEBUG="true"*/;
 
+    wire [15:0] app_data_length;
     assign app_data_length = tx_data_len + 2; // Write Index
     always_ff @(posedge rgmii_clk or negedge arp_rstn) begin
         if(~arp_rstn) begin
@@ -191,7 +191,7 @@ module udp_sender #(
         .rgmii_clk   (rgmii_clk     ),
         .tx_valid    (rgmii_tx_valid),
         .tx_data     (rgmii_tx_data ),
-        .rx_error    (rgmii_rx_error),
+        .rx_error    (rx_error      ),
         .rx_valid    (rgmii_rx_valid),
         .rx_data     (rgmii_rx_data ),
         // Hardware
