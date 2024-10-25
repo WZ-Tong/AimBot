@@ -1,0 +1,3 @@
+-explicit-parameter-storage-type
+parameter-name-style=parameter_style:ALL_CAPS
+parameter-name-style=localparam_style:ALL_CAPS

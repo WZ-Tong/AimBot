@@ -1,0 +1,8 @@
++incdir+/source
++incdir+/source/stub
++incdir+/source/module
++incdir+/source/util
++incdir+/source/util/convert
++incdir+/source/util/hdmi
++incdir+/source/util/ov5640
++incdir+/source/util/ethernet

@@ -1,5 +1,6 @@
 {
 	"settings": {
+		"lsp_format_on_save": false,
 		"ensure_newline_at_eof_on_save": true,
 		"SublimeLinter.linters.iverilog.args": [
 			"-g2012",
@@ -54,7 +55,8 @@
 			"name": "Source",
 			"path": "source",
 			"file_exclude_patterns": [
-				"*.md"
+				"*.md",
+				"*verible*"
 			],
 			"folder_exclude_patterns": [
 				"*_backup",
