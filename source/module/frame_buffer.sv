@@ -15,8 +15,6 @@ module frame_buffer (
 
     // FIFO control
     reg wr_rstn;
-    reg read_id;
-    reg cam1_re;
 
     wire        cam1_clk  ;
     wire        cam1_vsync;
@@ -34,10 +32,10 @@ module frame_buffer (
         .b    (cam1_b    )
     );
 
-    wire [15:0] cam1_data ;
+    wire [15:0] cam1_data;
     assign cam1_data = {cam1_r[7:3], cam1_g[7:2], cam1_b[7:3]};
 
-    wire cam1_ready, cam1_full;
+    wire cam1_re, cam1_ready, cam1_full;
     async_fifo u_cam1_buffer (
         // Write
         .wr_clk      (cam1_clk  ),
@@ -57,8 +55,8 @@ module frame_buffer (
 
     wire cam1_error;
     rst_gen #(.TICK(37_500_000)) u_cam1_err_gen (
-        .clk  (cam1_clk ),
-        .i_rst(cam1_full),
+        .clk  (cam1_clk  ),
+        .i_rst(cam1_full ),
         .o_rst(cam1_error)
     );
 
@@ -81,7 +79,7 @@ module frame_buffer (
     wire [15:0] cam2_data ;
     assign cam2_data = {cam2_r[7:3], cam2_g[7:2], cam2_b[7:3]};
 
-    wire cam2_ready, cam2_full;
+    wire cam2_re, cam2_ready, cam2_full;
     async_fifo u_cam2_buffer (
         // Write
         .wr_clk      (cam2_clk  ),
@@ -106,16 +104,70 @@ module frame_buffer (
         .o_rst(cam2_error)
     );
 
-    // TODO
-    reg cam1_vsyncing, cam2_vsyncing;
+    localparam IDLE       = 2'b00;
+    localparam WAIT_VSYNC = 2'b01;
+    localparam READ_CAM1  = 2'b10;
+    localparam READ_CAM2  = 2'b11;
+
+    reg [1:0] state;
+    assign cam_id  = state==READ_CAM2 ? 1'b1 : 1'b0;
+    assign cam1_re = state==READ_CAM1 && read_en;
+    assign cam2_re = state==READ_CAM2 && read_en;
+
+    reg [9:0] y;
+
+    reg cvs_err, cam1_vsync_d, cam2_vsync_d;
+
+    wire cam1_vsync_f, cam2_vsync_f;
+    assign cam1_vsync_f = cam1_vsync_d==1 && cam1_vsync==0;
+    assign cam2_vsync_f = cam2_vsync_d==1 && cam2_vsync==0;
+
     always_ff @(posedge rclk or negedge rstn) begin
         if(~rstn) begin
-
+            cvs_err <= #1 'b0;
+            state   <= #1 IDLE;
         end else begin
-
+            case (state)
+                IDLE : begin
+                    cvs_err <= #1 'b0;
+                    wr_rstn <= #1 'b0;
+                    if (trig) begin
+                        state        <= #1 WAIT_VSYNC;
+                        cam1_vsync_d <= #1 'b0;
+                        cam2_vsync_d <= #1 'b0;
+                    end
+                end
+                WAIT_VSYNC : begin
+                    cam1_vsync_d <= #1 cam1_vsync;
+                    cam2_vsync_d <= #1 cam2_vsync;
+                    wr_rstn      <= #1 'b1;
+                    if ((cam1_vsync_f&&(~cam2_vsync_f)) || (cam2_vsync_f&&(~cam1_vsync_f))) begin
+                        state   <= #1 IDLE;
+                        cvs_err <= #1 'b1;
+                    end else if (cam1_vsync&&cam2_vsync) begin
+                        y     <= #1 'b0;
+                        state <= #1 READ_CAM1;
+                    end
+                end
+                READ_CAM1 : begin
+                    // TODO
+                end
+                READ_CAM2 : begin
+                    // TODO
+                end
+                default : begin
+                    state <= #1 IDLE;
+                end
+            endcase
         end
     end
 
-    assign error = cam1_error || cam2_error;
+    wire cam_vsync_err;
+    rst_gen #(.TICK(125_000_000)) u_cam_vsync_err_gen (
+        .clk  (rclk         ),
+        .i_rst(cvs_err      ),
+        .o_rst(cam_vsync_err)
+    );
+    assign error = cam1_error || cam2_error || cam_vsync_err;
 
 endmodule : frame_buffer
