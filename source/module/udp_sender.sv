@@ -65,10 +65,6 @@ module udp_sender #(
     wire mac_not_exist;
     wire udp_send_ack ;
 
-    // TODO: unconnected
-    wire       rx_en        ;
-    wire [7:0] mac_rx_datain;
-
     assign app_data_length = tx_data_len + 2; // Write Index
     always_ff @(posedge rgmii_clk or negedge arp_rstn) begin
         if(~arp_rstn) begin
