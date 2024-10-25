@@ -6,10 +6,12 @@ module frame_process #(
     parameter H_ACT       = 1280,
     parameter V_ACT       = 720
 ) (
-    input  wb_en    ,
+    input         clk      ,
 
-    input  wb_switch,
-    input  dw_switch,
+    input         wb_en    ,
+
+    input         wb_switch,
+    input         dw_switch,
 
     input  [48:0] i_pack   ,
     output [48:0] o_pack
@@ -24,7 +26,7 @@ module frame_process #(
         .V_ACT(720 )
     ) u_white_balance (
         .i_pack(disp_pack),
-        .wb_en (~wb_rstn ),
+        .wb_en (wb_en    ),
         .o_pack(wb_pack  )
     );
 
