@@ -27,8 +27,8 @@ module hdmi_display (
         end
     end
 
-    localparam H_FP   = 300 ;
-    localparam H_BP   = 300 ;
+    localparam H_FP   = 325 ;
+    localparam H_BP   = 275 ;
     localparam H_SYNC = 12  ;
     localparam H_ACT  = 1280;
 
