@@ -109,6 +109,16 @@ module AimBot #(
         .cfg_rstn(cam1_rstn    )
     );
 
+    wire [48:0] disp_pack_1;
+    hdmi_display u_cam1_disp (
+        .clk    (cam1_pclk_565),
+        .rstn   (rstn         ),
+        .i_vsync(cam1_vsync   ),
+        .i_data (cam1_data_565),
+        .i_href (cam1_href_565),
+        .o_pack (disp_pack_1  )
+    );
+
     ov5640_reader u_cam2_reader (
         .clk25   (clk25        ),
         .rstn    (rstn         ),
@@ -125,16 +135,6 @@ module AimBot #(
         .cfg_rstn(cam2_rstn    )
     );
 
-    wire [48:0] disp_pack_1;
-    hdmi_display u_cam1_disp (
-        .clk    (cam1_pclk_565),
-        .rstn   (rstn         ),
-        .i_vsync(cam1_vsync   ),
-        .i_data (cam1_data_565),
-        .i_href (cam1_href_565),
-        .o_pack (disp_pack_1  )
-    );
-
     wire [48:0] disp_pack_2;
     hdmi_display u_cam2_disp (
         .clk    (cam2_pclk_565),
@@ -145,60 +145,47 @@ module AimBot #(
         .o_pack (disp_pack_2  )
     );
 
-    wire [48:0] disp_pack;
+    wire [48:0] hdmi_cam1;
+    frame_process #(
+        .N_BOX      (N_BOX      ),
+        .V_BOX_WIDTH(V_BOX_WIDTH),
+        .H_BOX_WIDTH(H_BOX_WIDTH),
+        .H_ACT      (1280       ),
+        .V_ACT      (720        )
+    ) u_cam1_process (
+        .wb_en    (~wb_rstn ),
+        .wb_switch(wb_switch),
+        .dw_switch(dw_switch),
+        .i_pack   (disp_pack_1   ),
+        .o_pack   (hdmi_cam1   )
+    );
+
+    wire [48:0] hdmi_cam2;
+    frame_process #(
+        .N_BOX      (N_BOX      ),
+        .V_BOX_WIDTH(V_BOX_WIDTH),
+        .H_BOX_WIDTH(H_BOX_WIDTH),
+        .H_ACT      (1280       ),
+        .V_ACT      (720        )
+    ) u_cam2_process (
+        .wb_en    (~wb_rstn   ),
+        .wb_switch(wb_switch  ),
+        .dw_switch(dw_switch  ),
+        .i_pack   (disp_pack_2),
+        .o_pack   (hdmi_cam2  )
+    );
+
+    wire [48:0] hdmi_pack;
     pack_switch u_switch_cam (
-        .clk     (clk        ),
-        .switch  (cam_switch ),
-        .i_pack_1(disp_pack_1),
-        .i_pack_2(disp_pack_2),
-        .o_pack  (disp_pack  )
-    );
-
-    wire [48:0] wb_pack;
-    white_balance #(
-        .H_ACT(1280),
-        .V_ACT(720 )
-    ) u_white_balance (
-        .i_pack(disp_pack),
-        .wb_en (~wb_rstn ),
-        .o_pack(wb_pack  )
-    );
-
-    wire [48:0] wbs_pack;
-    pack_switch u_switch_white_balance (
-        .clk     (clk      ),
-        .switch  (wb_switch),
-        .i_pack_1(wb_pack  ),
-        .i_pack_2(disp_pack),
-        .o_pack  (wbs_pack )
-    );
-
-    wire [48:0] win_pack;
-    draw_window #(
-        .V_BOX_WIDTH(40),
-        .H_BOX_WIDTH(20),
-        .N_BOX      (1 )
-    ) u_draw_window (
-        .i_pack  (wbs_pack  ),
-        .o_pack  (win_pack  ),
-        .start_xs(11'd100   ),
-        .start_ys(10'd200   ),
-        .end_xs  (11'd200   ),
-        .end_ys  (10'd400   ),
-        .colors  (24'hFFFFFF)
-    );
-
-    wire [48:0] wins_pack;
-    pack_switch u_switch_draw_window (
-        .clk     (clk      ),
-        .switch  (dw_switch),
-        .i_pack_1(win_pack ),
-        .i_pack_2(wbs_pack ),
-        .o_pack  (wins_pack)
+        .clk     (clk       ),
+        .switch  (cam_switch),
+        .i_pack_1(hdmi_cam1 ),
+        .i_pack_2(hdmi_cam2 ),
+        .o_pack  (hdmi_pack )
     );
 
     hdmi_unpack u_hdmi_output (
-        .pack (wins_pack ),
+        .pack (hdmi_pack ),
         .clk  (hdmi_clk  ),
         .hsync(hdmi_hsync),
         .vsync(hdmi_vsync),
@@ -215,48 +202,8 @@ module AimBot #(
         .tick(frame_tick)
     );
 
-    wire send1_conn;
-    frame_sender #(
-        .CAM_ID    (6'b111000            ),
-        .LOCAL_MAC (48'h01_02_03_04_05_06),
-        .LOCAL_IP  (32'hC0_A8_02_65      ),
-        .LOCAL_PORT(16'h1F92             ),
-        .DEST_IP   (32'hC0_A8_02_64      ),
-        .DEST_PORT (16'h1F91             )
-    ) u_cam1_sender (
-        .rstn        (rstn         ),
-        .trig        (/*TODO*/     ),
-        .i_pack      (disp_pack_1  ),
-        .connected   (send1_conn   ),
-        .rgmii_rxc   (rgmii1_rxc   ),
-        .rgmii_rx_ctl(rgmii1_rx_ctl),
-        .rgmii_rxd   (rgmii1_rxd   ),
-        .rgmii_txc   (rgmii1_txc   ),
-        .rgmii_tx_ctl(rgmii1_tx_ctl),
-        .rgmii_txd   (rgmii1_txd   )
-    );
+    // TODO: Place `frame_buffer` here
 
-    wire send2_conn;
-    frame_sender #(
-        .CAM_ID    (6'b000001            ),
-        .LOCAL_MAC (48'h01_02_03_04_05_06),
-        .LOCAL_IP  (32'hC0_A8_02_65      ),
-        .LOCAL_PORT(16'h1F90             ),
-        .DEST_IP   (32'hC0_A8_02_64      ),
-        .DEST_PORT (16'h1F90             )
-    ) u_cam2_sender (
-        .rstn        (rstn         ),
-        .trig        (/*TODO*/     ),
-        .i_pack      (disp_pack_2  ),
-        .connected   (send2_conn   ),
-        .rgmii_rxc   (rgmii2_rxc   ),
-        .rgmii_rx_ctl(rgmii2_rx_ctl),
-        .rgmii_rxd   (rgmii2_rxd   ),
-        .rgmii_txc   (rgmii2_txc   ),
-        .rgmii_tx_ctl(rgmii2_tx_ctl),
-        .rgmii_txd   (rgmii2_txd   )
-    );
-
-    assign connected = send1_conn && send2_conn;
+    // TODO: Place `frame_sender` here
 
 endmodule : AimBot
