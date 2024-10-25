@@ -1,6 +1,7 @@
 {
 	"settings": {
 		"lsp_format_on_save": false,
+		"lsp_format_on_paste": false,
 		"ensure_newline_at_eof_on_save": true,
 		"SublimeLinter.linters.iverilog.args": [
 			"-g2012",
