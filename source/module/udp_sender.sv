@@ -6,55 +6,31 @@ module udp_sender #(
     parameter DEST_IP    = 32'hC0_A8_01_69      , //192.168.1.105
     parameter DEST_PORT  = 16'h8080
 ) (
-    output            rgmii_clk   ,
-    input             arp_rstn    ,
-    input             trig        ,
-    input      [15:0] index       ,
-    output reg        read_en     ,
-    input             valid       ,
-    input      [ 7:0] data        ,
-    input      [15:0] data_len    ,
-    output reg        connected   ,
+    output            rgmii_clk     ,
+    input             arp_rstn      ,
+    input             trig          ,
+    input      [15:0] index         ,
+    // TX
+    output reg        tx_read_en    ,
+    input             tx_valid      ,
+    input      [ 7:0] tx_data       ,
+    input      [15:0] tx_data_len   ,
+    // RX
+    input             rx_valid      ,
+    input      [ 7:0] rx_data       ,
+    input      [15:0] rx_data_len   ,
+
+    output reg        connected     ,
+    output            rgmii_rx_error,
 
     // Hardware
-    input             rgmii_rxc   ,
-    input             rgmii_rx_ctl,
-    input      [ 3:0] rgmii_rxd   ,
-    output            rgmii_txc   ,
-    output            rgmii_tx_ctl,
+    input             rgmii_rxc     ,
+    input             rgmii_rx_ctl  ,
+    input      [ 3:0] rgmii_rxd     ,
+    output            rgmii_txc     ,
+    output            rgmii_tx_ctl  ,
     output     [ 3:0] rgmii_txd
 );
-
-    wire       rgmii_tx_valid;
-    wire [7:0] rgmii_tx_data ;
-    wire       rgmii_rx_error;
-    wire       rgmii_rx_valid;
-    wire [7:0] rgmii_rx_data ;
-
-    rgmii u_rgmii (
-        .rgmii_clk   (rgmii_clk     ),
-        .tx_valid    (rgmii_tx_valid),
-        .tx_data     (rgmii_tx_data ),
-        .rx_error    (rgmii_rx_error),
-        .rx_valid    (rgmii_rx_valid),
-        .rx_data     (rgmii_rx_data ),
-        // Hardware
-        .rgmii_rxc   (rgmii_rxc     ),
-        .rgmii_rx_ctl(rgmii_rx_ctl  ),
-        .rgmii_rxd   (rgmii_rxd     ),
-        .rgmii_txc   (rgmii_txc     ),
-        .rgmii_tx_ctl(rgmii_tx_ctl  ),
-        .rgmii_txd   (rgmii_txd     )
-    );
-
-    wire        mac_send_end       ;
-    wire [ 7:0] udp_rec_rdata      ;
-    wire [15:0] udp_rec_data_length;
-    wire        udp_rec_data_valid ;
-    wire        mac_data_valid     ;
-    wire [ 7:0] mac_tx_data        ;
-    wire        rx_en              ;
-    wire [ 7:0] mac_rx_datain      ;
 
     localparam RGMII_1MS = 125_000;
 
@@ -64,15 +40,16 @@ module udp_sender #(
 
     reg [$clog2(RGMII_CNT)-1:0] rgmii_cnt;
 
-    localparam UNINITED   = 4'b0000;
-    localparam ARP_REQ    = 4'b0001;
-    localparam ARP_WAIT   = 4'b0010;
-    localparam CHECK_MAC  = 4'b0011;
-    localparam IDLE       = 4'b0100;
-    localparam GEN_REQ    = 4'b0101;
-    localparam WRITE_IDX1 = 4'b0110;
-    localparam WRITE_IDX2 = 4'b0111;
-    localparam WRITE_DATA = 4'b1000;
+    localparam UNINITED     = 4'b0000;
+    localparam ARP_REQ      = 4'b0001;
+    localparam ARP_WAIT_MAC = 4'b0010;
+    localparam ARP_WAIT     = 4'b0011;
+    localparam CHECK_MAC    = 4'b0100;
+    localparam IDLE         = 4'b0101;
+    localparam GEN_REQ      = 4'b0110;
+    localparam WRITE_IDX1   = 4'b0111;
+    localparam WRITE_IDX2   = 4'b1000;
+    localparam WRITE_DATA   = 4'b1001;
 
     reg [3:0] state;
 
@@ -81,14 +58,18 @@ module udp_sender #(
     wire [15:0] app_data_length  ;
     reg         app_data_request ;
 
-    reg         arp_req          ;
-    wire        arp_found        ;
-    
-    wire        mac_not_exist    ;
-    wire        udp_send_ack     ;
-    reg  [15:0] write_ram_len    ;
+    reg  arp_req  ;
+    wire arp_found;
 
-    assign app_data_length = data_len + 2; // Write Index
+    wire mac_send_end ;
+    wire mac_not_exist;
+    wire udp_send_ack ;
+
+    // TODO: unconnected
+    wire       rx_en        ;
+    wire [7:0] mac_rx_datain;
+
+    assign app_data_length = tx_data_len + 2; // Write Index
     always_ff @(posedge rgmii_clk or negedge arp_rstn) begin
         if(~arp_rstn) begin
             state             <= #1 UNINITED;
@@ -98,7 +79,7 @@ module udp_sender #(
             connected         <= #1 'b0;
             app_data_in_valid <= #1 'b0;
             app_data_in       <= #1 'b0;
-            read_en           <= #1 'b0;
+            tx_read_en        <= #1 'b0;
         end else begin
             case (state)
                 UNINITED : begin
@@ -116,8 +97,13 @@ module udp_sender #(
                     rgmii_cnt <= #1 'b0;
                     state     <= #1 ARP_WAIT;
                 end
-                ARP_WAIT : begin
+                ARP_WAIT_MAC : begin
                     arp_req <= #1 'b0;
+                    if (mac_send_end) begin
+                        state <= #1 ARP_WAIT;
+                    end
+                end
+                ARP_WAIT : begin
                     if (arp_found) begin
                         rgmii_cnt <= #1 'b0;
                         state     <= #1 CHECK_MAC;
@@ -148,17 +134,16 @@ module udp_sender #(
                     app_data_in_valid <= #1 'b0;
                     connected         <= #1 'b1;
                     app_data_request  <= #1 'b0;
-                    read_en           <= #1 'b0;
+                    tx_read_en        <= #1 'b0;
                     if (trig) begin
                         state <= #1 GEN_REQ;
                     end
                 end
                 GEN_REQ : begin
                     app_data_in_valid <= #1 'b0;
-                    read_en           <= #1 'b0;
+                    tx_read_en        <= #1 'b0;
                     if (udp_send_ack) begin
                         app_data_request <= #1 'b0;
-                        write_ram_len    <= #1 'b0;
                         state            <= #1 WRITE_IDX1;
                     end else begin
                         app_data_request <= #1 'b1;
@@ -168,29 +153,29 @@ module udp_sender #(
                     app_data_in_valid <= #1 'b1;
                     app_data_in       <= #1 index[15:8];
                     state             <= #1 WRITE_IDX2;
-                    read_en           <= #1 'b0;
+                    tx_read_en        <= #1 'b0;
                 end
                 WRITE_IDX2 : begin
                     app_data_in_valid <= #1 'b1;
                     app_data_in       <= #1 index[7:0];
                     state             <= #1 WRITE_DATA;
                     // Begin read input
-                    if (data_len!=0) begin
-                        read_en   <= #1 'b1;
-                        rgmii_cnt <= #1 'b0;
+                    if (tx_data_len!=0) begin
+                        tx_read_en <= #1 'b1;
+                        rgmii_cnt  <= #1 'b0;
                     end else begin
                         state <= #1 IDLE;
                     end
                 end
                 WRITE_DATA : begin
-                    if (rgmii_cnt==data_len) begin
-                        read_en           <= #1 'b0;
+                    if (rgmii_cnt==tx_data_len) begin
+                        tx_read_en        <= #1 'b0;
                         app_data_in_valid <= #1 'b0;
                         state             <= #1 IDLE;
                     end else begin
-                        app_data_in_valid <= #1 valid;
-                        app_data_in       <= #1 data;
-                        if (valid) begin
+                        app_data_in_valid <= #1 tx_valid;
+                        app_data_in       <= #1 tx_data;
+                        if (tx_valid) begin
                             rgmii_cnt <= #1 rgmii_cnt + 1'b1;
                         end
                     end
@@ -202,6 +187,26 @@ module udp_sender #(
         end
     end
 
+    wire       rgmii_tx_valid;
+    wire [7:0] rgmii_tx_data ;
+    wire       rgmii_rx_valid;
+    wire [7:0] rgmii_rx_data ;
+    rgmii u_rgmii (
+        .rgmii_clk   (rgmii_clk     ),
+        .tx_valid    (rgmii_tx_valid),
+        .tx_data     (rgmii_tx_data ),
+        .rx_error    (rgmii_rx_error),
+        .rx_valid    (rgmii_rx_valid),
+        .rx_data     (rgmii_rx_data ),
+        // Hardware
+        .rgmii_rxc   (rgmii_rxc     ),
+        .rgmii_rx_ctl(rgmii_rx_ctl  ),
+        .rgmii_rxd   (rgmii_rxd     ),
+        .rgmii_txc   (rgmii_txc     ),
+        .rgmii_tx_ctl(rgmii_tx_ctl  ),
+        .rgmii_txd   (rgmii_txd     )
+    );
+
     udp_ip_mac_top #(
         .LOCAL_MAC (LOCAL_MAC ),
         .LOCAL_IP  (LOCAL_IP  ),
@@ -209,28 +214,29 @@ module udp_sender #(
         .DEST_IP   (DEST_IP   ),
         .DEST_PORT (DEST_PORT )
     ) u_udp_ip_mac_top (
-        .rgmii_clk          (rgmii_clk          ),
-        .rstn               (arp_rstn           ),
-        // APP
-        .app_data_in_valid  (app_data_in_valid  ),
-        .app_data_in        (app_data_in        ),
-        .app_data_length    (app_data_length    ),
-        .app_data_request   (app_data_request   ),
+        .rgmii_clk          (rgmii_clk        ),
+        .rstn               (arp_rstn         ),
+        // TX
+        .udp_send_ack       (udp_send_ack     ),
+        .app_data_in_valid  (app_data_in_valid),
+        .app_data_in        (app_data_in      ),
+        .app_data_length    (app_data_length  ),
+        .app_data_request   (app_data_request ),
+        // RX
+        .udp_rec_data_valid (rx_valid         ),
+        .udp_rec_rdata      (rx_data          ),
+        .udp_rec_data_length(rx_data_len      ),
         // ARP
-        .arp_req            (arp_req            ),
-        .arp_found          (arp_found          ),
+        .arp_req            (arp_req          ),
+        .arp_found          (arp_found        ),
         // MAC
-        .mac_not_exist      (mac_not_exist      ),
-        .mac_send_end       (mac_send_end       ),
-        .mac_data_valid     (mac_data_valid     ),
-        .mac_tx_data        (mac_tx_data        ),
-        .rx_en              (rx_en              ),
-        .mac_rx_datain      (mac_rx_datain      ),
-        // UDP
-        .udp_send_ack       (udp_send_ack       ),
-        .udp_rec_rdata      (udp_rec_rdata      ),
-        .udp_rec_data_length(udp_rec_data_length),
-        .udp_rec_data_valid (udp_rec_data_valid )
+        .mac_send_end       (mac_send_end     ),
+        .mac_not_exist      (mac_not_exist    ),
+        // RGMII
+        .mac_data_valid     (rgmii_tx_valid   ),
+        .mac_tx_data        (rgmii_tx_data    ),
+        .rx_en              (rgmii_rx_valid   ),
+        .mac_rx_datain      (rgmii_rx_data    )
     );
 
 endmodule : udp_sender
