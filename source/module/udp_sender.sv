@@ -91,7 +91,7 @@ module udp_sender #(
                 ARP_REQ : begin
                     arp_req   <= #1 'b1;
                     rgmii_cnt <= #1 'b0;
-                    state     <= #1 ARP_WAIT;
+                    state     <= #1 ARP_WAIT_MAC;
                 end
                 ARP_WAIT_MAC : begin
                     arp_req <= #1 'b0;
