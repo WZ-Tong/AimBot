@@ -10,10 +10,10 @@ module udp_sender #(
     input             arp_rstn    ,
     input             trig        ,
     input      [15:0] index       ,
+    output reg        read_en     ,
     input             valid       ,
     input      [ 7:0] data        ,
     input      [15:0] data_len    ,
-    output reg        read_en     ,
     output reg        connected   ,
 
     // Hardware
@@ -47,9 +47,6 @@ module udp_sender #(
         .rgmii_txd   (rgmii_txd     )
     );
 
-    wire        app_data_in_valid  ;
-    wire [ 7:0] app_data_in        ;
-    wire [15:0] app_data_length    ;
     wire        mac_send_end       ;
     wire [ 7:0] udp_rec_rdata      ;
     wire [15:0] udp_rec_data_length;
@@ -63,7 +60,9 @@ module udp_sender #(
 
     localparam RGMII_ARP_WAIT = RGMII_1MS * 200;
 
-    reg [$clog2(RGMII_ARP_WAIT)-1:0] rgmii_cnt;
+    localparam RGMII_CNT = RGMII_ARP_WAIT >= 16 ? RGMII_ARP_WAIT : 16; // 16: WIDTH(data_len)
+
+    reg [$clog2(RGMII_CNT)-1:0] rgmii_cnt;
 
     localparam UNINITED   = 4'b0000;
     localparam ARP_REQ    = 4'b0001;
@@ -77,22 +76,29 @@ module udp_sender #(
 
     reg [3:0] state;
 
-    wire [15:0] msg_len;
-    assign msg_len = data_len + 2; // Write Index
+    reg         app_data_in_valid;
+    reg  [ 7:0] app_data_in      ;
+    wire [15:0] app_data_length  ;
+    reg         app_data_request ;
 
-    reg         arp_req         ;
-    wire        arp_found       ;
-    wire        mac_not_exist   ;
-    reg         app_data_request;
-    wire        udp_send_ack    ;
-    reg  [15:0] write_ram_len   ;
+    reg         arp_req          ;
+    wire        arp_found        ;
+    
+    wire        mac_not_exist    ;
+    wire        udp_send_ack     ;
+    reg  [15:0] write_ram_len    ;
+
+    assign app_data_length = data_len + 2; // Write Index
     always_ff @(posedge rgmii_clk or negedge arp_rstn) begin
         if(~arp_rstn) begin
-            state            <= #1 UNINITED;
-            rgmii_cnt        <= #1 'b0;
-            arp_req          <= #1 'b0;
-            app_data_request <= #1 'b0;
-            connected        <= #1 'b0;
+            state             <= #1 UNINITED;
+            rgmii_cnt         <= #1 'b0;
+            arp_req           <= #1 'b0;
+            app_data_request  <= #1 'b0;
+            connected         <= #1 'b0;
+            app_data_in_valid <= #1 'b0;
+            app_data_in       <= #1 'b0;
+            read_en           <= #1 'b0;
         end else begin
             case (state)
                 UNINITED : begin
@@ -139,13 +145,17 @@ module udp_sender #(
                     end
                 end
                 IDLE : begin
-                    connected        <= #1 'b1;
-                    app_data_request <= #1 'b0;
+                    app_data_in_valid <= #1 'b0;
+                    connected         <= #1 'b1;
+                    app_data_request  <= #1 'b0;
+                    read_en           <= #1 'b0;
                     if (trig) begin
                         state <= #1 GEN_REQ;
                     end
                 end
                 GEN_REQ : begin
+                    app_data_in_valid <= #1 'b0;
+                    read_en           <= #1 'b0;
                     if (udp_send_ack) begin
                         app_data_request <= #1 'b0;
                         write_ram_len    <= #1 'b0;
@@ -155,8 +165,35 @@ module udp_sender #(
                     end
                 end
                 WRITE_IDX1 : begin
+                    app_data_in_valid <= #1 'b1;
+                    app_data_in       <= #1 index[15:8];
+                    state             <= #1 WRITE_IDX2;
+                    read_en           <= #1 'b0;
                 end
                 WRITE_IDX2 : begin
+                    app_data_in_valid <= #1 'b1;
+                    app_data_in       <= #1 index[7:0];
+                    state             <= #1 WRITE_DATA;
+                    // Begin read input
+                    if (data_len!=0) begin
+                        read_en   <= #1 'b1;
+                        rgmii_cnt <= #1 'b0;
+                    end else begin
+                        state <= #1 IDLE;
+                    end
+                end
+                WRITE_DATA : begin
+                    if (rgmii_cnt==data_len) begin
+                        read_en           <= #1 'b0;
+                        app_data_in_valid <= #1 'b0;
+                        state             <= #1 IDLE;
+                    end else begin
+                        app_data_in_valid <= #1 valid;
+                        app_data_in       <= #1 data;
+                        if (valid) begin
+                            rgmii_cnt <= #1 rgmii_cnt + 1'b1;
+                        end
+                    end
                 end
                 default : begin
                     state <= #1 UNINITED;
