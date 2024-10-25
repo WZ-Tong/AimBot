@@ -10,6 +10,7 @@ module AimBot #(
     input        cam_switch   ,
     input        wb_switch    ,
     input        dw_switch    ,
+    input        wb_en        ,
 
     inout        cam1_scl     ,
     inout        cam1_sda     ,
@@ -158,6 +159,7 @@ module AimBot #(
         .V_ACT(720 )
     ) u_white_balance (
         .i_pack(disp_pack),
+        .wb_en (wb_en    ),
         .o_pack(wb_pack  )
     );
 

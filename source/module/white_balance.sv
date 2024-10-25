@@ -3,6 +3,7 @@ module white_balance #(
     parameter V_ACT = 720
 ) (
     input  [48:0] i_pack,
+    input         wb_en ,
     output [48:0] o_pack
 );
 
@@ -75,7 +76,7 @@ module white_balance #(
             g_last_sum <= #1 g_current_sum;
             b_last_sum <= #1 b_current_sum;
         end else begin
-            if (i_de) begin
+            if (i_de && wb_en) begin
                 r_current_sum <= #1 r_current_sum + i_r;
                 g_current_sum <= #1 g_current_sum + i_g;
                 b_current_sum <= #1 b_current_sum + i_b;
