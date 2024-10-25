@@ -1,4 +1,6 @@
 module frame_sender #(
+    parameter CAM_ID     = 6'b000000            ,
+
     parameter LOCAL_MAC  = 48'h3C_2B_1A_09_4D_5E,
     parameter LOCAL_IP   = 32'hC0_A8_01_6E      ,
     parameter LOCAL_PORT = 16'hF0F0             ,
@@ -6,8 +8,10 @@ module frame_sender #(
     parameter DEST_IP    = 32'hC0_A8_01_69      ,
     parameter DEST_PORT  = 16'hA0A0
 ) (
+    input         rstn        ,
     input         trig        ,
     input  [48:0] i_pack      ,
+    output        stat        , // Conn+TX+RX+Error
 
     input         rgmii_rxc   ,
     input         rgmii_rx_ctl,
@@ -24,6 +28,10 @@ module frame_sender #(
     wire [7:0] r;
     wire [7:0] g;
     wire [7:0] b;
+    wire [9:0] y;
+
+    wire [15:0] index;
+    assign index = {CAM_ID, y};
 
     hdmi_unpack u_hdmi_unpack (
         .pack (i_pack ),
@@ -32,7 +40,8 @@ module frame_sender #(
         .vsync(vsync  ),
         .r    (r      ),
         .g    (g      ),
-        .b    (b      )
+        .b    (b      ),
+        .y    (y      )
     );
 
     wire rgmii_clk;
@@ -52,17 +61,15 @@ module frame_sender #(
         .almost_empty(/*unused*/)
     );
 
-    logic        arp_rstn      ;
-    logic [15:0] index         ;
-    logic        tx_read_en    ;
-    logic        tx_valid      ;
-    logic [ 7:0] tx_data       ;
-    logic [15:0] tx_data_len   ;
-    logic        rx_valid      ;
-    logic [ 7:0] rx_data       ;
-    logic [15:0] rx_data_len   ;
-    logic        connected     ;
-    logic        rgmii_rx_error;
+    wire        tx_read_en    ;
+    wire        tx_valid      ;
+    wire [ 7:0] tx_data       ;
+    wire [15:0] tx_data_len   ;
+    wire        rx_valid      ;
+    wire [ 7:0] rx_data       ;
+    wire [15:0] rx_data_len   ;
+    wire        connected     ;
+    wire        rgmii_rx_error;
     udp_sender #(
         .LOCAL_MAC (LOCAL_MAC ),
         .LOCAL_IP  (LOCAL_IP  ),
@@ -71,9 +78,9 @@ module frame_sender #(
         .DEST_PORT (DEST_PORT )
     ) u_udp_sender (
         .rgmii_clk     (rgmii_clk     ),
-        .arp_rstn      (arp_rstn      ),
-        .trig          (trig          ),
-        .index         (index         ),
+        .arp_rstn      (rstn          ),
+        .trig          (              ),
+        .index         (              ),
         .tx_read_en    (tx_read_en    ),
         .tx_valid      (tx_valid      ),
         .tx_data       (tx_data       ),
@@ -91,5 +98,13 @@ module frame_sender #(
         .rgmii_txd     (rgmii_txd     )
     );
 
+    rgmii_stat u_rgmii_stat (
+        .clk   (rgmii_clk     ),
+        .inited(connected     ),
+        .error (rgmii_rx_error),
+        .tx    (tx_read_en    ),
+        .rx    (rx_valid      ),
+        .stat  (stat          )
+    );
 
 endmodule : frame_sender
