@@ -9,6 +9,7 @@ module udp_sender #(
     output            rgmii_clk   ,
     input             arp_rstn    ,
     input             trig        ,
+    input      [15:0] index       ,
     input             valid       ,
     input      [ 7:0] data        ,
     input      [15:0] data_len    ,
@@ -59,25 +60,32 @@ module udp_sender #(
     wire [ 7:0] mac_rx_datain      ;
 
     localparam RGMII_1MS = 125_000;
-    localparam RGMII_INT = RGMII_1MS * 200;
 
-    reg [$clog2(RGMII_INT)-1:0] rgmii_cnt;
+    localparam RGMII_ARP_WAIT = RGMII_1MS * 200;
 
-    localparam UNINITED  = 4'b0000;
-    localparam ARP_REQ   = 4'b0001;
-    localparam ARP_WAIT  = 4'b0010;
-    localparam CHECK_MAC = 4'b0011;
-    localparam IDLE      = 4'b0100;
-    localparam GEN_REQ   = 4'b0101;
-    localparam WRITE_RAM = 4'b0110;
+    reg [$clog2(RGMII_ARP_WAIT)-1:0] rgmii_cnt;
+
+    localparam UNINITED   = 4'b0000;
+    localparam ARP_REQ    = 4'b0001;
+    localparam ARP_WAIT   = 4'b0010;
+    localparam CHECK_MAC  = 4'b0011;
+    localparam IDLE       = 4'b0100;
+    localparam GEN_REQ    = 4'b0101;
+    localparam WRITE_IDX1 = 4'b0110;
+    localparam WRITE_IDX2 = 4'b0111;
+    localparam WRITE_DATA = 4'b1000;
 
     reg [3:0] state;
 
-    reg  arp_req         ;
-    wire arp_found       ;
-    wire mac_not_exist   ;
-    reg  app_data_request;
-    wire udp_send_ack    ;
+    wire [15:0] msg_len;
+    assign msg_len = data_len + 2; // Write Index
+
+    reg         arp_req         ;
+    wire        arp_found       ;
+    wire        mac_not_exist   ;
+    reg         app_data_request;
+    wire        udp_send_ack    ;
+    reg  [15:0] write_ram_len   ;
     always_ff @(posedge rgmii_clk or negedge arp_rstn) begin
         if(~arp_rstn) begin
             state            <= #1 UNINITED;
@@ -89,7 +97,7 @@ module udp_sender #(
             case (state)
                 UNINITED : begin
                     connected <= #1 'b0;
-                    if (rgmii_cnt!=RGMII_INT-1) begin
+                    if (rgmii_cnt!=RGMII_ARP_WAIT-1) begin
                         arp_req   <= #1 'b0;
                         rgmii_cnt <= #1 rgmii_cnt + 1'b1;
                     end else begin
@@ -108,7 +116,7 @@ module udp_sender #(
                         rgmii_cnt <= #1 'b0;
                         state     <= #1 CHECK_MAC;
                     end else begin
-                        if (rgmii_cnt!=RGMII_INT-1) begin
+                        if (rgmii_cnt!=RGMII_ARP_WAIT-1) begin
                             rgmii_cnt <= #1 rgmii_cnt + 1'b1;
                         end else begin
                             rgmii_cnt <= #1 'b0;
@@ -117,7 +125,7 @@ module udp_sender #(
                     end
                 end
                 CHECK_MAC : begin
-                    if (rgmii_cnt!=RGMII_INT-1) begin
+                    if (rgmii_cnt!=RGMII_ARP_WAIT-1) begin
                         rgmii_cnt <= #1 rgmii_cnt + 1'b1;
                     end else begin
                         if (mac_not_exist) begin
@@ -138,13 +146,17 @@ module udp_sender #(
                     end
                 end
                 GEN_REQ : begin
-                    app_data_request <= #1 'b1;
                     if (udp_send_ack) begin
-                        state <= #1 WRITE_RAM;
+                        app_data_request <= #1 'b0;
+                        write_ram_len    <= #1 'b0;
+                        state            <= #1 WRITE_IDX1;
+                    end else begin
+                        app_data_request <= #1 'b1;
                     end
                 end
-                WRITE_RAM : begin
-
+                WRITE_IDX1 : begin
+                end
+                WRITE_IDX2 : begin
                 end
                 default : begin
                     state <= #1 UNINITED;
