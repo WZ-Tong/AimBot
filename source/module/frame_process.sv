@@ -6,15 +6,20 @@ module frame_process #(
     parameter H_ACT       = 1280,
     parameter V_ACT       = 720
 ) (
-    input         clk      ,
+    input                            clk      ,
 
-    input         wb_en    ,
+    input                            wb_en    ,
+    input                            wb_switch,
+    input                            dw_switch,
 
-    input         wb_switch,
-    input         dw_switch,
+    input  [N_BOX*$clog2(H_ACT)-1:0] start_xs ,
+    input  [N_BOX*$clog2(V_ACT)-1:0] start_ys ,
+    input  [N_BOX*$clog2(H_ACT)-1:0] end_xs   ,
+    input  [N_BOX*$clog2(V_ACT)-1:0] end_ys   ,
+    input  [           N_BOX*24-1:0] colors   ,
 
-    input  [48:0] i_pack   ,
-    output [48:0] o_pack
+    input  [                   48:0] i_pack   ,
+    output [                   48:0] o_pack
 );
 
     wire [48:0] disp_pack;
@@ -41,17 +46,17 @@ module frame_process #(
 
     wire [48:0] win_pack;
     draw_window #(
-        .V_BOX_WIDTH(40),
-        .H_BOX_WIDTH(20),
-        .N_BOX      (1 )
+        .V_BOX_WIDTH(N_BOX      ),
+        .H_BOX_WIDTH(V_BOX_WIDTH),
+        .N_BOX      (H_BOX_WIDTH)
     ) u_draw_window (
-        .i_pack  (wbs_pack  ),
-        .o_pack  (win_pack  ),
-        .start_xs(11'd100   ),
-        .start_ys(10'd200   ),
-        .end_xs  (11'd200   ),
-        .end_ys  (10'd400   ),
-        .colors  (24'hFFFFFF)
+        .i_pack  (wbs_pack),
+        .o_pack  (win_pack),
+        .start_xs(start_xs),
+        .start_ys(start_ys),
+        .end_xs  (end_xs  ),
+        .end_ys  (end_ys  ),
+        .colors  (colors  )
     );
 
     wire [48:0] wins_pack;

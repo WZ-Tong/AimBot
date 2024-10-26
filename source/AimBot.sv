@@ -1,10 +1,6 @@
 `timescale 1ns / 1ps
 
-module AimBot #(
-    parameter V_BOX_WIDTH = 1'b1,
-    parameter H_BOX_WIDTH = 1'b1,
-    parameter N_BOX       = 1'b1
-) (
+module AimBot (
     input        clk          ,
     input        rstn         ,
     input        cam_switch   ,
@@ -145,34 +141,44 @@ module AimBot #(
 
     wire [48:0] hdmi_cam1;
     frame_process #(
-        .N_BOX      (N_BOX      ),
-        .V_BOX_WIDTH(V_BOX_WIDTH),
-        .H_BOX_WIDTH(H_BOX_WIDTH),
-        .H_ACT      (H_ACT      ),
-        .V_ACT      (V_ACT      )
+        .N_BOX      (2    ),
+        .V_BOX_WIDTH(2    ),
+        .H_BOX_WIDTH(2    ),
+        .H_ACT      (H_ACT),
+        .V_ACT      (V_ACT)
     ) u_cam1_process (
-        .clk      (clk        ),
-        .wb_en    (~wb_rstn   ),
-        .wb_switch(wb_switch  ),
-        .dw_switch(dw_switch  ),
-        .i_pack   (disp_pack_1),
-        .o_pack   (hdmi_cam1  )
+        .clk      (clk                     ),
+        .wb_en    (~wb_rstn                ),
+        .wb_switch(wb_switch               ),
+        .dw_switch(dw_switch               ),
+        .i_pack   (disp_pack_1             ),
+        .o_pack   (hdmi_cam1               ),
+        .start_xs ({11'd100, 11'd200}      ),
+        .start_ys ({10'd100, 10'd200}      ),
+        .end_xs   ({11'd300, 11'd400}      ),
+        .end_ys   ({10'd300, 10'd400}      ),
+        .colors   ({24'hFF0000, 24'h00FF00})
     );
 
     wire [48:0] hdmi_cam2;
     frame_process #(
-        .N_BOX      (N_BOX      ),
-        .V_BOX_WIDTH(V_BOX_WIDTH),
-        .H_BOX_WIDTH(H_BOX_WIDTH),
-        .H_ACT      (H_ACT      ),
-        .V_ACT      (V_ACT      )
+        .N_BOX      (1    ),
+        .V_BOX_WIDTH(2    ),
+        .H_BOX_WIDTH(2    ),
+        .H_ACT      (H_ACT),
+        .V_ACT      (V_ACT)
     ) u_cam2_process (
         .clk      (clk        ),
         .wb_en    (~wb_rstn   ),
         .wb_switch(wb_switch  ),
         .dw_switch(dw_switch  ),
         .i_pack   (disp_pack_2),
-        .o_pack   (hdmi_cam2  )
+        .o_pack   (hdmi_cam2  ),
+        .start_xs (11'd100    ),
+        .start_ys (10'd100    ),
+        .end_xs   (11'd200    ),
+        .end_ys   (10'd500    ),
+        .colors   (24'hFF0000 )
     );
 
     wire [48:0] hdmi_pack;
