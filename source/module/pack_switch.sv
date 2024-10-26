@@ -8,7 +8,9 @@ module pack_switch (
 
     reg state = 0;
 
-    reg press_d;
+    wire press  ;
+    reg  press_d;
+
     rstn_gen #(.TICK(5_000_000)) u_rstn_gen (
         .clk   (clk   ),
         .i_rstn(switch),
