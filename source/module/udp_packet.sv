@@ -1,4 +1,4 @@
-module udp_sender #(
+module udp_packet #(
     parameter LOCAL_MAC  = 48'h11_11_11_11_11_11,
     parameter LOCAL_IP   = 32'hC0_A8_01_6E      , //192.168.1.110
     parameter LOCAL_PORT = 16'h8080             ,
@@ -235,4 +235,4 @@ module udp_sender #(
         .mac_rx_datain      (rgmii_rx_data    )
     );
 
-endmodule : udp_sender
+endmodule : udp_packet

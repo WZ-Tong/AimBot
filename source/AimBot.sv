@@ -53,7 +53,8 @@ module AimBot #(
     output       cam_inited   ,
     output       frame_tick   ,
     output       rgmii_conn   ,
-    output       frame_err
+    output       frame_err    ,
+    output       udp_err
 );
 
     localparam H_ACT = 1280;
@@ -198,7 +199,54 @@ module AimBot #(
         .tick(frame_tick)
     );
 
-    wire rgmii_clk;
+    wire        rgmii_clk;
+
+    // TODO
+    wire        udp_trig       ;
+    wire [15:0] udp_index      ;
+    wire        udp_tx_re      ;
+    wire        udp_tx_valid   ;
+    wire [ 7:0] udp_tx_data    ;
+    wire [15:0] udp_tx_data_len;
+    wire        udp_rx_valid   ;
+    wire [ 7:0] udp_rx_data    ;
+    wire [15:0] udp_rx_data_len;
+
+    wire udp_rx_error;
+    rst_gen #(.TICK(125_000_000)) u_rx_err_gen (
+        .clk  (rgmii_clk   ),
+        .i_rst(udp_rx_error),
+        .o_rst(udp_err   )
+    );
+
+    udp_packet #(
+        .LOCAL_MAC (48'h01_02_03_04_05_06),
+        .LOCAL_IP  (32'hC0_A8_02_65      ),
+        .LOCAL_PORT(16'h1F90             ),
+        .DEST_IP   (32'hC0_A8_02_64      ),
+        .DEST_PORT (16'h1F90             )
+    ) u_udp_packet_1 (
+        .rgmii_clk   (rgmii_clk      ),
+        .arp_rstn    (rstn           ),
+        .trig        (udp_trig       ),
+        .index       (udp_index      ),
+        .tx_read_en  (udp_tx_re      ),
+        .tx_valid    (udp_tx_valid   ),
+        .tx_data     (udp_tx_data    ),
+        .tx_data_len (udp_tx_data_len),
+        .rx_valid    (udp_rx_valid   ),
+        .rx_data     (udp_rx_data    ),
+        .rx_data_len (udp_rx_data_len),
+        .rx_error    (udp_rx_error   ),
+        // Hardware
+        .connected   (rgmii_conn     ),
+        .rgmii_rxc   (rgmii1_rxc     ),
+        .rgmii_rx_ctl(rgmii1_rx_ctl  ),
+        .rgmii_rxd   (rgmii1_rxd     ),
+        .rgmii_txc   (rgmii1_txc     ),
+        .rgmii_tx_ctl(rgmii1_tx_ctl  ),
+        .rgmii_txd   (rgmii1_txd     )
+    );
 
     wire       fb_id_1;
     wire [5:0] fb_id_6;
@@ -223,31 +271,6 @@ module AimBot #(
         .cam_data (fb_data  ),
         .cam_row  (fb_row   ),
         .error    (frame_err)
-    );
-
-    line_sender #(
-        .H_ACT     (H_ACT                ),
-        .LOCAL_MAC (48'h01_02_03_04_05_06),
-        .LOCAL_IP  (32'hC0_A8_02_65      ),
-        .LOCAL_PORT(16'h1F90             ),
-        .DEST_IP   (32'hC0_A8_02_64      ),
-        .DEST_PORT (16'h1F90             )
-    ) u_line_sender (
-        .rgmii_clk   (rgmii_clk    ),
-        .rstn        (rstn         ),
-        .trig        (             ),
-        .read_en     (             ),
-        .cam_id      (fb_id_6      ),
-        .cam_row     (fb_row       ),
-        .cam_valid   (             ),
-        .cam_data    (             ),
-        .connected   (rgmii_conn   ),
-        .rgmii_rxc   (rgmii1_rxc   ),
-        .rgmii_rx_ctl(rgmii1_rx_ctl),
-        .rgmii_rxd   (rgmii1_rxd   ),
-        .rgmii_txc   (rgmii1_txc   ),
-        .rgmii_tx_ctl(rgmii1_tx_ctl),
-        .rgmii_txd   (rgmii1_txd   )
     );
 
 endmodule : AimBot
