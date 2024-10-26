@@ -112,17 +112,48 @@ module white_balance #(
         r_b <= #1 b_new>=16'h00FF ? 8'hFF : b_new[7:0];
     end
 
-    // TODO: Add sync delay
+    localparam DELAY = 3;
+
+    wire o_hsync, o_vsync, o_de;
+    delay #(.DELAY(DELAY), .WIDTH(1)) u_hsync_delay (
+        .clk   (clk    ),
+        .i_data(i_hsync),
+        .o_data(o_hsync)
+    );
+    delay #(.DELAY(DELAY), .WIDTH(1)) u_vsync_delay (
+        .clk   (clk    ),
+        .i_data(i_vsync),
+        .o_data(o_vsync)
+    );
+    delay #(.DELAY(DELAY), .WIDTH(1)) u_de_delay (
+        .clk   (clk ),
+        .i_data(i_de),
+        .o_data(o_de)
+    );
+
+    wire [10:0] o_x;
+    wire [ 9:0] o_y;
+    delay #(.DELAY(DELAY), .WIDTH(11)) u_x_delay (
+        .clk   (clk),
+        .i_data(i_x),
+        .o_data(o_x)
+    );
+    delay #(.DELAY(DELAY), .WIDTH(10)) u_y_delay (
+        .clk   (clk),
+        .i_data(i_y),
+        .o_data(o_y)
+    );
+
     hdmi_pack u_hdmi_pack (
         .clk  (clk    ),
-        .hsync(i_hsync),
-        .vsync(i_vsync),
-        .de   (i_de   ),
+        .hsync(o_hsync),
+        .vsync(o_vsync),
+        .de   (o_de   ),
         .r    (r_r    ),
         .g    (r_g    ),
         .b    (r_b    ),
-        .x    (i_x    ),
-        .y    (i_y    ),
+        .x    (o_x    ),
+        .y    (o_y    ),
         .pack (o_pack )
     );
 
