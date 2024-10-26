@@ -214,13 +214,7 @@ module AimBot #(
     wire        udp_rx_valid   ;
     wire [ 7:0] udp_rx_data    ;
     wire [15:0] udp_rx_data_len;
-
-    wire udp_rx_error;
-    rst_gen #(.TICK(125_000_000)) u_rx_err_gen (
-        .clk  (rgmii_clk   ),
-        .i_rst(udp_rx_error),
-        .o_rst(udp_err     )
-    );
+    wire        udp_rx_err     ;
 
     udp_packet #(
         .LOCAL_MAC (48'h01_02_03_04_05_06),
@@ -242,7 +236,7 @@ module AimBot #(
         .rx_valid    (udp_rx_valid     ),
         .rx_data     (udp_rx_data      ),
         .rx_data_len (udp_rx_data_len  ),
-        .rx_error    (udp_rx_error     ),
+        .rx_error    (udp_rx_err       ),
         // Hardware
         .connected   (rgmii_conn       ),
         .rgmii_rxc   (rgmii1_rxc       ),
@@ -251,6 +245,27 @@ module AimBot #(
         .rgmii_txc   (rgmii1_txc       ),
         .rgmii_tx_ctl(rgmii1_tx_ctl    ),
         .rgmii_txd   (rgmii1_txd       )
+    );
+
+    localparam UDP_READ_CAPACITY = 16;
+
+    wire udp_cap_err;
+
+    wire [UDP_READ_CAPACITY*8-1:0] udp_read_data;
+    udp_reader #(.CAPACITY(UDP_READ_CAPACITY)) u_udp_reader (
+        .clk     (rgmii_clk      ),
+        .rstn    (rstn           ),
+        .valid   (udp_rx_valid   ),
+        .i_data  (udp_rx_data    ),
+        .data_len(udp_rx_data_len),
+        .o_data  (udp_read_data  ),
+        .cap_err (udp_cap_err    )
+    );
+
+    rst_gen #(.TICK(125_000_000)) u_rx_err_gen (
+        .clk  (rgmii_clk              ),
+        .i_rst(udp_rx_err||udp_cap_err),
+        .o_rst(udp_err                )
     );
 
     reg lb_trig; // TODO
