@@ -48,20 +48,16 @@ module AimBot #(
     output       rgmii1_tx_ctl,
     output [3:0] rgmii1_txd   ,
 
-    input        rgmii2_rxc   ,
-    input        rgmii2_rx_ctl,
-    input  [3:0] rgmii2_rxd   ,
-
-    output       rgmii2_txc   ,
-    output       rgmii2_tx_ctl,
-    output [3:0] rgmii2_txd   ,
-
     // Debug signals
     output       hdmi_inited  ,
     output       cam_inited   ,
     output       frame_tick   ,
-    output       connected
+    output       rgmii_conn   ,
+    output       frame_err
 );
+
+    localparam H_ACT = 1280;
+    localparam V_ACT = 720 ;
 
     wire clk10, clk25;
     clk_div #(.DIV(5)) u_clk10_gen (
@@ -150,14 +146,14 @@ module AimBot #(
         .N_BOX      (N_BOX      ),
         .V_BOX_WIDTH(V_BOX_WIDTH),
         .H_BOX_WIDTH(H_BOX_WIDTH),
-        .H_ACT      (1280       ),
-        .V_ACT      (720        )
+        .H_ACT      (H_ACT      ),
+        .V_ACT      (V_ACT      )
     ) u_cam1_process (
-        .wb_en    (~wb_rstn ),
-        .wb_switch(wb_switch),
-        .dw_switch(dw_switch),
-        .i_pack   (disp_pack_1   ),
-        .o_pack   (hdmi_cam1   )
+        .wb_en    (~wb_rstn   ),
+        .wb_switch(wb_switch  ),
+        .dw_switch(dw_switch  ),
+        .i_pack   (disp_pack_1),
+        .o_pack   (hdmi_cam1  )
     );
 
     wire [48:0] hdmi_cam2;
@@ -165,8 +161,8 @@ module AimBot #(
         .N_BOX      (N_BOX      ),
         .V_BOX_WIDTH(V_BOX_WIDTH),
         .H_BOX_WIDTH(H_BOX_WIDTH),
-        .H_ACT      (1280       ),
-        .V_ACT      (720        )
+        .H_ACT      (H_ACT      ),
+        .V_ACT      (V_ACT      )
     ) u_cam2_process (
         .wb_en    (~wb_rstn   ),
         .wb_switch(wb_switch  ),
@@ -202,8 +198,56 @@ module AimBot #(
         .tick(frame_tick)
     );
 
-    // TODO: Place `frame_buffer` here
+    wire rgmii_clk;
 
-    // TODO: Place `frame_sender` here
+    wire       fb_id_1;
+    wire [5:0] fb_id_6;
+    assign fb_id_6 = fb_id_1 ? 6'b010101 : 6'b101010;
+
+    wire [ 9:0] fb_row  ;
+    wire        fb_valid;
+    wire [15:0] fb_data ;
+
+    line_swap_buffer #(
+        .H_ACT(H_ACT),
+        .V_ACT(V_ACT)
+    ) u_dual_cam_reader (
+        .rstn     (rstn     ),
+        .cam1_pack(hdmi_cam1),
+        .cam2_pack(hdmi_cam2),
+        .trig     (         ),
+        .rclk     (rgmii_clk),
+        .read_en  (         ),
+        .cam_id   (fb_id_1  ),
+        .valid    (         ),
+        .cam_data (         ),
+        .cam_row  (fb_row   ),
+        .error    (frame_err)
+    );
+
+    line_sender #(
+        .H_ACT     (H_ACT                ),
+        .LOCAL_MAC (48'h01_02_03_04_05_06),
+        .LOCAL_IP  (32'hC0_A8_02_65      ),
+        .LOCAL_PORT(16'h1F90             ),
+        .DEST_IP   (32'hC0_A8_02_64      ),
+        .DEST_PORT (16'h1F90             )
+    ) u_line_sender (
+        .rgmii_clk   (rgmii_clk    ),
+        .rstn        (rstn         ),
+        .trig        (             ),
+        .read_en     (             ),
+        .cam_id      (fb_id_6      ),
+        .cam_row     (fb_row       ),
+        .cam_valid   (             ),
+        .cam_data    (             ),
+        .connected   (rgmii_conn   ),
+        .rgmii_rxc   (rgmii1_rxc   ),
+        .rgmii_rx_ctl(rgmii1_rx_ctl),
+        .rgmii_rxd   (rgmii1_rxd   ),
+        .rgmii_txc   (rgmii1_txc   ),
+        .rgmii_tx_ctl(rgmii1_tx_ctl),
+        .rgmii_txd   (rgmii1_txd   )
+    );
 
 endmodule : AimBot

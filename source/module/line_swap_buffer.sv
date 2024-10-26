@@ -1,4 +1,4 @@
-module frame_buffer #(
+module line_swap_buffer #(
     parameter H_ACT = 1280,
     parameter V_ACT = 720
 ) (
@@ -12,6 +12,7 @@ module frame_buffer #(
     output reg        cam_id   ,
     output reg        valid    ,
     output reg [15:0] cam_data ,
+    output     [ 9:0] cam_row  ,
 
     output            error
 );
@@ -119,6 +120,7 @@ module frame_buffer #(
 
     reg [$clog2(H_ACT):0] x;
     reg [$clog2(V_ACT):0] y;
+    assign cam_row = y;
 
     reg cvs_err, cam1_vsync_d, cam2_vsync_d;
 
@@ -238,4 +240,4 @@ module frame_buffer #(
     );
     assign error = cam1_error || cam2_error || cam_vsync_err;
 
-endmodule : frame_buffer
+endmodule : line_swap_buffer
