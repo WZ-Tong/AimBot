@@ -25,16 +25,16 @@ module draw_window #(
     wire [$clog2(H_ACT)-1:0] x;
     wire [$clog2(V_ACT)-1:0] y;
 
-    wire [N_BOX-1:0] active /*synthesis PAP_MARK_DEBUG="true"*/;
-    wire [7:0] color_r [N_BOX-1:0];
-    wire [7:0] color_g [N_BOX-1:0];
-    wire [7:0] color_b [N_BOX-1:0];
+    wire [N_BOX-1:0] active;
+    wire [7:0] color_r [N_BOX];
+    wire [7:0] color_g [N_BOX];
+    wire [7:0] color_b [N_BOX];
     generate
         localparam H_ACT_BITS = $clog2(H_ACT);
         localparam V_ACT_BITS = $clog2(V_ACT);
 
         genvar i;
-        for (i = 0; i < N_BOX; i=i+1) begin : boxes
+        for (i = 0; i < N_BOX; i=i+1) begin : gen_boxes
             wire [H_ACT_BITS-1:0] start_x0, start_x1, start_x2;
             assign start_x0 = start_xs[(i+1)*H_ACT_BITS-1:i*H_ACT_BITS];
             assign start_x1 = start_x0;

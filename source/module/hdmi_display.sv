@@ -41,9 +41,9 @@ module hdmi_display (
 
     localparam V_TOTAL = V_FP + V_BP + V_SYNC + V_ACT; // 38560
 
-    wire o_vsync /*synthesis PAP_MARK_DEBUG="true"*/;
-    wire o_hsync /*synthesis PAP_MARK_DEBUG="true"*/;
-    wire o_de    /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire o_vsync;
+    wire o_hsync;
+    wire o_de   ;
 
     wire [10:0] o_x;
     wire [ 9:0] o_y;
