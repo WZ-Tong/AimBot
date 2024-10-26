@@ -202,9 +202,9 @@ module AimBot #(
         .tick(frame_tick)
     );
 
-    wire rgmii_clk;
-    wire udp_trig ; // TODO
-    wire udp_tx_re;
+    wire  rgmii_clk;
+    logic udp_trig ; // TODO
+    wire  udp_tx_re;
 
     wire [9:0] lb_row  ;
     wire       lb_valid;
@@ -271,7 +271,7 @@ module AimBot #(
         .o_rst(udp_err                )
     );
 
-    reg lb_trig; // TODO
+    logic lb_trig; // TODO
 
     line_swap_buffer #(
         .H_ACT(H_ACT),
