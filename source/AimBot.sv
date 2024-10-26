@@ -10,6 +10,7 @@ module AimBot #(
     input        cam_switch   ,
     input        wb_switch    ,
     input        dw_switch    ,
+    input        send_switch  ,
     input        wb_rstn      ,
 
     inout        cam1_scl     ,
@@ -286,5 +287,14 @@ module AimBot #(
         .cam_row  (lb_row   ),
         .error    (line_err )
     );
+
+    wire send_trig;
+    trig_gen #(.TICK(125_000)) u_send_trig_gen (
+        .clk   (rgmii_clk  ),
+        .switch(send_switch),
+        .trig  (send_trig  )
+    );
+    assign udp_trig = send_trig;
+    assign lb_trig  = send_trig;
 
 endmodule : AimBot
