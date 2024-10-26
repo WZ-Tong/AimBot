@@ -6,29 +6,29 @@ module udp_packet #(
     parameter DEST_IP    = 32'hC0_A8_01_69      , //192.168.1.105
     parameter DEST_PORT  = 16'h8080
 ) (
-    output            rgmii_clk     ,
-    input             arp_rstn      ,
-    input             trig          ,
-    input      [15:0] index         ,
+    output            rgmii_clk   ,
+    input             arp_rstn    ,
+    input             trig        ,
+    input      [15:0] index       ,
     // TX
-    output reg        tx_read_en    ,
-    input             tx_valid      ,
-    input      [ 7:0] tx_data       ,
-    input      [15:0] tx_data_len   ,
+    output reg        tx_read_en  ,
+    input             tx_valid    ,
+    input      [ 7:0] tx_data     ,
+    input      [15:0] tx_data_len ,
     // RX
-    output             rx_valid      ,
-    output             rx_error      ,
-    output      [ 7:0] rx_data       ,
-    output      [15:0] rx_data_len   ,
+    output            rx_valid    ,
+    output            rx_error    ,
+    output     [ 7:0] rx_data     ,
+    output     [15:0] rx_data_len ,
 
-    output reg        connected     ,
+    output reg        connected   ,
 
     // Hardware
-    input             rgmii_rxc     ,
-    input             rgmii_rx_ctl  ,
-    input      [ 3:0] rgmii_rxd     ,
-    output            rgmii_txc     ,
-    output            rgmii_tx_ctl  ,
+    input             rgmii_rxc   ,
+    input             rgmii_rx_ctl,
+    input      [ 3:0] rgmii_rxd   ,
+    output            rgmii_txc   ,
+    output            rgmii_tx_ctl,
     output     [ 3:0] rgmii_txd
 );
 
