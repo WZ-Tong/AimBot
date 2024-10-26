@@ -112,7 +112,7 @@ module white_balance #(
         r_b <= #1 b_new>=16'h00FF ? 8'hFF : b_new[7:0];
     end
 
-    localparam DELAY = 3;
+    localparam DELAY = 6;
 
     wire o_hsync, o_vsync, o_de;
     delay #(.DELAY(DELAY), .WIDTH(1)) u_hsync_delay (
