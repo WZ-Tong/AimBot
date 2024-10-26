@@ -71,12 +71,13 @@ module white_balance #(
             r_current_sum <= #1 'b0;
             g_current_sum <= #1 'b0;
             b_current_sum <= #1 'b0;
-
-            r_last_sum <= #1 r_current_sum;
-            g_last_sum <= #1 g_current_sum;
-            b_last_sum <= #1 b_current_sum;
+            if (wb_en) begin
+                r_last_sum <= #1 r_current_sum;
+                g_last_sum <= #1 g_current_sum;
+                b_last_sum <= #1 b_current_sum;
+            end
         end else begin
-            if (i_de && wb_en) begin
+            if (i_de) begin
                 r_current_sum <= #1 r_current_sum + i_r;
                 g_current_sum <= #1 g_current_sum + i_g;
                 b_current_sum <= #1 b_current_sum + i_b;
