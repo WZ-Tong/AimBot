@@ -53,7 +53,7 @@ module AimBot #(
     output       cam_inited   ,
     output       frame_tick   ,
     output       rgmii_conn   ,
-    output       frame_err    ,
+    output       line_err     ,
     output       udp_err
 );
 
@@ -199,18 +199,19 @@ module AimBot #(
         .tick(frame_tick)
     );
 
-    wire        rgmii_clk;
+    wire rgmii_clk;
 
-    // TODO
-    wire        udp_trig       ;
-    wire [15:0] udp_index      ;
+    wire        udp_trig ;
+    wire [15:0] udp_index;
+
     wire        udp_tx_re      ;
     wire        udp_tx_valid   ;
     wire [ 7:0] udp_tx_data    ;
     wire [15:0] udp_tx_data_len;
-    wire        udp_rx_valid   ;
-    wire [ 7:0] udp_rx_data    ;
-    wire [15:0] udp_rx_data_len;
+
+    reg        udp_rx_valid   ;
+    reg [ 7:0] udp_rx_data    ;
+    reg [15:0] udp_rx_data_len;
 
     wire udp_rx_error;
     rst_gen #(.TICK(125_000_000)) u_rx_err_gen (
@@ -248,13 +249,15 @@ module AimBot #(
         .rgmii_txd   (rgmii1_txd     )
     );
 
-    wire       fb_id_1;
-    wire [5:0] fb_id_6;
-    assign fb_id_6 = fb_id_1 ? 6'b010101 : 6'b101010;
+    reg lb_trig;
 
-    wire [9:0] fb_row  ;
-    wire       fb_valid;
-    wire [7:0] fb_data ;
+    wire       lb_id_1;
+    wire [5:0] lb_id_6;
+    assign lb_id_6 = lb_id_1 ? 6'b010101 : 6'b101010;
+
+    wire [9:0] lb_row  ;
+    wire       lb_valid;
+    wire [7:0] lb_data ;
 
     line_swap_buffer #(
         .H_ACT(H_ACT),
@@ -263,14 +266,14 @@ module AimBot #(
         .rstn     (rstn     ),
         .cam1_pack(hdmi_cam1),
         .cam2_pack(hdmi_cam2),
-        .trig     (         ),
+        .trig     (lb_trig  ),
         .rclk     (rgmii_clk),
         .read_en  (         ),
-        .cam_id   (fb_id_1  ),
-        .valid    (fb_valid ),
-        .cam_data (fb_data  ),
-        .cam_row  (fb_row   ),
-        .error    (frame_err)
+        .cam_id   (lb_id_1  ),
+        .valid    (lb_valid ),
+        .cam_data (lb_data  ),
+        .cam_row  (lb_row   ),
+        .error    (line_err )
     );
 
 endmodule : AimBot
