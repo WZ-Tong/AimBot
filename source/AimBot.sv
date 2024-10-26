@@ -151,6 +151,7 @@ module AimBot #(
         .H_ACT      (H_ACT      ),
         .V_ACT      (V_ACT      )
     ) u_cam1_process (
+        .clk      (clk        ),
         .wb_en    (~wb_rstn   ),
         .wb_switch(wb_switch  ),
         .dw_switch(dw_switch  ),
@@ -166,6 +167,7 @@ module AimBot #(
         .H_ACT      (H_ACT      ),
         .V_ACT      (V_ACT      )
     ) u_cam2_process (
+        .clk      (clk        ),
         .wb_en    (~wb_rstn   ),
         .wb_switch(wb_switch  ),
         .dw_switch(dw_switch  ),
