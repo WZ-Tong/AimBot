@@ -200,7 +200,7 @@ module AimBot #(
     );
 
     wire rgmii_clk;
-    wire udp_trig;
+    wire udp_trig ; // TODO
     wire udp_tx_re;
 
     wire [9:0] lb_row  ;
@@ -211,15 +211,15 @@ module AimBot #(
     wire [5:0] lb_id_6;
     assign lb_id_6 = lb_id_1 ? 6'b010101 : 6'b101010;
 
-    reg        udp_rx_valid   ;
-    reg [ 7:0] udp_rx_data    ;
-    reg [15:0] udp_rx_data_len;
+    wire        udp_rx_valid   ;
+    wire [ 7:0] udp_rx_data    ;
+    wire [15:0] udp_rx_data_len;
 
     wire udp_rx_error;
     rst_gen #(.TICK(125_000_000)) u_rx_err_gen (
         .clk  (rgmii_clk   ),
         .i_rst(udp_rx_error),
-        .o_rst(udp_err   )
+        .o_rst(udp_err     )
     );
 
     udp_packet #(
@@ -233,10 +233,12 @@ module AimBot #(
         .arp_rstn    (rstn             ),
         .trig        (udp_trig         ),
         .index       ({lb_id_6, lb_row}),
+        // TX
         .tx_read_en  (udp_tx_re        ),
         .tx_valid    (lb_valid         ),
         .tx_data     (lb_data          ),
         .tx_data_len (16'd1280         ),
+        // RX
         .rx_valid    (udp_rx_valid     ),
         .rx_data     (udp_rx_data      ),
         .rx_data_len (udp_rx_data_len  ),
@@ -251,7 +253,7 @@ module AimBot #(
         .rgmii_txd   (rgmii1_txd       )
     );
 
-    reg lb_trig;
+    reg lb_trig; // TODO
 
     line_swap_buffer #(
         .H_ACT(H_ACT),
