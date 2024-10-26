@@ -6,7 +6,7 @@ module udp_packet #(
     parameter DEST_IP    = 32'hC0_A8_01_69      , //192.168.1.105
     parameter DEST_PORT  = 16'h8080
 ) (
-    output            rgmii_clk   ,
+    output            rgmii_clk     /*synthesis PAP_MARK_DEBUG="true"*/,
     input             arp_rstn    ,
     input             trig        ,
     input      [15:0] index       ,

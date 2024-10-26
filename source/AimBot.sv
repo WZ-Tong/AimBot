@@ -208,7 +208,7 @@ module AimBot (
         .tick(frame_tick)
     );
 
-    wire  rgmii_clk;
+    wire  rgmii_clk /*synthesis PAP_MARK_DEBUG="true"*/;
     logic udp_trig ; // TODO
     wire  udp_tx_re;
 
