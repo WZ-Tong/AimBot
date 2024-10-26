@@ -26,13 +26,13 @@ module line_sender #(
     output [ 3:0] rgmii_txd
 );
 
-    wire        tx_read_en    ;
-    wire        tx_valid      ;
-    wire [ 7:0] tx_data       ;
-    wire [15:0] tx_data_len   ;
-    wire        rx_valid      ;
-    wire [ 7:0] rx_data       ;
-    wire [15:0] rx_data_len   ;
+    wire        tx_read_en ;
+    wire        tx_valid   ;
+    wire [ 7:0] tx_data    ;
+    wire [15:0] tx_data_len;
+    wire        rx_valid   ;
+    wire [ 7:0] rx_data    ;
+    wire [15:0] rx_data_len;
     udp_sender #(
         .LOCAL_MAC (LOCAL_MAC ),
         .LOCAL_IP  (LOCAL_IP  ),

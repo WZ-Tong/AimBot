@@ -204,9 +204,9 @@ module AimBot #(
     wire [5:0] fb_id_6;
     assign fb_id_6 = fb_id_1 ? 6'b010101 : 6'b101010;
 
-    wire [ 9:0] fb_row  ;
-    wire        fb_valid;
-    wire [15:0] fb_data ;
+    wire [9:0] fb_row  ;
+    wire       fb_valid;
+    wire [7:0] fb_data ;
 
     line_swap_buffer #(
         .H_ACT(H_ACT),
@@ -219,8 +219,8 @@ module AimBot #(
         .rclk     (rgmii_clk),
         .read_en  (         ),
         .cam_id   (fb_id_1  ),
-        .valid    (         ),
-        .cam_data (         ),
+        .valid    (fb_valid ),
+        .cam_data (fb_data  ),
         .cam_row  (fb_row   ),
         .error    (frame_err)
     );

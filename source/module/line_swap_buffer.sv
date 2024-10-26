@@ -11,7 +11,7 @@ module line_swap_buffer #(
     input             read_en  ,
     output reg        cam_id   ,
     output reg        valid    ,
-    output reg [15:0] cam_data ,
+    output reg [ 7:0] cam_data ,
     output     [ 9:0] cam_row  ,
 
     output            error
@@ -21,12 +21,12 @@ module line_swap_buffer #(
     reg cam1_re;
     reg cam2_re;
 
-    wire        cam1_clk  ;
-    wire        cam1_vsync;
-    wire        cam1_de   ;
-    wire [ 7:0] cam1_r    ;
-    wire [ 7:0] cam1_g    ;
-    wire [ 7:0] cam1_b    ;
+    wire       cam1_clk  ;
+    wire       cam1_vsync;
+    wire       cam1_de   ;
+    wire [7:0] cam1_r    ;
+    wire [7:0] cam1_g    ;
+    wire [7:0] cam1_b    ;
     hdmi_unpack u_cam1_unpack (
         .pack (cam1_pack ),
         .clk  (cam1_clk  ),
@@ -37,11 +37,12 @@ module line_swap_buffer #(
         .b    (cam1_b    )
     );
 
-    wire [15:0] cam1_wdata, cam1_rdata;
+    wire [15:0] cam1_wdata;
+    wire [ 7:0] cam1_rdata;
     assign cam1_wdata = {cam1_r[7:3], cam1_g[7:2], cam1_b[7:3]};
 
     wire cam1_ready, cam1_full;
-    async_fifo_16_1280 u_cam1_buffer (
+    async_fifo_16_8_1280 u_cam1_buffer (
         // Write
         .wr_clk      (cam1_clk  ),
         .wr_rst      (~wr_rstn  ),
@@ -65,12 +66,12 @@ module line_swap_buffer #(
         .o_rst(cam1_error)
     );
 
-    wire        cam2_clk  ;
-    wire        cam2_vsync;
-    wire        cam2_de   ;
-    wire [ 7:0] cam2_r    ;
-    wire [ 7:0] cam2_g    ;
-    wire [ 7:0] cam2_b    ;
+    wire       cam2_clk  ;
+    wire       cam2_vsync;
+    wire       cam2_de   ;
+    wire [7:0] cam2_r    ;
+    wire [7:0] cam2_g    ;
+    wire [7:0] cam2_b    ;
     hdmi_unpack u_cam2_unpack (
         .pack (cam2_pack ),
         .clk  (cam2_clk  ),
@@ -81,11 +82,12 @@ module line_swap_buffer #(
         .b    (cam2_b    )
     );
 
-    wire [15:0] cam2_wdata, cam2_rdata;
+    wire [15:0] cam2_wdata;
+    wire [ 7:0] cam2_rdata;
     assign cam2_data = {cam2_r[7:3], cam2_g[7:2], cam2_b[7:3]};
 
     wire cam2_ready, cam2_full;
-    async_fifo_16_1280 u_cam2_buffer (
+    async_fifo_16_8_1280 u_cam2_buffer (
         // Write
         .wr_clk      (cam2_clk  ),
         .wr_rst      (~wr_rstn  ),
@@ -104,8 +106,8 @@ module line_swap_buffer #(
 
     wire cam2_error;
     rst_gen #(.TICK(37_500_000)) u_cam2_err_gen (
-        .clk  (cam2_clk ),
-        .i_rst(cam2_full),
+        .clk  (cam2_clk  ),
+        .i_rst(cam2_full ),
         .o_rst(cam2_error)
     );
 
