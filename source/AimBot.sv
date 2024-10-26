@@ -200,14 +200,16 @@ module AimBot #(
     );
 
     wire rgmii_clk;
+    wire udp_trig;
+    wire udp_tx_re;
 
-    wire        udp_trig ;
-    wire [15:0] udp_index;
+    wire [9:0] lb_row  ;
+    wire       lb_valid;
+    wire [7:0] lb_data ;
 
-    wire        udp_tx_re      ;
-    wire        udp_tx_valid   ;
-    wire [ 7:0] udp_tx_data    ;
-    wire [15:0] udp_tx_data_len;
+    wire       lb_id_1;
+    wire [5:0] lb_id_6;
+    assign lb_id_6 = lb_id_1 ? 6'b010101 : 6'b101010;
 
     reg        udp_rx_valid   ;
     reg [ 7:0] udp_rx_data    ;
@@ -227,37 +229,29 @@ module AimBot #(
         .DEST_IP   (32'hC0_A8_02_64      ),
         .DEST_PORT (16'h1F90             )
     ) u_udp_packet_1 (
-        .rgmii_clk   (rgmii_clk      ),
-        .arp_rstn    (rstn           ),
-        .trig        (udp_trig       ),
-        .index       (udp_index      ),
-        .tx_read_en  (udp_tx_re      ),
-        .tx_valid    (udp_tx_valid   ),
-        .tx_data     (udp_tx_data    ),
-        .tx_data_len (udp_tx_data_len),
-        .rx_valid    (udp_rx_valid   ),
-        .rx_data     (udp_rx_data    ),
-        .rx_data_len (udp_rx_data_len),
-        .rx_error    (udp_rx_error   ),
+        .rgmii_clk   (rgmii_clk        ),
+        .arp_rstn    (rstn             ),
+        .trig        (udp_trig         ),
+        .index       ({lb_id_6, lb_row}),
+        .tx_read_en  (udp_tx_re        ),
+        .tx_valid    (lb_valid         ),
+        .tx_data     (lb_data          ),
+        .tx_data_len (16'd1280         ),
+        .rx_valid    (udp_rx_valid     ),
+        .rx_data     (udp_rx_data      ),
+        .rx_data_len (udp_rx_data_len  ),
+        .rx_error    (udp_rx_error     ),
         // Hardware
-        .connected   (rgmii_conn     ),
-        .rgmii_rxc   (rgmii1_rxc     ),
-        .rgmii_rx_ctl(rgmii1_rx_ctl  ),
-        .rgmii_rxd   (rgmii1_rxd     ),
-        .rgmii_txc   (rgmii1_txc     ),
-        .rgmii_tx_ctl(rgmii1_tx_ctl  ),
-        .rgmii_txd   (rgmii1_txd     )
+        .connected   (rgmii_conn       ),
+        .rgmii_rxc   (rgmii1_rxc       ),
+        .rgmii_rx_ctl(rgmii1_rx_ctl    ),
+        .rgmii_rxd   (rgmii1_rxd       ),
+        .rgmii_txc   (rgmii1_txc       ),
+        .rgmii_tx_ctl(rgmii1_tx_ctl    ),
+        .rgmii_txd   (rgmii1_txd       )
     );
 
     reg lb_trig;
-
-    wire       lb_id_1;
-    wire [5:0] lb_id_6;
-    assign lb_id_6 = lb_id_1 ? 6'b010101 : 6'b101010;
-
-    wire [9:0] lb_row  ;
-    wire       lb_valid;
-    wire [7:0] lb_data ;
 
     line_swap_buffer #(
         .H_ACT(H_ACT),
@@ -268,7 +262,7 @@ module AimBot #(
         .cam2_pack(hdmi_cam2),
         .trig     (lb_trig  ),
         .rclk     (rgmii_clk),
-        .read_en  (         ),
+        .read_en  (udp_tx_re),
         .cam_id   (lb_id_1  ),
         .valid    (lb_valid ),
         .cam_data (lb_data  ),
