@@ -247,11 +247,11 @@ module AimBot #(
         .rgmii_txd   (rgmii1_txd       )
     );
 
-    localparam UDP_READ_CAPACITY = 16;
+    localparam UDP_READ_CAPACITY = 1;
 
     wire udp_cap_err;
 
-    wire [UDP_READ_CAPACITY*8-1:0] udp_read_data;
+    wire [UDP_READ_CAPACITY*8-1:0] udp_read_data /*synthesis PAP_MARK_DEBUG="true"*/;
     udp_reader #(.CAPACITY(UDP_READ_CAPACITY)) u_udp_reader (
         .clk     (rgmii_clk      ),
         .rstn    (rstn           ),
