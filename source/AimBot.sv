@@ -249,6 +249,13 @@ module AimBot (
     logic [15:0] udp_rx_data_len;
     logic        udp_rx_err     ;
 
+    // wire udp_trign;
+    // rstn_gen #(.TICK(125_000)) u_rstn_gen (
+    //     .clk   (rgmii_clk  ),
+    //     .i_rstn(send_switch),
+    //     .o_rstn(udp_trign  )
+    // );
+
     udp_packet #(
         .LOCAL_MAC (48'h01_02_03_04_05_06),
         .LOCAL_IP  (32'hC0_A8_02_65      ),
