@@ -141,23 +141,23 @@ module AimBot (
 
     wire [48:0] hdmi_cam1;
     frame_process #(
-        .N_BOX      (2    ),
+        .N_BOX      (1    ),
         .V_BOX_WIDTH(2    ),
         .H_BOX_WIDTH(2    ),
         .H_ACT      (H_ACT),
         .V_ACT      (V_ACT)
     ) u_cam1_process (
-        .clk      (clk                     ),
-        .wb_en    (~wb_rstn                ),
-        .wb_switch(wb_switch               ),
-        .dw_switch(dw_switch               ),
-        .i_pack   (disp_pack_1             ),
-        .o_pack   (hdmi_cam1               ),
-        .start_xs ({11'd100, 11'd200}      ),
-        .start_ys ({10'd100, 10'd200}      ),
-        .end_xs   ({11'd300, 11'd400}      ),
-        .end_ys   ({10'd300, 10'd400}      ),
-        .colors   ({24'hFF0000, 24'h00FF00})
+        .clk      (clk        ),
+        .wb_en    (~wb_rstn   ),
+        .wb_switch(wb_switch  ),
+        .dw_switch(dw_switch  ),
+        .i_pack   (disp_pack_1),
+        .o_pack   (hdmi_cam1  ),
+        .start_xs (11'd100    ),
+        .start_ys (10'd100    ),
+        .end_xs   (11'd300    ),
+        .end_ys   (10'd300    ),
+        .colors   (24'hFF0000 )
     );
 
     wire [48:0] hdmi_cam2;
@@ -208,9 +208,10 @@ module AimBot (
         .tick(frame_tick)
     );
 
-    wire  rgmii_clk /*synthesis PAP_MARK_DEBUG="true"*/;
-    logic udp_trig ; // TODO
-    wire  udp_tx_re;
+    wire rgmii_clk  ;
+    wire udp_trig   ;
+    wire udp_tx_re  ;
+    wire udp_tx_busy;
 
     wire [9:0] lb_row  ;
     wire       lb_valid;
@@ -237,6 +238,7 @@ module AimBot (
         .trig        (udp_trig         ),
         .index       ({lb_id_6, lb_row}),
         // TX
+        .tx_busy     (udp_tx_busy      ),
         .tx_read_en  (udp_tx_re        ),
         .tx_valid    (lb_valid         ),
         .tx_data     (lb_data          ),
@@ -277,7 +279,7 @@ module AimBot (
         .o_rst(udp_err                )
     );
 
-    logic lb_trig; // TODO
+    wire lb_trig; // TODO
 
     line_swap_buffer #(
         .H_ACT(H_ACT),
@@ -288,7 +290,8 @@ module AimBot (
         .cam2_pack(hdmi_cam2),
         .trig     (lb_trig  ),
         .rclk     (rgmii_clk),
-        .read_en  (udp_tx_re),
+        .aquire   (udp_trig ),
+        .read_en  (1'b1     ),
         .cam_id   (lb_id_1  ),
         .valid    (lb_valid ),
         .cam_data (lb_data  ),
@@ -299,10 +302,10 @@ module AimBot (
     wire send_trig;
     trig_gen #(.TICK(125_000)) u_send_trig_gen (
         .clk   (rgmii_clk  ),
+        .rstn  (rstn       ),
         .switch(send_switch),
         .trig  (send_trig  )
     );
-    assign udp_trig = send_trig;
     assign lb_trig  = send_trig;
 
 endmodule : AimBot
