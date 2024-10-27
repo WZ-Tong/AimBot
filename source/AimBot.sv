@@ -218,7 +218,7 @@ module AimBot (
     logic rgmii_clk /*synthesis PAP_MARK_DEBUG="true"*/;
     logic udp_tx_re   /*synthesis PAP_MARK_DEBUG="true"*/;
 
-    logic [7:0] lf_data  /*synthesis PAP_MARK_DEBUG="true"*/;
+    logic [7:0] lf_data;
     logic lf_ready /*synthesis PAP_MARK_DEBUG="true"*/;
 
     logic [15:0] line_data;
@@ -249,9 +249,6 @@ module AimBot (
     logic [15:0] udp_rx_data_len;
     logic        udp_rx_err     ;
 
-    logic udp_trig /*synthesis PAP_MARK_DEBUG="true"*/;
-    assign udp_trig = lf_ready;
-
     udp_packet #(
         .LOCAL_MAC (48'h01_02_03_04_05_06),
         .LOCAL_IP  (32'hC0_A8_02_65      ),
@@ -261,11 +258,11 @@ module AimBot (
     ) u_udp_packet_1 (
         .rgmii_clk   (rgmii_clk        ),
         .arp_rstn    (rstn             ),
-        .trig        (udp_trig         ),
+        .trig        (lf_ready         ),
         .index       ({lf_id_6, lf_row}),
         // TX
         .tx_read_en  (udp_tx_re        ),
-        .tx_data     (8'hA5            ),
+        .tx_data     (lf_data          ),
         .tx_data_len (16'd1280         ),
         // RX
         .rx_valid    (udp_rx_valid     ),

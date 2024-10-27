@@ -8,7 +8,7 @@ module udp_packet #(
 ) (
     output            rgmii_clk     /*synthesis PAP_MARK_DEBUG="true"*/,
     input             arp_rstn    ,
-    input             trig        ,
+    input             trig          /*synthesis syn_keep=1*/,
     input      [15:0] index       ,
     // TX
     output reg        tx_read_en    /*synthesis PAP_MARK_DEBUG="true"*/,
