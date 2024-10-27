@@ -57,7 +57,7 @@ module AimBot (
     localparam H_ACT = 1280;
     localparam V_ACT = 720 ;
 
-    wire clk10, clk25;
+    logic clk10, clk25;
     clk_div #(.DIV(5)) u_clk10_gen (
         .i_clk(clk  ),
         .o_clk(clk10)
@@ -67,7 +67,7 @@ module AimBot (
         .o_clk(clk25)
     );
 
-    wire clk250 /*synthesis PAP_MARK_DEBUG="true"*/;
+    logic clk250 /*synthesis PAP_MARK_DEBUG="true"*/;
     debug_pll u_clk250_gen (
         .clkin1  (clk       ),
         .pll_lock(/*unused*/),
@@ -87,11 +87,11 @@ module AimBot (
     );
 
     // OV5640 configure & read
-    wire [15:0] cam1_data_565, cam2_data_565;
+    logic [15:0] cam1_data_565, cam2_data_565;
 
-    wire cam1_inited, cam2_inited;
-    wire cam1_pclk_565, cam2_pclk_565;
-    wire cam1_href_565, cam2_href_565;
+    logic cam1_inited, cam2_inited;
+    logic cam1_pclk_565, cam2_pclk_565;
+    logic cam1_href_565, cam2_href_565;
     assign cam_inited = cam1_inited && cam2_inited;
 
     ov5640_reader u_cam1_reader (
@@ -110,7 +110,7 @@ module AimBot (
         .cfg_rstn(cam1_rstn    )
     );
 
-    wire [48:0] disp_pack_1;
+    logic [48:0] disp_pack_1;
     hdmi_display u_cam1_disp (
         .clk    (cam1_pclk_565),
         .rstn   (rstn         ),
@@ -136,7 +136,7 @@ module AimBot (
         .cfg_rstn(cam2_rstn    )
     );
 
-    wire [48:0] disp_pack_2;
+    logic [48:0] disp_pack_2;
     hdmi_display u_cam2_disp (
         .clk    (cam2_pclk_565),
         .rstn   (rstn         ),
@@ -146,7 +146,7 @@ module AimBot (
         .o_pack (disp_pack_2  )
     );
 
-    wire [48:0] hdmi_cam1;
+    logic [48:0] hdmi_cam1;
     frame_process #(
         .N_BOX      (1    ),
         .V_BOX_WIDTH(2    ),
@@ -167,7 +167,7 @@ module AimBot (
         .colors   (24'hFF0000 )
     );
 
-    wire [48:0] hdmi_cam2;
+    logic [48:0] hdmi_cam2;
     frame_process #(
         .N_BOX      (1    ),
         .V_BOX_WIDTH(2    ),
@@ -188,7 +188,7 @@ module AimBot (
         .colors   (24'hFF0000 )
     );
 
-    wire [48:0] hdmi_pack;
+    logic [48:0] hdmi_pack;
     pack_switch u_switch_cam (
         .clk     (clk       ),
         .switch  (cam_switch),
@@ -215,23 +215,42 @@ module AimBot (
         .tick(frame_tick)
     );
 
-    wire rgmii_clk /*synthesis PAP_MARK_DEBUG="true"*/;
-    wire udp_trig   ;
-    wire udp_tx_re  ;
-    wire udp_tx_busy;
+    logic rgmii_clk /*synthesis PAP_MARK_DEBUG="true"*/;
+    logic udp_tx_re   /*synthesis PAP_MARK_DEBUG="true"*/;
 
-    wire [9:0] lb_row  ;
-    wire       lb_valid;
-    wire [7:0] lb_data ;
+    logic [7:0] lf_data  /*synthesis PAP_MARK_DEBUG="true"*/;
+    logic lf_ready /*synthesis PAP_MARK_DEBUG="true"*/;
 
-    wire       lb_id_1;
-    wire [5:0] lb_id_6;
-    assign lb_id_6 = lb_id_1 ? 6'b010101 : 6'b101010;
+    logic [15:0] line_data;
+    assign line_data = {hdmi_r[7:3], hdmi_g[7:2], hdmi_b[7:3]};
+    line_fifo u_line_fifo (
+        .wclk  (hdmi_clk  ),
+        .wrst  (hdmi_vsync),
+        .wen   (hdmi_de   ),
+        .wdata (line_data ),
+        .rclk  (rgmii_clk ),
+        .ren   (udp_tx_re ),
+        .rdata (lf_data   ),
+        .rready(lf_ready  ),
+        .error (line_err  )
+    );
 
-    wire        udp_rx_valid   ;
-    wire [ 7:0] udp_rx_data    ;
-    wire [15:0] udp_rx_data_len;
-    wire        udp_rx_err     ;
+    logic [9:0] lf_row;
+    assign lf_row = 'd400;
+
+    logic lf_id_1;
+    assign lf_id_1 = 1'b1;
+
+    logic [5:0] lf_id_6;
+    assign lf_id_6 = lf_id_1 ? 6'b010101 : 6'b101010;
+
+    logic        udp_rx_valid   ;
+    logic [ 7:0] udp_rx_data    ;
+    logic [15:0] udp_rx_data_len;
+    logic        udp_rx_err     ;
+
+    logic udp_trig /*synthesis PAP_MARK_DEBUG="true"*/;
+    assign udp_trig = lf_ready;
 
     udp_packet #(
         .LOCAL_MAC (48'h01_02_03_04_05_06),
@@ -243,12 +262,10 @@ module AimBot (
         .rgmii_clk   (rgmii_clk        ),
         .arp_rstn    (rstn             ),
         .trig        (udp_trig         ),
-        .index       ({lb_id_6, lb_row}),
+        .index       ({lf_id_6, lf_row}),
         // TX
-        .tx_busy     (udp_tx_busy      ),
         .tx_read_en  (udp_tx_re        ),
-        .tx_valid    (1'b1             ),
-        .tx_data     (lb_data          ),
+        .tx_data     (8'hA5            ),
         .tx_data_len (16'd1280         ),
         // RX
         .rx_valid    (udp_rx_valid     ),
@@ -267,9 +284,9 @@ module AimBot (
 
     localparam UDP_READ_CAPACITY = 1;
 
-    wire udp_cap_err;
+    logic udp_cap_err;
 
-    wire [UDP_READ_CAPACITY*8-1:0] udp_read_data /*synthesis PAP_MARK_DEBUG="true"*/;
+    logic [UDP_READ_CAPACITY*8-1:0] udp_read_data /*synthesis PAP_MARK_DEBUG="true"*/;
     udp_reader #(.CAPACITY(UDP_READ_CAPACITY)) u_udp_reader (
         .clk     (rgmii_clk      ),
         .rstn    (rstn           ),
@@ -286,31 +303,13 @@ module AimBot (
         .o_rst(udp_err                )
     );
 
-    wire lb_trig; // TODO
-
-    line_buffer #(
-        .H_ACT(H_ACT),
-        .V_ACT(V_ACT)
-    ) u_cam1_buffer (
-        .clk     (clk      ),
-        .rstn    (rstn     ),
-        .cam_pack(hdmi_cam1),
-        .trig    (lb_trig  ),
-        .aquire  (udp_trig ),
-        .rclk    (rgmii_clk),
-        .read_en (udp_tx_re),
-        .cam_data(lb_data  ),
-        .cam_row (lb_row   ),
-        .error   (line_err )
-    );
-
-    wire send_trig;
-    trig_gen #(.TICK(125_000)) u_send_trig_gen (
-        .clk   (rgmii_clk  ),
-        .rstn  (rstn       ),
-        .switch(send_switch),
-        .trig  (send_trig  )
-    );
-    assign lb_trig  = send_trig;
+    // logic send_trig;
+    // trig_gen #(.TICK(125_000)) u_send_trig_gen (
+    //     .clk   (rgmii_clk  ),
+    //     .rstn  (rstn       ),
+    //     .switch(send_switch),
+    //     .trig  (send_trig  )
+    // );
+    // assign udp_trig = send_trig;
 
 endmodule : AimBot

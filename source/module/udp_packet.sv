@@ -11,9 +11,7 @@ module udp_packet #(
     input             trig        ,
     input      [15:0] index       ,
     // TX
-    output reg        tx_busy       /*synthesis PAP_MARK_DEBUG="true"*/,
     output reg        tx_read_en    /*synthesis PAP_MARK_DEBUG="true"*/,
-    input             tx_valid      /*synthesis PAP_MARK_DEBUG="true"*/,
     input      [ 7:0] tx_data     ,
     input      [15:0] tx_data_len ,
     // RX
@@ -77,12 +75,10 @@ module udp_packet #(
             app_data_in_valid <= #1 'b0;
             app_data_in       <= #1 'b0;
             tx_read_en        <= #1 'b0;
-            tx_busy           <= #1 'b1;
         end else begin
             case (state)
                 UNINITED : begin
                     connected <= #1 'b0;
-                    tx_busy   <= #1 'b1;
                     if (rgmii_cnt!=RGMII_ARP_WAIT-1) begin
                         arp_req   <= #1 'b0;
                         rgmii_cnt <= #1 rgmii_cnt + 1'b1;
@@ -135,10 +131,7 @@ module udp_packet #(
                     app_data_request  <= #1 'b0;
                     tx_read_en        <= #1 'b0;
                     if (trig) begin
-                        tx_busy <= #1 'b1;
                         state   <= #1 GEN_REQ;
-                    end else begin
-                        tx_busy <= #1 'b0;
                     end
                 end
                 GEN_REQ : begin
@@ -175,11 +168,9 @@ module udp_packet #(
                         app_data_in_valid <= #1 'b0;
                         state             <= #1 IDLE;
                     end else begin
-                        app_data_in_valid <= #1 tx_valid;
+                        app_data_in_valid <= #1 1'b1;
                         app_data_in       <= #1 tx_data;
-                        if (tx_valid) begin
-                            rgmii_cnt <= #1 rgmii_cnt + 1'b1;
-                        end
+                        rgmii_cnt         <= #1 rgmii_cnt + 1'b1;
                     end
                 end
                 default : begin
