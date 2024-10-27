@@ -226,9 +226,9 @@ module AimBot (
         .trig  (lb_trig    )
     );
 
-    wire       udp_trig;
-    wire [7:0] lb_data ;
-    wire [9:0] lb_row  ;
+    wire        udp_trig;
+    wire [ 7:0] lb_data ;
+    wire [10:0] lb_row  ;
     line_buffer #(.H_ACT(H_ACT), .V_ACT(V_ACT)) u_line_buffer (
         .rstn    (rstn     ),
         .cam_pack(hdmi_pack),

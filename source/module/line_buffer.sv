@@ -8,8 +8,8 @@ module line_buffer #(
 
     input         rclk    ,
     output        aquire    /*synthesis PAP_MARK_DEBUG="true"*/,
-    input         read_en ,
-    output [ 7:0] cam_data,
+    input         read_en   /*synthesis PAP_MARK_DEBUG="true"*/,
+    output [ 7:0] cam_data  /*synthesis PAP_MARK_DEBUG="true"*/,
     output [10:0] cam_row ,
 
     output        error
@@ -66,11 +66,11 @@ module line_buffer #(
         .almost_empty(cam_readyn         )
     );
 
-    localparam X_PACK = H_ACT    ;
-    localparam Y_PACK = V_ACT * 2; // 11
+    localparam X_PACK = H_ACT    ; // 1280
+    localparam Y_PACK = V_ACT * 2; // 1440
 
-    reg [$clog2(X_PACK)-1:0] x;
-    reg [$clog2(Y_PACK)-1:0] y;
+    reg [$clog2(X_PACK)-1:0] x; /*synthesis PAP_MARK_DEBUG="true"*/ // [10:0]
+    reg [$clog2(Y_PACK)-1:0] y; /*synthesis PAP_MARK_DEBUG="true"*/ // [10:0]
     assign cam_row = y;
 
     wire x_end, y_end;
