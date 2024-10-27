@@ -118,7 +118,6 @@ module line_swap_buffer #(
     localparam READ_CAM1  = 3'b011;
     localparam WAIT_CAM2  = 3'b100;
     localparam READ_CAM2  = 3'b101;
-    localparam ERROR      = 3'b110;
 
     reg [2:0] state /*synthesis PAP_MARK_DEBUG="true"*/;
 
@@ -134,8 +133,8 @@ module line_swap_buffer #(
 
     always_ff @(posedge rclk or negedge rstn) begin
         if(~rstn) begin
-            cvs_err <= #1 'b0;
             state   <= #1 IDLE;
+            cvs_err <= #1 'b0;
             cam1_re <= #1 'b0;
             cam2_re <= #1 'b0;
             cam_id  <= #1 'b0;
@@ -235,9 +234,8 @@ module line_swap_buffer #(
                         valid <= #1 'b0;
                     end
                 end
-                ERROR: begin end
                 default : begin
-                    state <= #1 ERROR;
+                    state <= #1 IDLE;
                 end
             endcase
         end
