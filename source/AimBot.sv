@@ -219,13 +219,17 @@ module AimBot (
     wire udp_tx_re   /*synthesis PAP_MARK_DEBUG="true"*/;
 
     wire lb_trig;
-    clk_div #(.DIV(10)) u_lb_ctrl (.i_clk(clk), .o_clk(lb_trig));
+    trig_gen #(.TICK(1000)) u_trig_gen (
+        .clk   (rgmii_clk  ),
+        .rstn  (rstn       ),
+        .switch(send_switch),
+        .trig  (lb_trig    )
+    );
 
     wire       udp_trig;
     wire [7:0] lb_data ;
     wire [9:0] lb_row  ;
     line_buffer #(.H_ACT(H_ACT), .V_ACT(V_ACT)) u_line_buffer (
-        .clk     (clk      ),
         .rstn    (rstn     ),
         .cam_pack(hdmi_pack),
         .trig    (lb_trig  ),
@@ -240,8 +244,8 @@ module AimBot (
     wire lb_id_1;
     assign lb_id_1 = 1'b1;
 
-    wire [5:0] lb_id_6;
-    assign lb_id_6 = lb_id_1 ? 6'b010101 : 6'b101010;
+    wire [4:0] lb_id_5;
+    assign lb_id_5 = lb_id_1 ? 5'b10_000 : 5'b01_000;
 
     wire        udp_rx_valid   ;
     wire [ 7:0] udp_rx_data    ;
@@ -258,7 +262,7 @@ module AimBot (
         .rgmii_clk   (rgmii_clk        ),
         .arp_rstn    (rstn             ),
         .trig        (udp_trig         ),
-        .index       ({lb_id_6, lb_row}),
+        .index       ({lb_id_5, lb_row}),
         // TX
         .tx_read_en  (udp_tx_re        ),
         .tx_data     (lb_data          ),
