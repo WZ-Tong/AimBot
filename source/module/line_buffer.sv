@@ -99,31 +99,33 @@ module line_buffer #(
         end
     end
 
+    reg read_en_d;
+    always_ff @(posedge rclk or negedge rstn) begin
+        if(~rstn) begin
+            read_en_d <= #1 'b0;
+        end else begin
+            read_en_d <= #1 read_en;
+        end
+    end
+
     always_ff @(posedge rclk or negedge rstn) begin
         if(~rstn) begin
             x     <= #1 'b0;
             y     <= #1 'b0;
             state <= #1 IDLE;
         end else begin
-            if (read_en) begin
-                case ({x_end, y_end})
-                    2'b00, 2'b01 : begin
-                        x <= #1 x + 1'b1;
-                    end
-                    2'b10 : begin
-                        x <= #1 'b0;
-                        y <= #1 y + 1'b1;
-                    end
-                    2'b11 : begin
-                        x <= #1 'b0;
-                        y <= #1 'b0;
-                    end
-                    default : begin end
-                endcase
-            end else if (state==IDLE) begin
+            if (state==IDLE) begin
                 x <= #1 'b0;
                 y <= #1 'b0;
+            end else begin
+                if (read_en) begin
+                    x <= #1 x_end ? 'b0 : (x + 1'b1);
+                end
+                if (read_en_d==1 && read_en==0) begin
+                    y <= #1 y_end ? 'b0 : (y + 1'b1);
+                end
             end
+
             case (state)
                 IDLE : begin
                     if (trig_r) begin
