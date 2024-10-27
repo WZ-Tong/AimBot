@@ -67,11 +67,11 @@ module AimBot (
         .o_clk(clk25)
     );
 
-    wire clk400 /*synthesis PAP_MARK_DEBUG="true"*/;
-    debug_pll u_clk400_gen (
+    wire clk250 /*synthesis PAP_MARK_DEBUG="true"*/;
+    debug_pll u_clk250_gen (
         .clkin1  (clk       ),
         .pll_lock(/*unused*/),
-        .clkout0 (clk400    )
+        .clkout0 (clk250    )
     );
 
     // HDMI configure
@@ -215,7 +215,7 @@ module AimBot (
         .tick(frame_tick)
     );
 
-    wire rgmii_clk  ;
+    wire rgmii_clk /*synthesis PAP_MARK_DEBUG="true"*/;
     wire udp_trig   ;
     wire udp_tx_re  ;
     wire udp_tx_busy;
@@ -242,12 +242,12 @@ module AimBot (
     ) u_udp_packet_1 (
         .rgmii_clk   (rgmii_clk        ),
         .arp_rstn    (rstn             ),
-        .trig        (1'b1             ),
+        .trig        (udp_trig         ),
         .index       ({lb_id_6, lb_row}),
         // TX
         .tx_busy     (udp_tx_busy      ),
         .tx_read_en  (udp_tx_re        ),
-        .tx_valid    (1'b0             ),
+        .tx_valid    (1'b1             ),
         .tx_data     (lb_data          ),
         .tx_data_len (16'd1280         ),
         // RX
@@ -288,22 +288,20 @@ module AimBot (
 
     wire lb_trig; // TODO
 
-    line_swap_buffer #(
+    line_buffer #(
         .H_ACT(H_ACT),
         .V_ACT(V_ACT)
-    ) u_dual_cam_reader (
-        .rstn     (rstn     ),
-        .cam1_pack(hdmi_cam1),
-        .cam2_pack(hdmi_cam2),
-        .trig     (lb_trig  ),
-        .rclk     (rgmii_clk),
-        .aquire   (udp_trig ),
-        .read_en  (1'b1     ),
-        .cam_id   (lb_id_1  ),
-        .valid    (lb_valid ),
-        .cam_data (lb_data  ),
-        .cam_row  (lb_row   ),
-        .error    (line_err )
+    ) u_cam1_buffer (
+        .clk     (clk      ),
+        .rstn    (rstn     ),
+        .cam_pack(hdmi_cam1),
+        .trig    (lb_trig  ),
+        .aquire  (udp_trig ),
+        .rclk    (rgmii_clk),
+        .read_en (udp_tx_re),
+        .cam_data(lb_data  ),
+        .cam_row (lb_row   ),
+        .error   (line_err )
     );
 
     wire send_trig;

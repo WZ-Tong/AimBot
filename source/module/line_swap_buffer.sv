@@ -2,16 +2,16 @@ module line_swap_buffer #(
     parameter H_ACT = 1280,
     parameter V_ACT = 720
 ) (
+    input             clk      ,
     input             rstn     ,
     input      [48:0] cam1_pack,
     input      [48:0] cam2_pack,
     input             trig       /*synthesis PAP_MARK_DEBUG="true"*/,
 
-    input             rclk     ,
+    input             rclk       /*synthesis PAP_MARK_DEBUG="true"*/,
     input             read_en  ,
     output reg        aquire     /*synthesis PAP_MARK_DEBUG="true"*/,
     output reg        cam_id     /*synthesis PAP_MARK_DEBUG="true"*/,
-    output reg        valid      /*synthesis PAP_MARK_DEBUG="true"*/,
     output reg [ 7:0] cam_data ,
     output     [ 9:0] cam_row  ,
 
@@ -19,8 +19,8 @@ module line_swap_buffer #(
 );
 
     reg wr_rstn /*synthesis PAP_MARK_DEBUG="true"*/;
-    reg cam1_re /*synthesis PAP_MARK_DEBUG="true"*/;
-    reg cam2_re /*synthesis PAP_MARK_DEBUG="true"*/;
+    reg cam1_re;
+    reg cam2_re;
 
     wire       cam1_clk  ;
     wire       cam1_vsync;
@@ -45,19 +45,19 @@ module line_swap_buffer #(
     wire cam1_ready, cam1_full;
     async_fifo_16_8_1280 u_cam1_buffer (
         // Write
-        .wr_clk      (cam1_clk  ),
-        .wr_rst      (~wr_rstn  ),
-        .wr_en       (cam1_de   ),
-        .wr_data     (cam1_wdata),
-        .wr_full     (cam1_full ),
-        .almost_full (cam1_ready),
+        .wr_clk      (cam1_clk        ),
+        .wr_rst      (~wr_rstn        ),
+        .wr_en       (cam1_de         ),
+        .wr_data     (cam1_wdata      ),
+        .wr_full     (cam1_full       ),
+        .almost_full (cam1_ready      ),
         // Read
-        .rd_clk      (rclk      ),
-        .rd_rst      (~wr_rstn  ),
-        .rd_en       (cam1_re   ),
-        .rd_data     (cam1_rdata),
-        .rd_empty    (/*unused*/),
-        .almost_empty(/*unused*/)
+        .rd_clk      (rclk            ),
+        .rd_rst      (~wr_rstn        ),
+        .rd_en       (cam1_re&&read_en),
+        .rd_data     (cam1_rdata      ),
+        .rd_empty    (/*unused*/      ),
+        .almost_empty(/*unused*/      )
     );
 
     wire cam1_error;
@@ -90,19 +90,19 @@ module line_swap_buffer #(
     wire cam2_ready, cam2_full;
     async_fifo_16_8_1280 u_cam2_buffer (
         // Write
-        .wr_clk      (cam2_clk  ),
-        .wr_rst      (~wr_rstn  ),
-        .wr_en       (cam2_de   ),
-        .wr_data     (cam2_wdata),
-        .wr_full     (cam2_full ),
-        .almost_full (cam2_ready),
+        .wr_clk      (cam2_clk        ),
+        .wr_rst      (~wr_rstn        ),
+        .wr_en       (cam2_de         ),
+        .wr_data     (cam2_wdata      ),
+        .wr_full     (cam2_full       ),
+        .almost_full (cam2_ready      ),
         // Read
-        .rd_clk      (rclk      ),
-        .rd_rst      (~wr_rstn  ),
-        .rd_en       (cam2_re   ),
-        .rd_data     (cam2_rdata),
-        .rd_empty    (/*unused*/),
-        .almost_empty(/*unused*/)
+        .rd_clk      (rclk            ),
+        .rd_rst      (~wr_rstn        ),
+        .rd_en       (cam2_re&&read_en),
+        .rd_data     (cam2_rdata      ),
+        .rd_empty    (/*unused*/      ),
+        .almost_empty(/*unused*/      )
     );
 
     wire cam2_error;
@@ -131,7 +131,9 @@ module line_swap_buffer #(
     assign cam1_vsync_f = cam1_vsync_d==1 && cam1_vsync==0;
     assign cam2_vsync_f = cam2_vsync_d==1 && cam2_vsync==0;
 
-    always_ff @(posedge rclk or negedge rstn) begin
+    reg debug /*synthesis PAP_MARK_DEBUG="true"*/;
+
+    always_ff @(posedge clk or negedge rstn) begin
         if(~rstn) begin
             state   <= #1 IDLE;
             cvs_err <= #1 'b0;
@@ -147,6 +149,7 @@ module line_swap_buffer #(
                     wr_rstn <= #1 'b0;
                     cam1_re <= #1 'b0;
                     cam2_re <= #1 'b0;
+                    debug   <= #1 ~debug;
                     if (trig) begin
                         state        <= #1 WAIT_VSYNC;
                         cam1_vsync_d <= #1 'b0;
@@ -164,14 +167,13 @@ module line_swap_buffer #(
                         state   <= #1 IDLE;
                         cvs_err <= #1 'b1;
                     end else if (cam1_vsync&&cam2_vsync) begin
-                        y     <= #1 'b0;
                         state <= #1 WAIT_CAM1;
                     end
                 end
                 WAIT_CAM1 : begin
-                    x       <= #1 'b0;
                     wr_rstn <= #1 'b1;
                     cam_id  <= #1 'b0;
+                    cam1_re <= #1 'b1;
                     cam2_re <= #1 'b0;
                     if (cam1_ready) begin
                         aquire <= #1 'b1;
@@ -181,28 +183,13 @@ module line_swap_buffer #(
                 READ_CAM1 : begin
                     aquire  <= #1 'b0;
                     cam_id  <= #1 'b0;
+                    cam1_re <= #1 'b1;
                     cam2_re <= #1 'b0;
-                    if (read_en && x!=H_ACT-1) begin
-                        cam1_re <= #1 'b1;
-                    end else begin
-                        cam1_re <= #1 'b0;
-                    end
-                    if (cam1_re) begin
-                        valid    <= #1 'b1;
-                        cam_data <= #1 cam1_rdata;
-                        if (x==H_ACT-1) begin
-                            state <= #1 WAIT_CAM2;
-                        end else begin
-                            x <= #1 x + 1'b1;
-                        end
-                    end else begin
-                        valid <= #1 'b0;
-                    end
                 end
                 WAIT_CAM2 : begin
-                    x       <= #1 'b0;
                     cam_id  <= #1 'b1;
                     cam1_re <= #1 'b0;
+                    cam2_re <= #1 'b0;
                     if (cam2_ready) begin
                         aquire <= #1 'b1;
                         state  <= #1 READ_CAM2;
@@ -218,7 +205,6 @@ module line_swap_buffer #(
                         cam2_re <= #1 'b0;
                     end
                     if (cam2_re) begin
-                        valid    <= #1 'b1;
                         cam_data <= #1 cam2_rdata;
                         if (x==H_ACT-1) begin
                             if (y==V_ACT-1) begin
@@ -230,8 +216,6 @@ module line_swap_buffer #(
                         end else begin
                             x <= #1 x + 1'b1;
                         end
-                    end else begin
-                        valid <= #1 'b0;
                     end
                 end
                 default : begin
