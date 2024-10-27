@@ -17,8 +17,6 @@ module line_buffer #(
     output            error
 );
 
-    reg wr_rstn;
-
     wire       cam_clk   /*synthesis PAP_MARK_DEBUG="true"*/;
     wire       cam_vsync /*synthesis PAP_MARK_DEBUG="true"*/;
     wire       cam_de    /*synthesis PAP_MARK_DEBUG="true"*/;
@@ -38,25 +36,26 @@ module line_buffer #(
     wire [15:0] cam_data_16;
     assign cam_data_16 = {cam_r[7:3], cam_g[7:2], cam_b[7:3]};
 
-    wire cam_ready, cam_full /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire cam_ready, cam_readyn, cam_full /*synthesis PAP_MARK_DEBUG="true"*/;
     async_fifo_16_8_1280 u_cam_buffer (
         // Write
         .wr_clk      (cam_clk    ),
-        .wr_rst      (~wr_rstn   ),
+        .wr_rst      (cam_vsync  ),
         .wr_en       (cam_de     ),
         .wr_data     (cam_data_16),
         .wr_full     (cam_full   ),
-        .almost_full (cam_ready  ),
+        .almost_full (/*unused*/ ),
         // Read
         .rd_clk      (rclk       ),
-        .rd_rst      (~wr_rstn   ),
+        .rd_rst      (1'b0       ),
         .rd_en       (read_en    ),
         .rd_data     (cam_data   ),
         .rd_empty    (/*unused*/ ),
-        .almost_empty(/*unused*/ )
+        .almost_empty(cam_readyn )
     );
+    assign cam_ready = ~cam_readyn;
 
-    rst_gen #(.TICK(37_500_000)) u_cam_err_gen (
+    rst_gen #(.TICK(100_000)) u_cam_err_gen (
         .clk  (cam_clk ),
         .i_rst(cam_full),
         .o_rst(error   )
@@ -71,6 +70,7 @@ module line_buffer #(
 
     reg [$clog2(H_ACT):0] x;
     reg [$clog2(V_ACT):0] y;
+    assign cam_row = y;
 
     wire x_end, y_end;
     assign x_end = x>=H_ACT-1;
@@ -98,14 +98,12 @@ module line_buffer #(
 
     always_ff @(posedge clk or negedge rstn) begin
         if(~rstn) begin
-            state   <= #1 IDLE;
-            wr_rstn <= #1 'b0;
-            aquire  <= #1 'b0;
+            state  <= #1 IDLE;
+            aquire <= #1 'b0;
         end else begin
             case (state)
                 IDLE : begin
-                    wr_rstn <= #1 'b0;
-                    aquire  <= #1 'b0;
+                    aquire <= #1 'b0;
                     if (trig) begin
                         state <= #1 WAIT_VSYNC;
                     end
@@ -113,14 +111,10 @@ module line_buffer #(
                 WAIT_VSYNC : begin
                     aquire <= #1 'b0;
                     if (cam_vsync) begin
-                        wr_rstn <= #1 'b1;
-                        state   <= #1 WAIT_CAM;
-                    end else begin
-                        wr_rstn <= #1 'b0;
+                        state <= #1 WAIT_CAM;
                     end
                 end
                 WAIT_CAM : begin
-                    wr_rstn <= #1 'b1;
                     if (cam_ready) begin
                         state  <= #1 READ_CAM;
                         aquire <= #1 'b1;
@@ -132,8 +126,7 @@ module line_buffer #(
                     aquire <= #1 'b1;
                     case ({x_end, y_end})
                         2'b10 : begin
-                            wr_rstn <= #1 'b0;
-                            state   <= #1 WAIT_CAM;
+                            state <= #1 WAIT_CAM;
                         end
                         2'b11 : begin
                             state <= #1 IDLE;
