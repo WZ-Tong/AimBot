@@ -219,7 +219,7 @@ module AimBot (
     wire udp_tx_re   /*synthesis PAP_MARK_DEBUG="true"*/;
 
     wire lb_trig;
-    clk_div #(.DIV(50_000_000)) u_lb_ctrl (.i_clk(clk), .o_clk(lb_trig));
+    clk_div #(.DIV(10)) u_lb_ctrl (.i_clk(clk), .o_clk(lb_trig));
 
     wire       udp_trig;
     wire [7:0] lb_data ;
