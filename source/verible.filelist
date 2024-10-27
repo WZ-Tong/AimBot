@@ -6,3 +6,4 @@
 +incdir+/source/util/hdmi
 +incdir+/source/util/ov5640
 +incdir+/source/util/ethernet
++incdir+/source/util/fifo
