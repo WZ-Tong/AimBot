@@ -67,6 +67,13 @@ module AimBot (
         .o_clk(clk25)
     );
 
+    wire clk400 /*synthesis PAP_MARK_DEBUG="true"*/;
+    debug_pll u_clk400_gen (
+        .clkin1  (clk       ),
+        .pll_lock(/*unused*/),
+        .clkout0 (clk400    )
+    );
+
     // HDMI configure
     hdmi_ctrl u_hdmi_ctrl (
         .clk10    (clk10      ),
@@ -235,12 +242,12 @@ module AimBot (
     ) u_udp_packet_1 (
         .rgmii_clk   (rgmii_clk        ),
         .arp_rstn    (rstn             ),
-        .trig        (udp_trig         ),
+        .trig        (1'b1             ),
         .index       ({lb_id_6, lb_row}),
         // TX
         .tx_busy     (udp_tx_busy      ),
         .tx_read_en  (udp_tx_re        ),
-        .tx_valid    (lb_valid         ),
+        .tx_valid    (1'b0             ),
         .tx_data     (lb_data          ),
         .tx_data_len (16'd1280         ),
         // RX
