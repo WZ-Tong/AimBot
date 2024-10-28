@@ -218,34 +218,34 @@ module AimBot (
     wire rgmii_clk /*synthesis PAP_MARK_DEBUG="true"*/;
     wire udp_tx_re   /*synthesis PAP_MARK_DEBUG="true"*/;
 
-    wire lb_trig;
+    wire ub_trig;
     trig_gen #(.TICK(1000)) u_trig_gen (
         .clk   (rgmii_clk  ),
         .rstn  (rstn       ),
         .switch(send_switch),
-        .trig  (lb_trig    )
+        .trig  (ub_trig    )
     );
 
     wire        udp_trig;
-    wire [ 7:0] lb_data ;
-    wire [10:0] lb_row  ;
-    line_buffer #(.H_ACT(H_ACT), .V_ACT(V_ACT)) u_line_buffer (
+    wire [15:0] ub_data ;
+    wire [10:0] ub_row  ;
+    line_buffer #(.H_ACT(H_ACT), .V_ACT(V_ACT)) u_udp_buffer_1 (
         .rstn    (rstn     ),
-        .cam_pack(hdmi_pack),
-        .trig    (lb_trig  ),
+        .cam_pack(hdmi_cam1),
+        .trig    (ub_trig  ),
         .aquire  (udp_trig ),
         .rclk    (rgmii_clk),
         .read_en (udp_tx_re),
-        .cam_data(lb_data  ),
-        .cam_row (lb_row   ),
+        .cam_data(ub_data  ),
+        .cam_row (ub_row   ),
         .error   (line_err )
     );
 
-    wire lb_id_1;
-    assign lb_id_1 = 1'b1;
+    wire ub_id_1;
+    assign ub_id_1 = 1'b1;
 
-    wire [4:0] lb_id_5;
-    assign lb_id_5 = lb_id_1 ? 5'b10_000 : 5'b01_000;
+    wire [4:0] ub_id_5;
+    assign ub_id_5 = ub_id_1 ? 5'b10_000 : 5'b01_000;
 
     wire        udp_rx_valid   ;
     wire [ 7:0] udp_rx_data    ;
@@ -262,10 +262,10 @@ module AimBot (
         .rgmii_clk   (rgmii_clk        ),
         .arp_rstn    (rstn             ),
         .trig        (udp_trig         ),
-        .index       ({lb_id_5, lb_row}),
+        .index       ({ub_id_5, ub_row}),
         // TX
         .tx_read_en  (udp_tx_re        ),
-        .tx_data     (lb_data          ),
+        .tx_data     (ub_data          ),
         .tx_data_len (16'd1280         ),
         // RX
         .rx_valid    (udp_rx_valid     ),
