@@ -12,7 +12,8 @@ module udp_reader #(parameter CAPACITY = 1) (
 
     always_ff @(posedge clk or negedge rstn) begin
         if(~rstn) begin
-            o_data <= #1 'b0;
+            o_data  <= #1 'b0;
+            cap_err <= #1 'b0;
         end else begin
             cap_err <= #1 'b0;
             if (valid) begin
