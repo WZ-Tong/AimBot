@@ -46,9 +46,9 @@ module frame_process #(
 
     wire [48:0] win_pack;
     draw_window #(
-        .V_BOX_WIDTH(N_BOX      ),
-        .H_BOX_WIDTH(V_BOX_WIDTH),
-        .N_BOX      (H_BOX_WIDTH)
+        .V_BOX_WIDTH(V_BOX_WIDTH),
+        .H_BOX_WIDTH(H_BOX_WIDTH),
+        .N_BOX      (N_BOX      )
     ) u_draw_window (
         .i_pack  (wbs_pack),
         .o_pack  (win_pack),
