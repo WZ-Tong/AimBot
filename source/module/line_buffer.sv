@@ -42,7 +42,7 @@ module line_buffer #(
 
     reg [1:0] state /*synthesis PAP_MARK_DEBUG="true"*/;
 
-    wire cam_re;
+    wire cam_re /*synthesis PAP_MARK_DEBUG="true"*/;
     assign cam_re = cam_de&&state!=IDLE&&state!=WAIT_VSYNC;
     assign busy   = state!=IDLE;
 
@@ -133,37 +133,41 @@ module line_buffer #(
                 end
             end
 
-            case (state)
-                IDLE : begin
-                    if (trig_r) begin
-                        state <= #1 WAIT_VSYNC;
+            if (cam_vsync_r) begin
+                state <= #1 IDLE;
+            end else begin
+                case (state)
+                    IDLE : begin
+                        if (trig_r) begin
+                            state <= #1 WAIT_VSYNC;
+                        end
                     end
-                end
-                WAIT_VSYNC : begin
-                    if (cam_vsync_r) begin
-                        state <= #1 WAIT_CAM;
-                    end
-                end
-                WAIT_CAM : begin
-                    if (cam_ready) begin
-                        state <= #1 READ_CAM;
-                    end
-                end
-                READ_CAM : begin
-                    case ({x_end, y_end})
-                        2'b10 : begin
+                    WAIT_VSYNC : begin
+                        if (cam_vsync_r) begin
                             state <= #1 WAIT_CAM;
                         end
-                        2'b11 : begin
-                            state <= #1 IDLE;
+                    end
+                    WAIT_CAM : begin
+                        if (cam_ready) begin
+                            state <= #1 READ_CAM;
                         end
-                        default : begin end
-                    endcase
-                end
-                default : begin
-                    state <= #1 IDLE;
-                end
-            endcase
+                    end
+                    READ_CAM : begin
+                        case ({x_end, y_end})
+                            2'b10 : begin
+                                state <= #1 WAIT_CAM;
+                            end
+                            2'b11 : begin
+                                state <= #1 IDLE;
+                            end
+                            default : begin end
+                        endcase
+                    end
+                    default : begin
+                        state <= #1 IDLE;
+                    end
+                endcase
+            end
         end
     end
 
