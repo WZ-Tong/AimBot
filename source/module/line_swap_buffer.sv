@@ -88,12 +88,16 @@ module line_swap_buffer #(
 
     always_ff @(posedge rclk or negedge rstn) begin
         if(~rstn) begin
-            cam_no <= #1 'b0;
-            state  <= #1 IDLE;
+            cam_no    <= #1 'b0;
+            state     <= #1 IDLE;
+            cam1_trig <= #1 'b0;
+            cam2_trig <= #1 'b0;
         end else begin
             case (state)
                 IDLE : begin
-                    cam_no <= #1 'b0;
+                    cam1_trig <= #1 'b0;
+                    cam2_trig <= #1 'b0;
+                    cam_no    <= #1 'b0;
                     if (trig_d) begin
                         state <= #1 TRIG_CAM1;
                     end
