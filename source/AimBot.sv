@@ -289,19 +289,18 @@ module AimBot (
         .rgmii_txd   (rgmii1_txd     )
     );
 
-    localparam UDP_READ_CAPACITY = 1;
+    localparam UDP_READ_CAPACITY = 16;
+
+    wire [UDP_READ_CAPACITY*8-1:0] udp_data;
 
     wire udp_cap_err;
-
-    wire [UDP_READ_CAPACITY*8-1:0] udp_read_data /*synthesis PAP_MARK_DEBUG="true"*/;
     udp_reader #(.CAPACITY(UDP_READ_CAPACITY)) u_udp_reader (
-        .clk     (rgmii_clk      ),
-        .rstn    (rstn           ),
-        .valid   (udp_rx_valid   ),
-        .i_data  (udp_rx_data    ),
-        .data_len(udp_rx_data_len),
-        .o_data  (udp_read_data  ),
-        .cap_err (udp_cap_err    )
+        .clk    (rgmii_clk   ),
+        .rstn   (rstn        ),
+        .valid  (udp_rx_valid),
+        .i_data (udp_rx_data ),
+        .cap_err(udp_cap_err ),
+        .o_data (udp_data    )
     );
 
     rst_gen #(.TICK(125_000_000)) u_rx_err_gen (
