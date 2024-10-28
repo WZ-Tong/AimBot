@@ -133,7 +133,7 @@ module line_buffer #(
                 end
             end
 
-            if (cam_vsync_r) begin
+            if (cam_vsync_r && state!=WAIT_VSYNC && state!=WAIT_CAM) begin
                 state <= #1 IDLE;
             end else begin
                 case (state)

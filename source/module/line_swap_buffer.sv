@@ -122,7 +122,6 @@ module line_swap_buffer #(
                     end
                 end
                 TRIG_CAM2 : begin
-                    state <= #1 WAIT_CAM2;
                     if (cam2_busy) begin
                         cam2_trig <= #1 'b0;
                         state     <= #1 WAIT_CAM2;
