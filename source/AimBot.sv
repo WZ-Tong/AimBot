@@ -1,6 +1,11 @@
 `timescale 1ns / 1ps
 
-module AimBot (
+module AimBot #(
+    parameter  N_BOX = 1   ,
+
+    localparam H_ACT = 1280,
+    localparam V_ACT = 720
+) (
     input        clk          ,
     input        rstn         ,
     input        cam_switch   ,
@@ -54,9 +59,6 @@ module AimBot (
     output       line_err     ,
     output       udp_cap_err
 );
-
-    localparam H_ACT = 1280;
-    localparam V_ACT = 720 ;
 
     wire clk10, clk25;
     clk_div #(.DIV(5)) u_clk10_gen (
@@ -140,11 +142,17 @@ module AimBot (
         .o_pack (disp_pack_2  )
     );
 
+    wire [N_BOX*$clog2(H_ACT)-1:0] dw_start_xs;
+    wire [N_BOX*$clog2(V_ACT)-1:0] dw_start_ys;
+    wire [N_BOX*$clog2(H_ACT)-1:0] dw_end_xs  ;
+    wire [N_BOX*$clog2(V_ACT)-1:0] dw_end_ys  ;
+    wire [           N_BOX*24-1:0] dw_colors  ;
+
     wire [48:0] hdmi_cam1;
     frame_process #(
-        .N_BOX      (1    ),
         .V_BOX_WIDTH(2    ),
         .H_BOX_WIDTH(2    ),
+        .N_BOX      (N_BOX),
         .H_ACT      (H_ACT),
         .V_ACT      (V_ACT)
     ) u_cam1_process (
@@ -154,18 +162,18 @@ module AimBot (
         .dw_switch(dw_switch  ),
         .i_pack   (disp_pack_1),
         .o_pack   (hdmi_cam1  ),
-        .start_xs (11'd100    ),
-        .start_ys (10'd100    ),
-        .end_xs   (11'd300    ),
-        .end_ys   (10'd300    ),
-        .colors   (24'hFF0000 )
+        .start_xs (dw_start_xs),
+        .start_ys (dw_start_ys),
+        .end_xs   (dw_end_xs  ),
+        .end_ys   (dw_end_ys  ),
+        .colors   (dw_colors  )
     );
 
     wire [48:0] hdmi_cam2;
     frame_process #(
-        .N_BOX      (1    ),
         .V_BOX_WIDTH(2    ),
         .H_BOX_WIDTH(2    ),
+        .N_BOX      (N_BOX),
         .H_ACT      (H_ACT),
         .V_ACT      (V_ACT)
     ) u_cam2_process (
@@ -175,11 +183,11 @@ module AimBot (
         .dw_switch(dw_switch  ),
         .i_pack   (disp_pack_2),
         .o_pack   (hdmi_cam2  ),
-        .start_xs (11'd100    ),
-        .start_ys (10'd100    ),
-        .end_xs   (11'd200    ),
-        .end_ys   (10'd500    ),
-        .colors   (24'hFF0000 )
+        .start_xs (dw_start_xs),
+        .start_ys (dw_start_ys),
+        .end_xs   (dw_end_xs  ),
+        .end_ys   (dw_end_ys  ),
+        .colors   (dw_colors  )
     );
 
     wire [48:0] hdmi_pack;
@@ -280,7 +288,7 @@ module AimBot (
         .rgmii_txd   (rgmii1_txd     )
     );
 
-    localparam UDP_READ_CAPACITY = 16;
+    localparam UDP_READ_CAPACITY = 6 * N_BOX;
 
     wire [UDP_READ_CAPACITY*8-1:0] udp_data /*synthesis PAP_MARK_DEBUG="true"*/;
 
@@ -294,10 +302,50 @@ module AimBot (
         .o_data(udp_data     )
     );
 
-    rst_gen #(.TICK(5_000_000)) u_udp_cap_err_gen (
+    rst_gen #(.TICK(125_000_000)) u_udp_cap_err_gen (
         .clk  (rgmii_clk    ),
         .i_rst(udp_cap_error),
         .o_rst(udp_cap_err  )
     );
+
+    if (H_ACT==1280 && V_ACT==720) begin : gen_draw_box_720
+        genvar i;
+        for (i = 0; i < N_BOX; i=i+1) begin: gen_udp_unpack
+            wire [47:0] packed_data;
+            wire [10:0] start_x    ;
+            wire [ 9:0] start_y    ;
+            wire [10:0] end_x      ;
+            wire [ 9:0] end_y      ;
+            wire [ 8:0] r          ;
+            wire [ 8:0] g          ;
+            wire [ 8:0] b          ;
+            udp_unpack_720p u_udp_unpack (
+                .i_data (packed_data),
+                .start_x(start_x    ),
+                .start_y(start_y    ),
+                .end_x  (end_x      ),
+                .end_y  (end_y      ),
+                .r      (r          ),
+                .g      (g          ),
+                .b      (b          )
+            );
+            assign packed_data = udp_data[(i+1)*48-1:i*48];
+
+            assign dw_start_xs[(i+1)*11-1:i*11] = start_x;
+            assign dw_start_ys[(i+1)*10-1:i*10] = start_y;
+
+            assign dw_end_xs[(i+1)*11-1:i*11] = end_x;
+            assign dw_end_ys[(i+1)*10-1:i*10] = end_y;
+
+            assign dw_colors[(i+1)*24-1:i*24] = {r, g, b};
+        end
+    end else begin : gen_draw_box_default
+        assign start_xs = 'b0;
+        assign start_ys = 'b0;
+        assign end_xs   = 'b0;
+        assign end_ys   = 'b0;
+        assign colors   = 'b0;
+    end
+
 
 endmodule : AimBot
