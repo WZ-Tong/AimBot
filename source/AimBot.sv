@@ -309,36 +309,19 @@ module AimBot #(
     );
 
     if (H_ACT==1280 && V_ACT==720) begin : gen_draw_box_720
-        genvar i;
-        for (i = 0; i < N_BOX; i=i+1) begin: gen_udp_unpack
-            wire [47:0] packed_data;
-            wire [10:0] start_x    ;
-            wire [ 9:0] start_y    ;
-            wire [10:0] end_x      ;
-            wire [ 9:0] end_y      ;
-            wire [ 8:0] r          ;
-            wire [ 8:0] g          ;
-            wire [ 8:0] b          ;
-            udp_unpack_720p u_udp_unpack (
-                .i_data (packed_data),
-                .start_x(start_x    ),
-                .start_y(start_y    ),
-                .end_x  (end_x      ),
-                .end_y  (end_y      ),
-                .r      (r          ),
-                .g      (g          ),
-                .b      (b          )
-            );
-            assign packed_data = udp_data[(i+1)*48-1:i*48];
-
-            assign dw_start_xs[(i+1)*11-1:i*11] = start_x;
-            assign dw_start_ys[(i+1)*10-1:i*10] = start_y;
-
-            assign dw_end_xs[(i+1)*11-1:i*11] = end_x;
-            assign dw_end_ys[(i+1)*10-1:i*10] = end_y;
-
-            assign dw_colors[(i+1)*24-1:i*24] = {r, g, b};
-        end
+        udp_parser #(
+            .N_BOX(N_BOX),
+            .H_ACT(H_ACT),
+            .V_ACT(V_ACT),
+            .C_DEP(2    )
+        ) u_udp_parser_720 (
+            .udp_data(udp_data   ),
+            .start_xs(dw_start_xs),
+            .start_ys(dw_start_ys),
+            .end_xs  (dw_end_xs  ),
+            .end_ys  (dw_end_ys  ),
+            .colors  (dw_colors  )
+        );
     end else begin : gen_draw_box_default
         assign start_xs = 'b0;
         assign start_ys = 'b0;
