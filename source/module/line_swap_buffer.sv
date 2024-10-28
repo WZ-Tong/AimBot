@@ -23,7 +23,7 @@ module line_swap_buffer #(
     wire [15:0] cam1_data  ;
     wire [10:0] cam1_row   ;
     wire        cam1_err   ;
-    wire        cam1_busy  ;
+    wire        cam1_busy  /*synthesis PAP_MARK_DEBUG="true"*/;
     line_buffer #(.H_ACT(H_ACT), .V_ACT(V_ACT)) u_udp_buffer_1 (
         .rstn    (rstn       ),
         .cam_pack(cam1_pack  ),
@@ -43,7 +43,7 @@ module line_swap_buffer #(
     wire [15:0] cam2_data  ;
     wire [10:0] cam2_row   ;
     wire        cam2_err   ;
-    wire        cam2_busy  ;
+    wire        cam2_busy  /*synthesis PAP_MARK_DEBUG="true"*/;
     line_buffer #(.H_ACT(H_ACT), .V_ACT(V_ACT)) u_udp_buffer_2 (
         .rstn    (rstn       ),
         .cam_pack(cam2_pack  ),

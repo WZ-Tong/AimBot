@@ -264,7 +264,7 @@ module AimBot #(
         .LOCAL_PORT(16'h1F90             ),
         .DEST_IP   (32'hC0_A8_02_64      ),
         .DEST_PORT (16'h1F90             )
-    ) u_udp_packet_1 (
+    ) u_udp_packet (
         .rgmii_clk   (rgmii_clk      ),
         .arp_rstn    (rstn           ),
         .trig        (udp_trig       ),
