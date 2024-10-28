@@ -73,6 +73,10 @@ module line_swap_buffer #(
     localparam TRIG_CAM2 = 3'b100;
     localparam WAIT_CAM2 = 3'b101;
 
+    localparam GAP_WAIT = H_ACT;
+
+    reg [$clog2(GAP_WAIT)-1:0] gap_cnt;
+
     reg [2:0] state /*synthesis PAP_MARK_DEBUG="true"*/;
 
     reg trig_d /*synthesis PAP_MARK_DEBUG="true"*/;
@@ -92,12 +96,14 @@ module line_swap_buffer #(
             state     <= #1 IDLE;
             cam1_trig <= #1 'b0;
             cam2_trig <= #1 'b0;
+            gap_cnt   <= #1 'b0;
         end else begin
             case (state)
                 IDLE : begin
                     cam1_trig <= #1 'b0;
                     cam2_trig <= #1 'b0;
                     cam_no    <= #1 'b0;
+                    gap_cnt   <= #1 'b0;
                     if (trig_d) begin
                         state <= #1 TRIG_CAM1;
                     end
@@ -112,13 +118,18 @@ module line_swap_buffer #(
                 end
                 WAIT_CAM1 : begin
                     if (~cam1_busy) begin
-                        state <= #1 GAP;
+                        gap_cnt <= #1 'b0;
+                        state   <= #1 GAP;
                     end
                 end
                 GAP : begin
-                    cam_no <= #1 'b1;
-                    if (~cam1_busy && ~cam2_busy) begin
-                        state <= #1 TRIG_CAM2;
+                    if (gap_cnt!=GAP_WAIT) begin
+                        gap_cnt <= #1 gap_cnt + 1'b1;
+                    end else begin
+                        cam_no <= #1 'b1;
+                        if (~cam1_busy && ~cam2_busy) begin
+                            state <= #1 TRIG_CAM2;
+                        end
                     end
                 end
                 TRIG_CAM2 : begin
