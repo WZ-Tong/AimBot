@@ -37,7 +37,7 @@ module udp_packet #(
 
     localparam RGMII_CNT = RGMII_ARP_WAIT >= 16 ? RGMII_ARP_WAIT : 16; // 16: WIDTH(data_len)
 
-    reg [$clog2(RGMII_CNT)-1:0] rgmii_cnt /*synthesis PAP_MARK_DEBUG="true"*/;
+    reg [$clog2(RGMII_CNT)-1:0] rgmii_cnt;
 
     localparam UNINITED     = 4'b0000;
     localparam ARP_REQ      = 4'b0001;

@@ -10,7 +10,7 @@ module line_swap_buffer #(
     input         rclk     ,
     output        aquire     /*synthesis PAP_MARK_DEBUG="true"*/,
     input         read_en    /*synthesis PAP_MARK_DEBUG="true"*/,
-    output [15:0] cam_data   /*synthesis PAP_MARK_DEBUG="true"*/,
+    output [15:0] cam_data ,
     output [10:0] cam_row  ,
     output [ 4:0] cam_id   ,
 
@@ -57,7 +57,7 @@ module line_swap_buffer #(
         .busy    (cam2_busy  )
     );
 
-    reg cam_no;
+    reg cam_no /*synthesis PAP_MARK_DEBUG="true"*/;
     assign cam_id   = cam_no==0 ? 5'b10000 : 5'b01000;
     assign cam1_re  = cam_no==0 ? read_en : 'b0;
     assign cam2_re  = cam_no==1 ? read_en : 'b0;

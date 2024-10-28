@@ -3,25 +3,25 @@ module line_buffer #(
     parameter V_ACT = 720
 ) (
     input         rstn    ,
-    input         trig      /*synthesis PAP_MARK_DEBUG="true"*/,
+    input         trig    ,
     input  [48:0] cam_pack,
 
     input         rclk    ,
     output        aquire    /*synthesis PAP_MARK_DEBUG="true"*/,
     input         read_en   /*synthesis PAP_MARK_DEBUG="true"*/,
-    output [15:0] cam_data  /*synthesis PAP_MARK_DEBUG="true"*/,
+    output [15:0] cam_data,
     output [10:0] cam_row ,
     output        busy    ,
 
     output        error
 );
 
-    wire       cam_clk   /*synthesis PAP_MARK_DEBUG="true"*/;
-    wire       cam_vsync /*synthesis PAP_MARK_DEBUG="true"*/;
-    wire       cam_de    /*synthesis PAP_MARK_DEBUG="true"*/;
-    wire [7:0] cam_r;
-    wire [7:0] cam_g;
-    wire [7:0] cam_b;
+    wire       cam_clk  ;
+    wire       cam_vsync;
+    wire       cam_de   ;
+    wire [7:0] cam_r    ;
+    wire [7:0] cam_g    ;
+    wire [7:0] cam_b    ;
     hdmi_unpack u_cam_unpack (
         .pack (cam_pack ),
         .clk  (cam_clk  ),
@@ -32,7 +32,7 @@ module line_buffer #(
         .b    (cam_b    )
     );
 
-    wire [15:0] cam_data_16 /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire [15:0] cam_data_16;
     assign cam_data_16 = {cam_r[7:3], cam_g[7:2], cam_b[7:3]};
 
     localparam IDLE       = 2'b00;
@@ -74,8 +74,8 @@ module line_buffer #(
     localparam X_PACK = H_ACT; // 1280
     localparam Y_PACK = V_ACT; // 720
 
-    reg [$clog2(X_PACK)-1:0] x; /*synthesis PAP_MARK_DEBUG="true"*/ // [10:0]
-    reg [$clog2(Y_PACK)-1:0] y; /*synthesis PAP_MARK_DEBUG="true"*/ // [10:0]
+    reg [$clog2(X_PACK)-1:0] x; // [10:0]
+    reg [$clog2(Y_PACK)-1:0] y; // [10:0]
     assign cam_row = y;
 
     wire x_end, y_end;

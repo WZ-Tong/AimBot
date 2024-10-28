@@ -11,9 +11,9 @@ module AimBot (
 
     inout        cam1_scl     ,
     inout        cam1_sda     ,
-    input        cam1_vsync     /*synthesis PAP_MARK_DEBUG="true"*/,
-    input        cam1_href      /*synthesis PAP_MARK_DEBUG="true"*/,
-    input        cam1_pclk      /*synthesis PAP_MARK_DEBUG="true"*/,
+    input        cam1_vsync   ,
+    input        cam1_href    ,
+    input        cam1_pclk    ,
     input  [7:0] cam1_data    ,
     output       cam1_rstn    ,
 
@@ -216,7 +216,7 @@ module AimBot (
     );
 
     wire rgmii_clk /*synthesis PAP_MARK_DEBUG="true"*/;
-    wire udp_tx_re   /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire udp_tx_re;
 
     wire ub_trig;
     trig_gen #(.TICK(1000)) u_trig_gen (
