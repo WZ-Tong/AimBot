@@ -69,8 +69,9 @@ module line_swap_buffer #(
     localparam IDLE      = 3'b000;
     localparam TRIG_CAM1 = 3'b001;
     localparam WAIT_CAM1 = 3'b010;
-    localparam TRIG_CAM2 = 3'b011;
-    localparam WAIT_CAM2 = 3'b100;
+    localparam GAP       = 3'b011;
+    localparam TRIG_CAM2 = 3'b100;
+    localparam WAIT_CAM2 = 3'b101;
 
     reg [2:0] state /*synthesis PAP_MARK_DEBUG="true"*/;
 
@@ -94,35 +95,38 @@ module line_swap_buffer #(
                 IDLE : begin
                     cam_no <= #1 'b0;
                     if (trig_d) begin
-                        state     <= #1 TRIG_CAM1;
-                        cam1_trig <= #1 'b1;
+                        state <= #1 TRIG_CAM1;
                     end
                 end
                 TRIG_CAM1 : begin
-                    cam_no <= #1 'b0;
                     if (cam1_busy) begin
                         cam1_trig <= #1 'b0;
                         state     <= #1 WAIT_CAM1;
+                    end else begin
+                        cam1_trig <= #1 'b1;
                     end
                 end
                 WAIT_CAM1 : begin
                     if (~cam1_busy) begin
-                        cam_no    <= #1 'b1;
-                        state     <= #1 TRIG_CAM2;
-                        cam2_trig <= #1 'b1;
+                        state <= #1 GAP;
+                    end
+                end
+                GAP : begin
+                    cam_no <= #1 'b1;
+                    if (~cam1_busy && ~cam2_busy) begin
+                        state <= #1 TRIG_CAM2;
                     end
                 end
                 TRIG_CAM2 : begin
-                    cam_no <= #1 'b1;
-                    state  <= #1 WAIT_CAM2;
+                    state <= #1 WAIT_CAM2;
                     if (cam2_busy) begin
                         cam2_trig <= #1 'b0;
                         state     <= #1 WAIT_CAM2;
+                    end else begin
+                        cam2_trig <= #1 'b1;
                     end
                 end
                 WAIT_CAM2 : begin
-                    cam_no    <= #1 'b1;
-                    cam2_trig <= #1 'b0;
                     if (~cam2_busy) begin
                         state <= #1 IDLE;
                     end
