@@ -46,16 +46,8 @@ define_attribute {p:line_err} {PAP_IO_DRIVE} {8}
 define_attribute {p:line_err} {PAP_IO_NONE} {TRUE}
 define_attribute {p:line_err} {PAP_IO_SLEW} {SLOW}
 
-define_attribute {p:udp_rx_err} {PAP_IO_DIRECTION} {OUTPUT}
-define_attribute {p:udp_rx_err} {PAP_IO_LOC} {F7}
-define_attribute {p:udp_rx_err} {PAP_IO_VCCIO} {3.3}
-define_attribute {p:udp_rx_err} {PAP_IO_STANDARD} {LVCMOS33}
-define_attribute {p:udp_rx_err} {PAP_IO_DRIVE} {8}
-define_attribute {p:udp_rx_err} {PAP_IO_NONE} {TRUE}
-define_attribute {p:udp_rx_err} {PAP_IO_SLEW} {SLOW}
-
 define_attribute {p:udp_cap_err} {PAP_IO_DIRECTION} {OUTPUT}
-define_attribute {p:udp_cap_err} {PAP_IO_LOC} {F8}
+define_attribute {p:udp_cap_err} {PAP_IO_LOC} {F7}
 define_attribute {p:udp_cap_err} {PAP_IO_VCCIO} {3.3}
 define_attribute {p:udp_cap_err} {PAP_IO_STANDARD} {LVCMOS33}
 define_attribute {p:udp_cap_err} {PAP_IO_DRIVE} {8}

@@ -52,7 +52,6 @@ module AimBot (
     output       cam2_tick    ,
     output       rgmii_conn   ,
     output       line_err     ,
-    output       udp_rx_err   ,
     output       udp_cap_err
 );
 
@@ -270,7 +269,7 @@ module AimBot (
         .rx_valid    (udp_rx_valid   ),
         .rx_data     (udp_rx_data    ),
         .rx_data_len (udp_rx_data_len),
-        .rx_error    (udp_rx_error   ),
+        .rx_error    (/*unused*/     ),
         // Hardware
         .connected   (rgmii_conn     ),
         .rgmii_rxc   (rgmii1_rxc     ),
@@ -293,12 +292,6 @@ module AimBot (
         .i_data(udp_rx_data  ),
         .error (udp_cap_error),
         .o_data(udp_data     )
-    );
-
-    rst_gen #(.TICK(5_000_000)) u_udp_rx_err_gen (
-        .clk  (rgmii_clk   ),
-        .i_rst(udp_rx_error),
-        .o_rst(udp_rx_err  )
     );
 
     rst_gen #(.TICK(5_000_000)) u_udp_cap_err_gen (
