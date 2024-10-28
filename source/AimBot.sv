@@ -229,23 +229,22 @@ module AimBot (
     wire        udp_trig;
     wire [15:0] ub_data ;
     wire [10:0] ub_row  ;
-    line_buffer #(.H_ACT(H_ACT), .V_ACT(V_ACT)) u_udp_buffer_1 (
-        .rstn    (rstn     ),
-        .cam_pack(hdmi_cam1),
-        .trig    (ub_trig  ),
-        .aquire  (udp_trig ),
-        .rclk    (rgmii_clk),
-        .read_en (udp_tx_re),
-        .cam_data(ub_data  ),
-        .cam_row (ub_row   ),
-        .error   (line_err )
+
+
+    wire [4:0] ub_id;
+    line_swap_buffer #(.H_ACT(H_ACT), .V_ACT(V_ACT)) u_udp_buffer (
+        .rstn     (rstn     ),
+        .cam1_pack(hdmi_cam1),
+        .cam2_pack(hdmi_cam2),
+        .trig     (ub_trig  ),
+        .aquire   (udp_trig ),
+        .rclk     (rgmii_clk),
+        .read_en  (udp_tx_re),
+        .cam_data (ub_data  ),
+        .cam_row  (ub_row   ),
+        .cam_id   (ub_id    ),
+        .error    (line_err )
     );
-
-    wire ub_id_1;
-    assign ub_id_1 = 1'b1;
-
-    wire [4:0] ub_id_5;
-    assign ub_id_5 = ub_id_1 ? 5'b10_000 : 5'b01_000;
 
     wire        udp_rx_valid   ;
     wire [ 7:0] udp_rx_data    ;
@@ -259,27 +258,27 @@ module AimBot (
         .DEST_IP   (32'hC0_A8_02_64      ),
         .DEST_PORT (16'h1F90             )
     ) u_udp_packet_1 (
-        .rgmii_clk   (rgmii_clk        ),
-        .arp_rstn    (rstn             ),
-        .trig        (udp_trig         ),
-        .index       ({ub_id_5, ub_row}),
+        .rgmii_clk   (rgmii_clk      ),
+        .arp_rstn    (rstn           ),
+        .trig        (udp_trig       ),
+        .index       ({ub_id, ub_row}),
         // TX
-        .tx_read_en  (udp_tx_re        ),
-        .tx_data     (ub_data          ),
-        .tx_data_len (16'd1280         ),
+        .tx_read_en  (udp_tx_re      ),
+        .tx_data     (ub_data        ),
+        .tx_data_len (16'd1280       ),
         // RX
-        .rx_valid    (udp_rx_valid     ),
-        .rx_data     (udp_rx_data      ),
-        .rx_data_len (udp_rx_data_len  ),
-        .rx_error    (udp_rx_err       ),
+        .rx_valid    (udp_rx_valid   ),
+        .rx_data     (udp_rx_data    ),
+        .rx_data_len (udp_rx_data_len),
+        .rx_error    (udp_rx_err     ),
         // Hardware
-        .connected   (rgmii_conn       ),
-        .rgmii_rxc   (rgmii1_rxc       ),
-        .rgmii_rx_ctl(rgmii1_rx_ctl    ),
-        .rgmii_rxd   (rgmii1_rxd       ),
-        .rgmii_txc   (rgmii1_txc       ),
-        .rgmii_tx_ctl(rgmii1_tx_ctl    ),
-        .rgmii_txd   (rgmii1_txd       )
+        .connected   (rgmii_conn     ),
+        .rgmii_rxc   (rgmii1_rxc     ),
+        .rgmii_rx_ctl(rgmii1_rx_ctl  ),
+        .rgmii_rxd   (rgmii1_rxd     ),
+        .rgmii_txc   (rgmii1_txc     ),
+        .rgmii_tx_ctl(rgmii1_tx_ctl  ),
+        .rgmii_txd   (rgmii1_txd     )
     );
 
     localparam UDP_READ_CAPACITY = 1;

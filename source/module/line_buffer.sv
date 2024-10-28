@@ -11,6 +11,7 @@ module line_buffer #(
     input         read_en   /*synthesis PAP_MARK_DEBUG="true"*/,
     output [15:0] cam_data  /*synthesis PAP_MARK_DEBUG="true"*/,
     output [10:0] cam_row ,
+    output        busy    ,
 
     output        error
 );
@@ -34,15 +35,16 @@ module line_buffer #(
     wire [15:0] cam_data_16 /*synthesis PAP_MARK_DEBUG="true"*/;
     assign cam_data_16 = {cam_r[7:3], cam_g[7:2], cam_b[7:3]};
 
-    wire cam_re;
-    assign cam_re = cam_de&&state!=IDLE&&state!=WAIT_VSYNC;
-
     localparam IDLE       = 2'b00;
     localparam WAIT_VSYNC = 2'b01;
     localparam WAIT_CAM   = 2'b10;
     localparam READ_CAM   = 2'b11;
 
     reg [1:0] state /*synthesis PAP_MARK_DEBUG="true"*/;
+
+    wire cam_re;
+    assign cam_re = cam_de&&state!=IDLE&&state!=WAIT_VSYNC;
+    assign busy   = state!=IDLE;
 
     wire cam_ready, cam_readyn, cam_full;
     rst_gen #(.TICK(100_000)) u_cam_err_gen (
