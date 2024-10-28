@@ -52,7 +52,8 @@ module AimBot (
     output       cam2_tick    ,
     output       rgmii_conn   ,
     output       line_err     ,
-    output       udp_err
+    output       udp_rx_err   ,
+    output       udp_cap_err
 );
 
     localparam H_ACT = 1280;
@@ -66,13 +67,6 @@ module AimBot (
     clk_div #(.DIV(2)) u_clk25_gen (
         .i_clk(clk  ),
         .o_clk(clk25)
-    );
-
-    wire clk250 /*synthesis PAP_MARK_DEBUG="true"*/;
-    debug_pll u_clk250_gen (
-        .clkin1  (clk       ),
-        .pll_lock(/*unused*/),
-        .clkout0 (clk250    )
     );
 
     // HDMI configure
@@ -257,8 +251,6 @@ module AimBot (
     wire        udp_rx_valid   ;
     wire [ 7:0] udp_rx_data    ;
     wire [15:0] udp_rx_data_len;
-    wire        udp_rx_err     ;
-
     udp_packet #(
         .LOCAL_MAC (48'h01_02_03_04_05_06),
         .LOCAL_IP  (32'hC0_A8_02_65      ),
@@ -278,7 +270,7 @@ module AimBot (
         .rx_valid    (udp_rx_valid   ),
         .rx_data     (udp_rx_data    ),
         .rx_data_len (udp_rx_data_len),
-        .rx_error    (udp_rx_err     ),
+        .rx_error    (udp_rx_error   ),
         // Hardware
         .connected   (rgmii_conn     ),
         .rgmii_rxc   (rgmii1_rxc     ),
@@ -291,22 +283,28 @@ module AimBot (
 
     localparam UDP_READ_CAPACITY = 16;
 
-    wire [UDP_READ_CAPACITY*8-1:0] udp_data;
+    wire [UDP_READ_CAPACITY*8-1:0] udp_data /*synthesis PAP_MARK_DEBUG="true"*/;
 
-    wire udp_cap_err;
+    wire udp_cap_error;
     udp_reader #(.CAPACITY(UDP_READ_CAPACITY)) u_udp_reader (
-        .clk    (rgmii_clk   ),
-        .rstn   (rstn        ),
-        .valid  (udp_rx_valid),
-        .i_data (udp_rx_data ),
-        .cap_err(udp_cap_err ),
-        .o_data (udp_data    )
+        .clk   (rgmii_clk    ),
+        .rstn  (rstn         ),
+        .valid (udp_rx_valid ),
+        .i_data(udp_rx_data  ),
+        .error (udp_cap_error),
+        .o_data(udp_data     )
     );
 
-    rst_gen #(.TICK(125_000_000)) u_rx_err_gen (
-        .clk  (rgmii_clk              ),
-        .i_rst(udp_rx_err||udp_cap_err),
-        .o_rst(udp_err                )
+    rst_gen #(.TICK(5_000_000)) u_udp_rx_err_gen (
+        .clk  (rgmii_clk   ),
+        .i_rst(udp_rx_error),
+        .o_rst(udp_rx_err  )
+    );
+
+    rst_gen #(.TICK(5_000_000)) u_udp_cap_err_gen (
+        .clk  (rgmii_clk    ),
+        .i_rst(udp_cap_error),
+        .o_rst(udp_cap_err  )
     );
 
 endmodule : AimBot

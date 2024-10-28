@@ -1,22 +1,22 @@
 module udp_reader #(parameter CAPACITY = 1) (
-    input                       clk    ,
-    input                       rstn   ,
+    input                       clk   ,
+    input                       rstn  ,
 
-    input                       valid  ,
-    input      [           7:0] i_data ,
+    input                       valid ,
+    input      [           7:0] i_data,
 
-    output     [CAPACITY*8-1:0] o_data ,
-    output reg                  cap_err
+    output     [CAPACITY*8-1:0] o_data,
+    output reg                  error
 );
 
-    reg [$clog2(CAPACITY)-1:0] wptr;
-    reg [7:0] mem [CAPACITY];
+    reg [$clog2(CAPACITY)-1:0] wptr          ;
+    reg [                 7:0] mem [CAPACITY];
 
     integer i;
     always_ff @(posedge clk or negedge rstn) begin
         if(~rstn) begin
-            cap_err <= #1 'b0;
-            wptr    <= #1 'b0;
+            error <= #1 'b0;
+            wptr  <= #1 'b0;
             for (i = 0; i < CAPACITY; i=i+1) begin
                 mem[i] <= #1 'b0;
             end
@@ -25,11 +25,11 @@ module udp_reader #(parameter CAPACITY = 1) (
                 mem[wptr] <= #1 i_data;
                 wptr      <= #1 wptr + 1'b1;
             end else begin
-                cap_err <= #1 'b1;
+                error <= #1 'b1;
             end
         end else begin
-            cap_err <= #1 'b0;
-            wptr    <= #1 'b0;
+            error <= #1 'b0;
+            wptr  <= #1 'b0;
         end
     end
 
