@@ -29,7 +29,7 @@ module line_swap_buffer #(
         .cam_pack(cam1_pack  ),
         .trig    (cam1_trig  ),
         .aquire  (cam1_aquire),
-        .rclk    (rgmii_clk  ),
+        .rclk    (rclk       ),
         .read_en (cam1_re    ),
         .cam_data(cam1_data  ),
         .cam_row (cam1_row   ),
@@ -49,7 +49,7 @@ module line_swap_buffer #(
         .cam_pack(cam2_pack  ),
         .trig    (cam2_trig  ),
         .aquire  (cam2_aquire),
-        .rclk    (rgmii_clk  ),
+        .rclk    (rclk       ),
         .read_en (cam2_re    ),
         .cam_data(cam2_data  ),
         .cam_row (cam2_row   ),
@@ -66,24 +66,24 @@ module line_swap_buffer #(
     assign cam_row  = cam_no==0 ? cam1_row : cam2_row;
     assign error    = cam1_err || cam2_err;
 
-    reg trig_d;
-    always_ff @(posedge rclk or posedge trig) begin
-        if(trig) begin
-            trig_d <= #1 'b1;
-        end else begin
-            if (trig_d==1) begin
-                trig_d <= #1 'b0;
-            end
-        end
-    end
-
     localparam IDLE      = 3'b000;
     localparam TRIG_CAM1 = 3'b001;
     localparam WAIT_CAM1 = 3'b010;
     localparam TRIG_CAM2 = 3'b011;
     localparam WAIT_CAM2 = 3'b100;
 
-    reg [2:0] state;
+    reg [2:0] state /*synthesis PAP_MARK_DEBUG="true"*/;
+
+    reg trig_d /*synthesis PAP_MARK_DEBUG="true"*/;
+    always_ff @(posedge rclk or posedge trig) begin
+        if(trig) begin
+            trig_d <= #1 'b1;
+        end else begin
+            if (trig_d && state!=IDLE) begin
+                trig_d <= #1 'b0;
+            end
+        end
+    end
 
     always_ff @(posedge rclk or negedge rstn) begin
         if(~rstn) begin
@@ -100,10 +100,12 @@ module line_swap_buffer #(
                 end
                 TRIG_CAM1 : begin
                     cam_no <= #1 'b0;
-                    state  <= #1 WAIT_CAM1;
+                    if (cam1_busy) begin
+                        cam1_trig <= #1 'b0;
+                        state     <= #1 WAIT_CAM1;
+                    end
                 end
                 WAIT_CAM1 : begin
-                    cam1_trig <= #1 'b0;
                     if (~cam1_busy) begin
                         cam_no    <= #1 'b1;
                         state     <= #1 TRIG_CAM2;
@@ -113,6 +115,10 @@ module line_swap_buffer #(
                 TRIG_CAM2 : begin
                     cam_no <= #1 'b1;
                     state  <= #1 WAIT_CAM2;
+                    if (cam2_busy) begin
+                        cam2_trig <= #1 'b0;
+                        state     <= #1 WAIT_CAM2;
+                    end
                 end
                 WAIT_CAM2 : begin
                     cam_no    <= #1 'b1;
