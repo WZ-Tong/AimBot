@@ -6,12 +6,12 @@ module udp_packet #(
     parameter DEST_IP    = 32'hC0_A8_01_69      , //192.168.1.105
     parameter DEST_PORT  = 16'h8080
 ) (
-    output            rgmii_clk     /*synthesis PAP_MARK_DEBUG="true"*/,
+    output            rgmii_clk   ,
     input             arp_rstn    ,
     input             trig          /*synthesis syn_keep=1*/,
     input      [15:0] index       ,
     // TX
-    output reg        tx_read_en    /*synthesis PAP_MARK_DEBUG="true"*/,
+    output reg        tx_read_en  ,
     input      [15:0] tx_data     ,
     input      [15:0] tx_data_len ,
     // RX
@@ -53,16 +53,16 @@ module udp_packet #(
 
     reg [3:0] state /*synthesis PAP_MARK_DEBUG="true"*/;
 
-    reg         app_data_in_valid /*synthesis PAP_MARK_DEBUG="true"*/;
-    reg  [ 7:0] app_data_in       /*synthesis PAP_MARK_DEBUG="true"*/;
-    reg         app_data_request  /*synthesis PAP_MARK_DEBUG="true"*/;
+    reg       app_data_in_valid;
+    reg [7:0] app_data_in      ;
+    reg       app_data_request ;
 
-    reg  arp_req   /*synthesis PAP_MARK_DEBUG="true"*/;
-    wire arp_found /*synthesis PAP_MARK_DEBUG="true"*/;
+    reg  arp_req  ;
+    wire arp_found;
 
-    wire mac_send_end  /*synthesis PAP_MARK_DEBUG="true"*/;
-    wire mac_not_exist /*synthesis PAP_MARK_DEBUG="true"*/;
-    wire udp_send_ack  /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire mac_send_end ;
+    wire mac_not_exist;
+    wire udp_send_ack ;
 
     wire [15:0] app_data_length;
     assign app_data_length = tx_data_len + 2; // Write Index
@@ -183,7 +183,7 @@ module udp_packet #(
                     end else begin
                         tx_read_en        <= #1 'b1;
                         app_data_in_valid <= #1 1'b1;
-                        app_data_in       <= #1 tx_data;
+                        app_data_in       <= #1 tx_data[7:0];
                         rgmii_cnt         <= #1 rgmii_cnt + 1'b1;
                         state             <= #1 WRITE_DATA_1;
                     end
