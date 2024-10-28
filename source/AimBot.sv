@@ -57,7 +57,7 @@ module AimBot #(
     output       cam2_tick    ,
     output       rgmii_conn   ,
     output       line_err     ,
-    output       udp_cap_err
+    output       udp_fill
 );
 
     wire clk10, clk25;
@@ -294,20 +294,20 @@ module AimBot #(
 
     wire [UDP_READ_CAPACITY*8-1:0] udp_data /*synthesis PAP_MARK_DEBUG="true"*/;
 
-    wire udp_cap_error;
+    wire udp_buf_filled;
     udp_reader #(.CAPACITY(UDP_READ_CAPACITY)) u_udp_reader (
-        .clk   (rgmii_clk    ),
-        .rstn  (rstn         ),
-        .valid (udp_rx_valid ),
-        .i_data(udp_rx_data  ),
-        .error (udp_cap_error),
-        .o_data(udp_data     )
+        .clk   (rgmii_clk     ),
+        .rstn  (rstn          ),
+        .valid (udp_rx_valid  ),
+        .i_data(udp_rx_data   ),
+        .filled(udp_buf_filled),
+        .o_data(udp_data      )
     );
 
-    rst_gen #(.TICK(125_000_000)) u_udp_cap_err_gen (
-        .clk  (rgmii_clk    ),
-        .i_rst(udp_cap_error),
-        .o_rst(udp_cap_err  )
+    rst_gen #(.TICK(125_000_000)) u_udp_fill_gen (
+        .clk  (rgmii_clk     ),
+        .i_rst(udp_buf_filled),
+        .o_rst(udp_fill      )
     );
 
     if (H_ACT==1280 && V_ACT==720) begin : gen_draw_box_720
