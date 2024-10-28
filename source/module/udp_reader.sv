@@ -21,7 +21,7 @@ module udp_reader #(parameter CAPACITY = 1) (
         end else if (valid) begin
             if (wptr!=CAPACITY-1) begin
                 for (i = 0; i < 8; i=i+1) begin
-                    o_data[wptr*8+i] <= #1 i_data[i];
+                    o_data[(CAPACITY-wptr-1)*8+i] <= #1 i_data[i];
                 end
                 wptr <= #1 wptr + 1'b1;
             end else begin
