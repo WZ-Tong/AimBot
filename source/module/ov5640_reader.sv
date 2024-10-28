@@ -21,7 +21,7 @@ module ov5640_reader (
     wire cfg_clk;
     assign cfg_clk = clk25;
 
-    localparam CFG_RSTN_HOLD = 25_000_000;
+    localparam CFG_RSTN_HOLD = 1_000_000;
 
     rstn_gen #(.TICK(CFG_RSTN_HOLD)) cam_cfg_rstn_gen (
         .clk   (cfg_clk ),
