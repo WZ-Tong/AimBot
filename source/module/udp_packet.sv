@@ -12,7 +12,7 @@ module udp_packet #(
     input      [15:0] index       ,
     // TX
     output reg        tx_read_en    /*synthesis PAP_MARK_DEBUG="true"*/,
-    input      [ 7:0] tx_data     ,
+    input      [15:0] tx_data     ,
     input      [15:0] tx_data_len ,
     // RX
     output            rx_valid    ,
@@ -48,7 +48,8 @@ module udp_packet #(
     localparam GEN_REQ      = 4'b0110;
     localparam WRITE_IDX1   = 4'b0111;
     localparam WRITE_IDX2   = 4'b1000;
-    localparam WRITE_DATA   = 4'b1001;
+    localparam WRITE_DATA_1 = 4'b1001;
+    localparam WRITE_DATA_2 = 4'b1010;
 
     reg [3:0] state /*synthesis PAP_MARK_DEBUG="true"*/;
 
@@ -131,7 +132,7 @@ module udp_packet #(
                     app_data_request  <= #1 'b0;
                     tx_read_en        <= #1 'b0;
                     if (trig) begin
-                        state   <= #1 GEN_REQ;
+                        state <= #1 GEN_REQ;
                     end
                 end
                 GEN_REQ : begin
@@ -153,24 +154,38 @@ module udp_packet #(
                 WRITE_IDX2 : begin
                     app_data_in_valid <= #1 'b1;
                     app_data_in       <= #1 index[7:0];
-                    state             <= #1 WRITE_DATA;
                     // Begin read input
                     if (tx_data_len!=0) begin
                         tx_read_en <= #1 'b1;
                         rgmii_cnt  <= #1 'b0;
+                        state      <= #1 WRITE_DATA_1;
                     end else begin
                         state <= #1 IDLE;
                     end
                 end
-                WRITE_DATA : begin
+                WRITE_DATA_1 : begin
+                    tx_read_en <= #1 'b0;
+                    if (rgmii_cnt==tx_data_len) begin
+                        app_data_in_valid <= #1 'b0;
+                        state             <= #1 IDLE;
+                    end else begin
+                        app_data_in_valid <= #1 1'b1;
+                        app_data_in       <= #1 tx_data[15:8];
+                        rgmii_cnt         <= #1 rgmii_cnt + 1'b1;
+                        state             <= #1 WRITE_DATA_2;
+                    end
+                end
+                WRITE_DATA_2 : begin
                     if (rgmii_cnt==tx_data_len) begin
                         tx_read_en        <= #1 'b0;
                         app_data_in_valid <= #1 'b0;
                         state             <= #1 IDLE;
                     end else begin
+                        tx_read_en        <= #1 'b1;
                         app_data_in_valid <= #1 1'b1;
                         app_data_in       <= #1 tx_data;
                         rgmii_cnt         <= #1 rgmii_cnt + 1'b1;
+                        state             <= #1 WRITE_DATA_1;
                     end
                 end
                 default : begin

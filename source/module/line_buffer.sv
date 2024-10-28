@@ -9,7 +9,7 @@ module line_buffer #(
     input         rclk    ,
     output        aquire    /*synthesis PAP_MARK_DEBUG="true"*/,
     input         read_en   /*synthesis PAP_MARK_DEBUG="true"*/,
-    output [ 7:0] cam_data  /*synthesis PAP_MARK_DEBUG="true"*/,
+    output [15:0] cam_data  /*synthesis PAP_MARK_DEBUG="true"*/,
     output [10:0] cam_row ,
 
     output        error
@@ -49,7 +49,7 @@ module line_buffer #(
     );
     assign cam_ready = ~cam_readyn;
     assign aquire    = cam_ready;
-    async_fifo_16_8_1280 u_cam_buffer (
+    async_fifo_16_1280 u_cam_buffer (
         // Write
         .wr_clk      (cam_clk            ),
         .wr_rst      (cam_vsync          ),
@@ -59,15 +59,15 @@ module line_buffer #(
         .almost_full (/*unused*/         ),
         // Read
         .rd_clk      (rclk               ),
-        .rd_rst      (1'b0               ),
+        .rd_rst      (cam_vsync          ),
         .rd_en       (read_en            ),
         .rd_data     (cam_data           ),
         .rd_empty    (/*unused*/         ),
         .almost_empty(cam_readyn         )
     );
 
-    localparam X_PACK = H_ACT    ; // 1280
-    localparam Y_PACK = V_ACT * 2; // 1440
+    localparam X_PACK = H_ACT; // 1280
+    localparam Y_PACK = V_ACT; // 720
 
     reg [$clog2(X_PACK)-1:0] x; /*synthesis PAP_MARK_DEBUG="true"*/ // [10:0]
     reg [$clog2(Y_PACK)-1:0] y; /*synthesis PAP_MARK_DEBUG="true"*/ // [10:0]
@@ -99,12 +99,14 @@ module line_buffer #(
         end
     end
 
-    reg read_en_d;
+    reg read_en_d, read_en_dd;
     always_ff @(posedge rclk or negedge rstn) begin
         if(~rstn) begin
-            read_en_d <= #1 'b0;
+            read_en_d  <= #1 'b0;
+            read_en_dd <= #1 'b0;
         end else begin
-            read_en_d <= #1 read_en;
+            read_en_d  <= #1 read_en;
+            read_en_dd <= #1 read_en_d;
         end
     end
 
@@ -121,7 +123,7 @@ module line_buffer #(
                 if (read_en) begin
                     x <= #1 x_end ? 'b0 : (x + 1'b1);
                 end
-                if (read_en_d==1 && read_en==0) begin
+                if (read_en_dd==1 && read_en_d==0 && read_en==0) begin
                     y <= #1 y_end ? 'b0 : (y + 1'b1);
                 end
             end
