@@ -31,8 +31,11 @@ module line_buffer #(
         .b    (cam_b    )
     );
 
-    wire [15:0] cam_data_16;
+    wire [15:0] cam_data_16 /*synthesis PAP_MARK_DEBUG="true"*/;
     assign cam_data_16 = {cam_r[7:3], cam_g[7:2], cam_b[7:3]};
+
+    wire cam_re;
+    assign cam_re = cam_de&&state!=IDLE&&state!=WAIT_VSYNC;
 
     localparam IDLE       = 2'b00;
     localparam WAIT_VSYNC = 2'b01;
@@ -51,19 +54,19 @@ module line_buffer #(
     assign aquire    = cam_ready;
     async_fifo_16_1280 u_cam_buffer (
         // Write
-        .wr_clk      (cam_clk            ),
-        .wr_rst      (cam_vsync          ),
-        .wr_en       (cam_de&&state!=IDLE),
-        .wr_data     (cam_data_16        ),
-        .wr_full     (cam_full           ),
-        .almost_full (/*unused*/         ),
+        .wr_clk      (cam_clk    ),
+        .wr_rst      (cam_vsync  ),
+        .wr_en       (cam_re     ),
+        .wr_data     (cam_data_16),
+        .wr_full     (cam_full   ),
+        .almost_full (/*unused*/ ),
         // Read
-        .rd_clk      (rclk               ),
-        .rd_rst      (cam_vsync          ),
-        .rd_en       (read_en            ),
-        .rd_data     (cam_data           ),
-        .rd_empty    (/*unused*/         ),
-        .almost_empty(cam_readyn         )
+        .rd_clk      (rclk       ),
+        .rd_rst      (cam_vsync  ),
+        .rd_en       (read_en    ),
+        .rd_data     (cam_data   ),
+        .rd_empty    (/*unused*/ ),
+        .almost_empty(cam_readyn )
     );
 
     localparam X_PACK = H_ACT; // 1280
