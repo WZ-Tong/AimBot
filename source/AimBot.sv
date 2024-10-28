@@ -288,7 +288,9 @@ module AimBot #(
         .rgmii_txd   (rgmii1_txd     )
     );
 
-    localparam UDP_READ_CAPACITY = 6 * N_BOX;
+    localparam DRAW_BOX_DATA_BYTE = 6;
+
+    localparam UDP_READ_CAPACITY = DRAW_BOX_DATA_BYTE * N_BOX;
 
     wire [UDP_READ_CAPACITY*8-1:0] udp_data /*synthesis PAP_MARK_DEBUG="true"*/;
 
