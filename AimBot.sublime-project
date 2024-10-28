@@ -17,7 +17,6 @@
 			"-y$project_path\\source\\util\\hdmi",
 			"-y$project_path\\source\\util\\ov5640",
 			"-y$project_path\\source\\util\\ethernet",
-			"-y$project_path\\source\\util\\fifo",
 		],
 		"SublimeLinter.linters.iverilog.disable": false,
 	},
