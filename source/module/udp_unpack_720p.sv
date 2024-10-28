@@ -15,8 +15,8 @@ module udp_unpack_720p (
     wire [5:0] color;
     assign {start_x, start_y, end_x, end_y, color} = i_data;
 
-    assign r = {color[5:4], 6'b0};
-    assign g = {color[3:2], 6'b0};
-    assign b = {color[1:0], 6'b0};
+    assign r = {color[5:4], color[5:4], color[5:4], color[5:4]};
+    assign g = {color[3:2], color[3:2], color[3:2], color[3:2]};
+    assign b = {color[1:0], color[1:0], color[1:0], color[1:0]};
 
 endmodule : udp_unpack_720p
