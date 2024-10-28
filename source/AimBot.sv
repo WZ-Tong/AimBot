@@ -48,7 +48,8 @@ module AimBot (
     // Debug signals
     output       hdmi_inited  ,
     output       cam_inited   ,
-    output       frame_tick   ,
+    output       cam1_tick    ,
+    output       cam2_tick    ,
     output       rgmii_conn   ,
     output       line_err     ,
     output       udp_err
@@ -208,11 +209,18 @@ module AimBot (
         .b    (hdmi_b    )
     );
 
-    tick #(.TICK(30)) u_frame_tick (
-        .clk (hdmi_clk  ),
+    tick #(.TICK(30*2)) u_cam1_tick (
+        .clk (cam1_pclk ),
         .rstn(rstn      ),
-        .trig(hdmi_vsync),
-        .tick(frame_tick)
+        .trig(cam1_vsync),
+        .tick(cam1_tick )
+    );
+
+    tick #(.TICK(30*2)) u_cam2_tick (
+        .clk (cam2_pclk ),
+        .rstn(rstn      ),
+        .trig(cam2_vsync),
+        .tick(cam2_tick )
     );
 
     wire rgmii_clk /*synthesis PAP_MARK_DEBUG="true"*/;
