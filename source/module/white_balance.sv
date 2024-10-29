@@ -134,23 +134,32 @@ module white_balance #(
     localparam DELAY = 9;
 
     wire o_hsync, o_vsync, o_de;
-    delay #(.DELAY(DELAY), .WIDTH(3)) u_sync_de_delay (
-        .clk   (clk    ),
+    delay #(
+        .DELAY(DELAY),
+        .WIDTH(3    )
+    ) u_sync_de_delay (
+        .clk   (clk                     ),
         .i_data({i_hsync, i_vsync, i_de}),
         .o_data({o_hsync, o_vsync, o_de})
     );
 
-    wire [10:0] o_x;
-    wire [ 9:0] o_y;
-    delay #(.DELAY(DELAY), .WIDTH(11+10)) u_xy_delay (
-        .clk   (clk),
+    wire [$clog2(H_ACT)-1:0] o_x;
+    wire [$clog2(V_ACT)-1:0] o_y;
+    delay #(
+        .DELAY(DELAY                      ),
+        .WIDTH($clog2(H_ACT)+$clog2(V_ACT))
+    ) u_xy_delay (
+        .clk   (clk       ),
         .i_data({i_x, i_y}),
         .o_data({o_x, o_y})
     );
 
     // When not enable, pass orignal values
     wire [7:0] o_r, o_g, o_b;
-    delay #(.DELAY(DELAY), .WIDTH(8*3)) u_rgb_delay (
+    delay #(
+        .DELAY(DELAY),
+        .WIDTH(8*3  )
+    ) u_rgb_delay (
         .clk   (clk            ),
         .i_data({i_r, i_g, i_b}),
         .o_data({o_r, o_g, o_b})

@@ -42,8 +42,8 @@ module hdmi_display #(
     wire o_hsync;
     wire o_de   ;
 
-    wire [10:0] o_x;
-    wire [ 9:0] o_y;
+    wire [$clog2(H_ACT)-1:0] o_x;
+    wire [$clog2(V_ACT)-1:0] o_y;
     sync_vg #(
         .V_TOTAL  (V_TOTAL),
         .V_FP     (V_FP   ),

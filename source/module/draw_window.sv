@@ -115,8 +115,8 @@ module draw_window #(
 
     reg [7:0] r_r, r_g, r_b;
 
-    reg [10:0] r_x;
-    reg [ 9:0] r_y;
+    reg [$clog2(H_ACT)-1:0] r_x;
+    reg [$clog2(V_ACT)-1:0] r_y;
 
     always_ff @(posedge clk) begin
         r_hsync <= #1 hdmi_hsync;
