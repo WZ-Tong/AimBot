@@ -1,14 +1,25 @@
-module hdmi_display (
-    input         clk    ,
-    input         rstn   ,
-    input         i_vsync,
-    input         i_href ,
-    input  [15:0] i_data ,
+module hdmi_display #(
+    parameter  H_FP    = 322                         ,
+    parameter  H_BP    = 278                         ,
+    parameter  H_SYNC  = 12                          ,
+    parameter  H_ACT   = 1280                        ,
 
-    output [48:0] o_pack
+    parameter  V_FP    = 7                           ,
+    parameter  V_BP    = 11                          ,
+    parameter  V_SYNC  = 2                           , // 3784
+    parameter  V_ACT   = 720                         ,
+
+    localparam H_TOTAL = H_FP + H_BP + H_SYNC + H_ACT, // 1892
+    localparam V_TOTAL = V_FP + V_BP + V_SYNC + V_ACT  // 38560
+) (
+    input                                          clk    ,
+    input                                          rstn   ,
+    input                                          i_vsync,
+    input                                          i_href ,
+    input  [                                 15:0] i_data ,
+
+    output [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] o_pack
 );
-
-    localparam DATA_DELAY = 25;
 
     reg svg_rstn;
     reg vsync_d ;
@@ -26,20 +37,6 @@ module hdmi_display (
             end
         end
     end
-
-    localparam H_FP   = 322 ;
-    localparam H_BP   = 278 ;
-    localparam H_SYNC = 12  ;
-    localparam H_ACT  = 1280;
-
-    localparam H_TOTAL = H_FP + H_BP + H_SYNC + H_ACT; // 1892
-
-    localparam V_FP   = 7  ;
-    localparam V_BP   = 11 ;
-    localparam V_SYNC = 2  ; // 3784
-    localparam V_ACT  = 720;
-
-    localparam V_TOTAL = V_FP + V_BP + V_SYNC + V_ACT; // 38560
 
     wire o_vsync;
     wire o_hsync;
@@ -77,7 +74,10 @@ module hdmi_display (
         o_data <= #1 i_data;
     end
 
-    hdmi_pack u_disp_pack (
+    hdmi_pack #(
+        .H_ACT(H_ACT),
+        .V_ACT(V_ACT)
+    ) u_disp_pack (
         .clk  (clk                  ),
         .hsync(o_hsync              ),
         .vsync(o_vsync              ),

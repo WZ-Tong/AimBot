@@ -2,19 +2,19 @@ module line_swap_buffer #(
     parameter H_ACT = 1280,
     parameter V_ACT = 720
 ) (
-    input         rstn     ,
-    input         trig     ,
-    input  [48:0] cam1_pack,
-    input  [48:0] cam2_pack,
+    input                                          rstn     ,
+    input                                          trig     ,
+    input  [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] cam1_pack,
+    input  [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] cam2_pack,
 
-    input         rclk     ,
-    output        aquire     /*synthesis PAP_MARK_DEBUG="true"*/,
-    input         read_en    /*synthesis PAP_MARK_DEBUG="true"*/,
-    output [ 7:0] cam_data ,
-    output [10:0] cam_row  ,
-    output [ 4:0] cam_id   ,
+    input                                          rclk     ,
+    output                                         aquire     /*synthesis PAP_MARK_DEBUG="true"*/,
+    input                                          read_en    /*synthesis PAP_MARK_DEBUG="true"*/,
+    output [                                  7:0] cam_data ,
+    output [                                 10:0] cam_row  ,
+    output [                                  4:0] cam_id   ,
 
-    output        error
+    output                                         error
 );
 
     reg         cam1_trig  ;

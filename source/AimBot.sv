@@ -62,6 +62,8 @@ module AimBot #(
     output       wb_refresh
 );
 
+    localparam PACK_SIZE = 3*8+4+$clog2(H_ACT)+$clog2(V_ACT);
+
     wire clk10, clk25;
     clk_div #(.DIV(5)) u_clk10_gen (
         .i_clk(clk  ),
@@ -108,7 +110,7 @@ module AimBot #(
         .cfg_rstn(cam1_rstn    )
     );
 
-    wire [48:0] disp_pack_1;
+    wire [PACK_SIZE-1:0] disp_pack_1;
     hdmi_display u_cam1_disp (
         .clk    (cam1_pclk_565),
         .rstn   (rstn         ),
@@ -134,7 +136,7 @@ module AimBot #(
         .cfg_rstn(cam2_rstn    )
     );
 
-    wire [48:0] disp_pack_2;
+    wire [PACK_SIZE-1:0] disp_pack_2;
     hdmi_display u_cam2_disp (
         .clk    (cam2_pclk_565),
         .rstn   (rstn         ),
@@ -151,7 +153,7 @@ module AimBot #(
     wire [           N_BOX*24-1:0] dw_colors  ;
 
     wire cam1_wbr;
-    wire [48:0] hdmi_cam1;
+    wire [PACK_SIZE-1:0] hdmi_cam1;
     frame_process #(
         .V_BOX_WIDTH (2           ),
         .H_BOX_WIDTH (2           ),
@@ -176,7 +178,7 @@ module AimBot #(
     );
 
     wire cam2_wbr;
-    wire [48:0] hdmi_cam2;
+    wire [PACK_SIZE-1:0] hdmi_cam2;
     frame_process #(
         .V_BOX_WIDTH (2           ),
         .H_BOX_WIDTH (2           ),
@@ -202,8 +204,12 @@ module AimBot #(
 
     assign wb_refresh = cam1_wbr || cam2_wbr;
 
-    wire [48:0] hdmi_pack;
-    pack_switch #(.TICK(50_000_000)) u_switch_cam (
+    wire [PACK_SIZE-1:0] hdmi_pack;
+    pack_switch #(
+        .TICK (50_000_000),
+        .H_ACT(H_ACT     ),
+        .V_ACT(V_ACT     )
+    ) u_switch_cam (
         .clk     (clk      ),
         .rstn    (rstn     ),
         .key     (cam_key  ),
@@ -212,7 +218,10 @@ module AimBot #(
         .o_pack  (hdmi_pack)
     );
 
-    hdmi_unpack u_hdmi_output (
+    hdmi_unpack #(
+        .H_ACT(H_ACT),
+        .V_ACT(V_ACT)
+    ) u_hdmi_output (
         .pack (hdmi_pack ),
         .clk  (hdmi_clk  ),
         .hsync(hdmi_hsync),

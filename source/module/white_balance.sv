@@ -3,12 +3,12 @@ module white_balance #(
     parameter V_ACT     = 720   ,
     parameter INIT_HOLD = 50_000
 ) (
-    input  [48:0] i_pack ,
-    input         rstn   ,
-    input         en     ,
-    input         update ,
-    output [48:0] o_pack ,
-    output        refresh
+    input  [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] i_pack ,
+    input                                          rstn   ,
+    input                                          en     ,
+    input                                          update ,
+    output [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] o_pack ,
+    output                                         refresh
 );
 
     wire       clk;
@@ -23,7 +23,10 @@ module white_balance #(
     wire [$clog2(H_ACT)-1:0] i_x;
     wire [$clog2(V_ACT)-1:0] i_y;
 
-    hdmi_unpack u_hdmi_unpack (
+    hdmi_unpack #(
+        .H_ACT(H_ACT),
+        .V_ACT(V_ACT)
+    ) u_hdmi_unpack (
         .pack (i_pack ),
         .clk  (clk    ),
         .hsync(i_hsync),
@@ -153,7 +156,10 @@ module white_balance #(
         .o_data({o_r, o_g, o_b})
     );
 
-    hdmi_pack u_hdmi_pack (
+    hdmi_pack #(
+        .H_ACT(H_ACT),
+        .V_ACT(V_ACT)
+    ) u_hdmi_pack (
         .clk  (clk       ),
         .hsync(o_hsync   ),
         .vsync(o_vsync   ),

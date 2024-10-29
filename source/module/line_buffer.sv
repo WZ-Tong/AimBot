@@ -2,18 +2,18 @@ module line_buffer #(
     parameter H_ACT = 1280,
     parameter V_ACT = 720
 ) (
-    input         rstn    ,
-    input         trig    ,
-    input  [48:0] cam_pack,
+    input                                          rstn    ,
+    input                                          trig    ,
+    input  [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] cam_pack,
 
-    input         rclk    ,
-    output        aquire    /*synthesis PAP_MARK_DEBUG="true"*/,
-    input         read_en   /*synthesis PAP_MARK_DEBUG="true"*/,
-    output [ 7:0] cam_data,
-    output [10:0] cam_row ,
-    output        busy    ,
+    input                                          rclk    ,
+    output                                         aquire    /*synthesis PAP_MARK_DEBUG="true"*/,
+    input                                          read_en   /*synthesis PAP_MARK_DEBUG="true"*/,
+    output [                                  7:0] cam_data,
+    output [                                 10:0] cam_row ,
+    output                                         busy    ,
 
-    output        error
+    output                                         error
 );
 
     wire       cam_clk  ;
@@ -22,7 +22,10 @@ module line_buffer #(
     wire [7:0] cam_r    ;
     wire [7:0] cam_g    ;
     wire [7:0] cam_b    ;
-    hdmi_unpack u_cam_unpack (
+    hdmi_unpack #(
+        .H_ACT(H_ACT),
+        .V_ACT(V_ACT)
+    ) u_cam_unpack (
         .pack (cam_pack ),
         .clk  (cam_clk  ),
         .vsync(cam_vsync),

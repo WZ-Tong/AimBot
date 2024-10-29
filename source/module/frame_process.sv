@@ -9,23 +9,25 @@ module frame_process #(
     parameter KEY_TICK     = 500_000   ,
     parameter WB_INIT_HOLD = 50_000_000
 ) (
-    input                            clk       ,
-    input                            rstn      ,
+    input                                          clk       ,
+    input                                          rstn      ,
 
-    input                            wb_update ,
-    input                            wb_key    ,
-    input                            dw_key    ,
+    input                                          wb_update ,
+    input                                          wb_key    ,
+    input                                          dw_key    ,
 
-    input  [N_BOX*$clog2(H_ACT)-1:0] start_xs  ,
-    input  [N_BOX*$clog2(V_ACT)-1:0] start_ys  ,
-    input  [N_BOX*$clog2(H_ACT)-1:0] end_xs    ,
-    input  [N_BOX*$clog2(V_ACT)-1:0] end_ys    ,
-    input  [           N_BOX*24-1:0] colors    ,
+    input  [              N_BOX*$clog2(H_ACT)-1:0] start_xs  ,
+    input  [              N_BOX*$clog2(V_ACT)-1:0] start_ys  ,
+    input  [              N_BOX*$clog2(H_ACT)-1:0] end_xs    ,
+    input  [              N_BOX*$clog2(V_ACT)-1:0] end_ys    ,
+    input  [                         N_BOX*24-1:0] colors    ,
 
-    input  [                   48:0] i_pack    ,
-    output [                   48:0] o_pack    ,
-    output                           wb_refresh
+    input  [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] i_pack    ,
+    output [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] o_pack    ,
+    output                                         wb_refresh
 );
+
+    localparam PACK_SIZE = 3*8+4+$clog2(H_ACT)+$clog2(V_ACT);
 
     wire wb_en;
     key_to_switch #(
@@ -38,7 +40,7 @@ module frame_process #(
         .switch(wb_en )
     );
 
-    wire [48:0] wb_pack;
+    wire [PACK_SIZE-1:0] wb_pack;
     white_balance #(
         .H_ACT    (H_ACT       ),
         .V_ACT    (V_ACT       ),
@@ -63,7 +65,7 @@ module frame_process #(
         .switch(dw_en )
     );
 
-    wire [48:0] win_pack;
+    wire [PACK_SIZE-1:0] win_pack;
     draw_window #(
         .V_BOX_WIDTH(V_BOX_WIDTH),
         .H_BOX_WIDTH(H_BOX_WIDTH),
