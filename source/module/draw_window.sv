@@ -8,6 +8,7 @@ module draw_window #(
     parameter V_ACT       = 12'd720 ,
     parameter H_ACT       = 12'd1280
 ) (
+    input                            en      ,
     input  [                   48:0] i_pack  ,
     output [                   48:0] o_pack  ,
 
@@ -115,14 +116,15 @@ module draw_window #(
     reg [ 9:0] r_y;
 
     always_ff @(posedge clk) begin
-        r_r     <= #1 c_r;
-        r_g     <= #1 c_g;
-        r_b     <= #1 c_b;
         r_hsync <= #1 hdmi_hsync;
         r_vsync <= #1 hdmi_vsync;
         r_de    <= #1 hdmi_de;
         r_x     <= #1 x;
         r_y     <= #1 y;
+
+        r_r <= #1 en ? c_r : hdmi_r;
+        r_g <= #1 en ? c_g : hdmi_g;
+        r_b <= #1 en ? c_b : hdmi_b;
     end
 
     hdmi_pack u_hdmi_pack (

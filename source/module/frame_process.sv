@@ -1,47 +1,52 @@
 module frame_process #(
-    parameter N_BOX       = 1   ,
-    parameter V_BOX_WIDTH = 1   ,
-    parameter H_BOX_WIDTH = 1   ,
+    parameter N_BOX       = 1         ,
+    parameter V_BOX_WIDTH = 1         ,
+    parameter H_BOX_WIDTH = 1         ,
 
-    parameter H_ACT       = 1280,
-    parameter V_ACT       = 720
+    parameter H_ACT       = 1280      ,
+    parameter V_ACT       = 720       ,
+
+    parameter KEY_TICK    = 50_000_000
 ) (
-    input                            clk     ,
+    input                            clk      ,
 
-    input                            wb_en   ,
-    input                            wb_key  ,
-    input                            dw_key  ,
+    input                            wb_update,
+    input                            wb_key   ,
+    input                            dw_key   ,
 
-    input  [N_BOX*$clog2(H_ACT)-1:0] start_xs,
-    input  [N_BOX*$clog2(V_ACT)-1:0] start_ys,
-    input  [N_BOX*$clog2(H_ACT)-1:0] end_xs  ,
-    input  [N_BOX*$clog2(V_ACT)-1:0] end_ys  ,
-    input  [           N_BOX*24-1:0] colors  ,
+    input  [N_BOX*$clog2(H_ACT)-1:0] start_xs ,
+    input  [N_BOX*$clog2(V_ACT)-1:0] start_ys ,
+    input  [N_BOX*$clog2(H_ACT)-1:0] end_xs   ,
+    input  [N_BOX*$clog2(V_ACT)-1:0] end_ys   ,
+    input  [           N_BOX*24-1:0] colors   ,
 
-    input  [                   48:0] i_pack  ,
+    input  [                   48:0] i_pack   ,
     output [                   48:0] o_pack
 );
 
-    wire [48:0] disp_pack;
-    assign disp_pack = i_pack;
+    wire wb_en;
+    key_to_switch #(.TICK(KEY_TICK)) u_ks_wb_en (
+        .clk   (clk   ),
+        .key   (wb_key),
+        .switch(wb_en )
+    );
 
     wire [48:0] wb_pack;
     white_balance #(
         .H_ACT(1280),
         .V_ACT(720 )
     ) u_white_balance (
-        .i_pack(disp_pack),
-        .wb_en (wb_en    ),
+        .i_pack(i_pack   ),
+        .en    (wb_en    ),
+        .update(wb_update),
         .o_pack(wb_pack  )
     );
 
-    wire [48:0] wbs_pack;
-    pack_switch u_switch_white_balance (
-        .clk     (clk      ),
-        .switch  (wb_key   ),
-        .i_pack_1(wb_pack  ),
-        .i_pack_2(disp_pack),
-        .o_pack  (wbs_pack )
+    wire dw_en;
+    key_to_switch #(.TICK(KEY_TICK)) u_ks_dw_en (
+        .clk   (clk   ),
+        .key   (wb_key),
+        .switch(dw_en )
     );
 
     wire [48:0] win_pack;
@@ -50,24 +55,14 @@ module frame_process #(
         .H_BOX_WIDTH(H_BOX_WIDTH),
         .N_BOX      (N_BOX      )
     ) u_draw_window (
-        .i_pack  (wbs_pack),
-        .o_pack  (win_pack),
+        .en      (dw_en   ),
+        .i_pack  (wb_pack ),
+        .o_pack  (o_pack  ),
         .start_xs(start_xs),
         .start_ys(start_ys),
         .end_xs  (end_xs  ),
         .end_ys  (end_ys  ),
         .colors  (colors  )
     );
-
-    wire [48:0] wins_pack;
-    pack_switch u_switch_draw_window (
-        .clk     (clk      ),
-        .switch  (dw_key   ),
-        .i_pack_1(win_pack ),
-        .i_pack_2(wbs_pack ),
-        .o_pack  (wins_pack)
-    );
-
-    assign o_pack = wins_pack;
 
 endmodule : frame_process

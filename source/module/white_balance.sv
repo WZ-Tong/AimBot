@@ -3,7 +3,8 @@ module white_balance #(
     parameter V_ACT = 720
 ) (
     input  [48:0] i_pack,
-    input         wb_en ,
+    input         en    ,
+    input         update ,
     output [48:0] o_pack
 );
 
@@ -71,7 +72,7 @@ module white_balance #(
             r_current_sum <= #1 'b0;
             g_current_sum <= #1 'b0;
             b_current_sum <= #1 'b0;
-            if (wb_en) begin
+            if (update) begin
                 r_last_sum <= #1 r_current_sum;
                 g_last_sum <= #1 g_current_sum;
                 b_last_sum <= #1 b_current_sum;
@@ -115,46 +116,39 @@ module white_balance #(
     localparam DELAY = 9;
 
     wire o_hsync, o_vsync, o_de;
-    delay #(.DELAY(DELAY), .WIDTH(1)) u_hsync_delay (
+    delay #(.DELAY(DELAY), .WIDTH(3)) u_sync_de_delay (
         .clk   (clk    ),
-        .i_data(i_hsync),
-        .o_data(o_hsync)
-    );
-    delay #(.DELAY(DELAY), .WIDTH(1)) u_vsync_delay (
-        .clk   (clk    ),
-        .i_data(i_vsync),
-        .o_data(o_vsync)
-    );
-    delay #(.DELAY(DELAY), .WIDTH(1)) u_de_delay (
-        .clk   (clk ),
-        .i_data(i_de),
-        .o_data(o_de)
+        .i_data({i_hsync, i_vsync, i_de}),
+        .o_data({o_hsync, o_vsync, o_de})
     );
 
     wire [10:0] o_x;
     wire [ 9:0] o_y;
-    delay #(.DELAY(DELAY), .WIDTH(11)) u_x_delay (
+    delay #(.DELAY(DELAY), .WIDTH(11+10)) u_xy_delay (
         .clk   (clk),
-        .i_data(i_x),
-        .o_data(o_x)
+        .i_data({i_x, i_y}),
+        .o_data({o_x, o_y})
     );
-    delay #(.DELAY(DELAY), .WIDTH(10)) u_y_delay (
-        .clk   (clk),
-        .i_data(i_y),
-        .o_data(o_y)
+
+    // When not enable, pass orignal values
+    wire [7:0] o_r, o_g, o_b;
+    delay #(.DELAY(DELAY), .WIDTH(8*3)) u_rgb_delay (
+        .clk   (clk            ),
+        .i_data({i_r, i_g, i_b}),
+        .o_data({o_r, o_g, o_b})
     );
 
     hdmi_pack u_hdmi_pack (
-        .clk  (clk    ),
-        .hsync(o_hsync),
-        .vsync(o_vsync),
-        .de   (o_de   ),
-        .r    (r_r    ),
-        .g    (r_g    ),
-        .b    (r_b    ),
-        .x    (o_x    ),
-        .y    (o_y    ),
-        .pack (o_pack )
+        .clk  (clk       ),
+        .hsync(o_hsync   ),
+        .vsync(o_vsync   ),
+        .de   (o_de      ),
+        .r    (en?r_r:o_r),
+        .g    (en?r_g:o_g),
+        .b    (en?r_b:o_b),
+        .x    (o_x       ),
+        .y    (o_y       ),
+        .pack (o_pack    )
     );
 
 endmodule : white_balance
