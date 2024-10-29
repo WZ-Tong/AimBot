@@ -150,12 +150,12 @@ module AimBot #(
 
     wire [48:0] hdmi_cam1;
     frame_process #(
-        .V_BOX_WIDTH (2         ),
-        .H_BOX_WIDTH (2         ),
-        .N_BOX       (N_BOX     ),
-        .H_ACT       (H_ACT     ),
-        .V_ACT       (V_ACT     ),
-        .WB_INIT_HOLD(50_000_000)
+        .V_BOX_WIDTH (2          ),
+        .H_BOX_WIDTH (2          ),
+        .N_BOX       (N_BOX      ),
+        .H_ACT       (H_ACT      ),
+        .V_ACT       (V_ACT      ),
+        .WB_INIT_HOLD(500_000_000)
     ) u_cam1_process (
         .clk      (clk        ),
         .rstn     (rstn       ),
@@ -173,12 +173,12 @@ module AimBot #(
 
     wire [48:0] hdmi_cam2;
     frame_process #(
-        .V_BOX_WIDTH (2         ),
-        .H_BOX_WIDTH (2         ),
-        .N_BOX       (N_BOX     ),
-        .H_ACT       (H_ACT     ),
-        .V_ACT       (V_ACT     ),
-        .WB_INIT_HOLD(50_000_000)
+        .V_BOX_WIDTH (2          ),
+        .H_BOX_WIDTH (2          ),
+        .N_BOX       (N_BOX      ),
+        .H_ACT       (H_ACT      ),
+        .V_ACT       (V_ACT      ),
+        .WB_INIT_HOLD(500_000_000)
     ) u_cam2_process (
         .clk      (clk        ),
         .rstn     (rstn       ),

@@ -6,7 +6,7 @@ module frame_process #(
     parameter H_ACT        = 1280      ,
     parameter V_ACT        = 720       ,
 
-    parameter KEY_TICK     = 50_000_000,
+    parameter KEY_TICK     = 500_000   ,
     parameter WB_INIT_HOLD = 50_000_000
 ) (
     input                            clk      ,
