@@ -1,4 +1,4 @@
-module pack_switch (
+module pack_switch #(parameter TICK = 1) (
     input         clk     ,
     input         rstn    ,
     input         key     ,
@@ -9,10 +9,11 @@ module pack_switch (
 
     wire switch;
     key_to_switch #(
-        .TICK(50_000_000),
-        .INIT(1'b1      )
+        .TICK(TICK),
+        .INIT(1'b1)
     ) u_key_to_switch (
         .clk   (clk   ),
+        .rstn  (rstn  ),
         .key   (key   ),
         .switch(switch)
     );

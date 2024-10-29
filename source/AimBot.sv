@@ -203,7 +203,7 @@ module AimBot #(
     assign wb_refresh = cam1_wbr || cam2_wbr;
 
     wire [48:0] hdmi_pack;
-    pack_switch u_switch_cam (
+    pack_switch #(.TICK(50_000_000)) u_switch_cam (
         .clk     (clk      ),
         .rstn    (rstn     ),
         .key     (cam_key  ),
