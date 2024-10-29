@@ -47,13 +47,10 @@ module line_buffer #(
     assign busy   = state!=IDLE;
 
     wire cam_ready, cam_readyn, cam_full;
-    rst_gen #(.TICK(100_000)) u_cam_err_gen (
-        .clk  (cam_clk ),
-        .i_rst(cam_full),
-        .o_rst(error   )
-    );
     assign cam_ready = ~cam_readyn;
     assign aquire    = cam_ready;
+
+    wire cam_empty /*synthesis PAP_MARK_DEBUG="true"*/;
     async_fifo_16_1280 u_cam_buffer (
         // Write
         .wr_clk      (cam_clk    ),
@@ -67,8 +64,13 @@ module line_buffer #(
         .rd_rst      (cam_vsync  ),
         .rd_en       (read_en    ),
         .rd_data     (cam_data   ),
-        .rd_empty    (/*unused*/ ),
+        .rd_empty    (cam_empty  ),
         .almost_empty(cam_readyn )
+    );
+    rst_gen #(.TICK(100_000)) u_cam_err_gen (
+        .clk  (cam_clk ),
+        .i_rst(cam_full),
+        .o_rst(error   )
     );
 
     localparam X_PACK = H_ACT; // 1280
