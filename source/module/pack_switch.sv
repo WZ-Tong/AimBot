@@ -1,29 +1,18 @@
 module pack_switch (
     input         clk     ,
-    input         switch  ,
+    input         key     ,
     input  [48:0] i_pack_1,
     input  [48:0] i_pack_2,
     output [48:0] o_pack
 );
 
-    reg state = 0;
-
-    wire press  ;
-    reg  press_d;
-
-    rstn_gen #(.TICK(5_000_000)) u_rstn_gen (
+    wire switch;
+    key_to_switch #(.TICK(50_000_000)) u_key_to_switch (
         .clk   (clk   ),
-        .i_rstn(switch),
-        .o_rstn(press )
+        .key   (key   ),
+        .switch(switch)
     );
 
-    always_ff @(posedge clk) begin
-        press_d <= #1 press;
-        if (press_d==0 && press==1) begin
-            state <= #1 ~state;
-        end
-    end
-
-    assign o_pack = state ? i_pack_1 : i_pack_2;
+    assign o_pack = switch ? i_pack_1 : i_pack_2;
 
 endmodule : pack_switch

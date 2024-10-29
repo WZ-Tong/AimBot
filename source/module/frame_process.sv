@@ -6,19 +6,19 @@ module frame_process #(
     parameter H_ACT       = 1280,
     parameter V_ACT       = 720
 ) (
-    input                            clk      ,
+    input                            clk     ,
 
-    input                            wb_en    ,
-    input                            wb_switch,
-    input                            dw_switch,
+    input                            wb_en   ,
+    input                            wb_key  ,
+    input                            dw_key  ,
 
-    input  [N_BOX*$clog2(H_ACT)-1:0] start_xs ,
-    input  [N_BOX*$clog2(V_ACT)-1:0] start_ys ,
-    input  [N_BOX*$clog2(H_ACT)-1:0] end_xs   ,
-    input  [N_BOX*$clog2(V_ACT)-1:0] end_ys   ,
-    input  [           N_BOX*24-1:0] colors   ,
+    input  [N_BOX*$clog2(H_ACT)-1:0] start_xs,
+    input  [N_BOX*$clog2(V_ACT)-1:0] start_ys,
+    input  [N_BOX*$clog2(H_ACT)-1:0] end_xs  ,
+    input  [N_BOX*$clog2(V_ACT)-1:0] end_ys  ,
+    input  [           N_BOX*24-1:0] colors  ,
 
-    input  [                   48:0] i_pack   ,
+    input  [                   48:0] i_pack  ,
     output [                   48:0] o_pack
 );
 
@@ -38,7 +38,7 @@ module frame_process #(
     wire [48:0] wbs_pack;
     pack_switch u_switch_white_balance (
         .clk     (clk      ),
-        .switch  (wb_switch),
+        .switch  (wb_key   ),
         .i_pack_1(wb_pack  ),
         .i_pack_2(disp_pack),
         .o_pack  (wbs_pack )
@@ -62,7 +62,7 @@ module frame_process #(
     wire [48:0] wins_pack;
     pack_switch u_switch_draw_window (
         .clk     (clk      ),
-        .switch  (dw_switch),
+        .switch  (dw_key   ),
         .i_pack_1(win_pack ),
         .i_pack_2(wbs_pack ),
         .o_pack  (wins_pack)
