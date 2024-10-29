@@ -9,7 +9,7 @@ module line_buffer #(
     input         rclk    ,
     output        aquire    /*synthesis PAP_MARK_DEBUG="true"*/,
     input         read_en   /*synthesis PAP_MARK_DEBUG="true"*/,
-    output [15:0] cam_data,
+    output [ 7:0] cam_data,
     output [10:0] cam_row ,
     output        busy    ,
 
@@ -18,7 +18,7 @@ module line_buffer #(
 
     wire       cam_clk  ;
     wire       cam_vsync;
-    wire       cam_de   ;
+    wire       cam_de    /*synthesis PAP_MARK_DEBUG="true"*/;
     wire [7:0] cam_r    ;
     wire [7:0] cam_g    ;
     wire [7:0] cam_b    ;
@@ -35,34 +35,42 @@ module line_buffer #(
     wire [15:0] cam_data_16;
     assign cam_data_16 = {cam_r[7:3], cam_g[7:2], cam_b[7:3]};
 
-    localparam IDLE       = 2'b00;
-    localparam WAIT_VSYNC = 2'b01;
-    localparam WAIT_CAM   = 2'b10;
-    localparam READ_CAM   = 2'b11;
+    localparam IDLE         = 3'b000;
+    localparam WAIT_VSYNC   = 3'b001;
+    localparam WAIT_CAM_1   = 3'b010;
+    localparam READ_CAM_1   = 3'b011;
+    localparam WAIT_CAM_2   = 3'b100;
+    localparam READ_CAM_2   = 3'b101;
+    localparam FIFO_READOUT = 3'b110;
 
-    reg [1:0] state /*synthesis PAP_MARK_DEBUG="true"*/;
+    reg [2:0] state /*synthesis PAP_MARK_DEBUG="true"*/;
+
+    wire cam_we;
+    assign cam_we = cam_de && state!=IDLE && state!=WAIT_VSYNC;
 
     wire cam_re /*synthesis PAP_MARK_DEBUG="true"*/;
-    assign cam_re = cam_de&&state!=IDLE&&state!=WAIT_VSYNC;
-    assign busy   = state!=IDLE;
+    reg state_re /*synthesis PAP_MARK_DEBUG="true"*/;
+    assign cam_re = read_en || state_re;
+
+    assign busy = state!=IDLE;
 
     wire cam_ready, cam_readyn, cam_full;
     assign cam_ready = ~cam_readyn;
     assign aquire    = cam_ready;
 
     wire cam_empty /*synthesis PAP_MARK_DEBUG="true"*/;
-    async_fifo_16_1280 u_cam_buffer (
+    async_fifo_16_8_1280 u_cam_buffer (
         // Write
         .wr_clk      (cam_clk    ),
         .wr_rst      (cam_vsync  ),
-        .wr_en       (cam_re     ),
+        .wr_en       (cam_we     ),
         .wr_data     (cam_data_16),
         .wr_full     (cam_full   ),
         .almost_full (/*unused*/ ),
         // Read
         .rd_clk      (rclk       ),
         .rd_rst      (cam_vsync  ),
-        .rd_en       (read_en    ),
+        .rd_en       (cam_re     ),
         .rd_data     (cam_data   ),
         .rd_empty    (cam_empty  ),
         .almost_empty(cam_readyn )
@@ -76,13 +84,9 @@ module line_buffer #(
     localparam X_PACK = H_ACT    ; // 1280
     localparam Y_PACK = V_ACT * 2; // 1440
 
-    reg [$clog2(X_PACK)-1:0] x; // [10:0]
-    reg [$clog2(Y_PACK)-1:0] y; // [10:0]
+    reg [$clog2(X_PACK)-1:0] x /*synthesis PAP_MARK_DEBUG="true"*/;
+    reg [$clog2(Y_PACK)-1:0] y /*synthesis PAP_MARK_DEBUG="true"*/;
     assign cam_row = y;
-
-    wire x_end, y_end;
-    assign x_end = x>=X_PACK-1;
-    assign y_end = y>=Y_PACK-1;
 
     reg trig_r /*synthesis PAP_MARK_DEBUG="true"*/;
     always_ff @(posedge rclk or posedge trig) begin
@@ -106,70 +110,79 @@ module line_buffer #(
         end
     end
 
-    reg read_en_d, read_en_dd;
     always_ff @(posedge rclk or negedge rstn) begin
         if(~rstn) begin
-            read_en_d  <= #1 'b0;
-            read_en_dd <= #1 'b0;
-        end else begin
-            read_en_d  <= #1 read_en;
-            read_en_dd <= #1 read_en_d;
-        end
-    end
-
-    always_ff @(posedge rclk or negedge rstn) begin
-        if(~rstn) begin
-            x     <= #1 'b0;
-            y     <= #1 'b0;
-            state <= #1 IDLE;
+            x        <= #1 'b0;
+            y        <= #1 'b0;
+            state    <= #1 IDLE;
+            state_re <= #1 'b0;
         end else begin
             if (state==IDLE) begin
                 x <= #1 'b0;
                 y <= #1 'b0;
             end else begin
-                if (read_en) begin
-                    x <= #1 x_end ? 'b0 : (x + 1'b1);
-                end
-                if (read_en_dd==1 && read_en_d==0 && read_en==0) begin
-                    y <= #1 y_end ? 'b0 : (y + 1'b1);
+                if (cam_re) begin
+                    if (x!=X_PACK-1) begin
+                        x <= #1 x + 1'b1;
+                    end else begin
+                        x <= #1 'b0;
+                        if (y!=Y_PACK-1) begin
+                            y <= #1 y + 1'b1;
+                        end else begin
+                            y <= #1 'b0;
+                        end
+                    end
                 end
             end
 
-            if (cam_vsync_r && state!=WAIT_VSYNC && state!=WAIT_CAM) begin
-                state <= #1 IDLE;
-            end else begin
-                case (state)
-                    IDLE : begin
-                        if (trig_r) begin
-                            state <= #1 WAIT_VSYNC;
+            state_re <= #1 'b0;
+            case (state)
+                IDLE : begin
+                    if (trig_r) begin
+                        state <= #1 WAIT_VSYNC;
+                    end
+                end
+                WAIT_VSYNC : begin
+                    if (cam_vsync_r) begin
+                        state <= #1 WAIT_CAM_1;
+                    end
+                end
+                WAIT_CAM_1 : begin
+                    if (cam_ready) begin
+                        state <= #1 READ_CAM_1;
+                    end
+                end
+                READ_CAM_1 : begin
+                    if (x==X_PACK-1) begin
+                        state <= #1 WAIT_CAM_2;
+                    end
+                end
+                WAIT_CAM_2 : begin
+                    if (cam_ready) begin
+                        state <= #1 READ_CAM_2;
+                    end
+                end
+                READ_CAM_2 : begin
+                    if (x==X_PACK-1) begin
+                        state <= #1 FIFO_READOUT;
+                    end
+                end
+                FIFO_READOUT : begin
+                    if (cam_empty) begin
+                        state_re <= #1 'b0;
+                        if (y!=0) begin
+                            state <= #1 WAIT_CAM_1;
+                        end else begin
+                            state <= #1 IDLE;
                         end
+                    end else begin
+                        state_re <= #1 'b1;
                     end
-                    WAIT_VSYNC : begin
-                        if (cam_vsync_r) begin
-                            state <= #1 WAIT_CAM;
-                        end
-                    end
-                    WAIT_CAM : begin
-                        if (cam_ready) begin
-                            state <= #1 READ_CAM;
-                        end
-                    end
-                    READ_CAM : begin
-                        case ({x_end, y_end})
-                            2'b10 : begin
-                                state <= #1 WAIT_CAM;
-                            end
-                            2'b11 : begin
-                                state <= #1 IDLE;
-                            end
-                            default : begin end
-                        endcase
-                    end
-                    default : begin
-                        state <= #1 IDLE;
-                    end
-                endcase
-            end
+                end
+                default : begin
+                    state <= #1 IDLE;
+                end
+            endcase
         end
     end
 

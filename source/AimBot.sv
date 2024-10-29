@@ -236,9 +236,8 @@ module AimBot #(
     );
 
     wire        udp_trig;
-    wire [15:0] ub_data ;
+    wire [ 7:0] ub_data ;
     wire [10:0] ub_row  ;
-
 
     wire [4:0] ub_id;
     line_swap_buffer #(.H_ACT(H_ACT), .V_ACT(V_ACT)) u_udp_buffer (
