@@ -53,3 +53,11 @@ define_attribute {p:udp_fill} {PAP_IO_STANDARD} {LVCMOS33}
 define_attribute {p:udp_fill} {PAP_IO_DRIVE} {8}
 define_attribute {p:udp_fill} {PAP_IO_NONE} {TRUE}
 define_attribute {p:udp_fill} {PAP_IO_SLEW} {SLOW}
+
+define_attribute {p:wb_refresh} {PAP_IO_DIRECTION} {OUTPUT}
+define_attribute {p:wb_refresh} {PAP_IO_LOC} {F8}
+define_attribute {p:wb_refresh} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:wb_refresh} {PAP_IO_STANDARD} {LVCMOS33}
+define_attribute {p:wb_refresh} {PAP_IO_DRIVE} {8}
+define_attribute {p:wb_refresh} {PAP_IO_NONE} {TRUE}
+define_attribute {p:wb_refresh} {PAP_IO_SLEW} {SLOW}

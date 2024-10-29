@@ -3,11 +3,12 @@ module white_balance #(
     parameter V_ACT     = 720   ,
     parameter INIT_HOLD = 50_000
 ) (
-    input  [48:0] i_pack,
-    input         rstn  ,
-    input         en    ,
-    input         update,
-    output [48:0] o_pack
+    input  [48:0] i_pack ,
+    input         rstn   ,
+    input         en     ,
+    input         update ,
+    output [48:0] o_pack ,
+    output        refresh
 );
 
     wire       clk;
