@@ -1,14 +1,16 @@
 module frame_process #(
-    parameter N_BOX       = 1         ,
-    parameter V_BOX_WIDTH = 1         ,
-    parameter H_BOX_WIDTH = 1         ,
+    parameter N_BOX        = 1         ,
+    parameter V_BOX_WIDTH  = 1         ,
+    parameter H_BOX_WIDTH  = 1         ,
 
-    parameter H_ACT       = 1280      ,
-    parameter V_ACT       = 720       ,
+    parameter H_ACT        = 1280      ,
+    parameter V_ACT        = 720       ,
 
-    parameter KEY_TICK    = 50_000_000
+    parameter KEY_TICK     = 50_000_000,
+    parameter WB_INIT_HOLD = 50_000_000
 ) (
     input                            clk      ,
+    input                            rstn     ,
 
     input                            wb_update,
     input                            wb_key   ,
@@ -25,26 +27,36 @@ module frame_process #(
 );
 
     wire wb_en;
-    key_to_switch #(.TICK(KEY_TICK)) u_ks_wb_en (
+    key_to_switch #(
+        .TICK(KEY_TICK),
+        .INIT(1'b1    )
+    ) u_ks_wb_en (
         .clk   (clk   ),
+        .rstn  (rstn  ),
         .key   (wb_key),
         .switch(wb_en )
     );
 
     wire [48:0] wb_pack;
     white_balance #(
-        .H_ACT(1280),
-        .V_ACT(720 )
+        .H_ACT    (H_ACT       ),
+        .V_ACT    (V_ACT       ),
+        .INIT_HOLD(WB_INIT_HOLD)
     ) u_white_balance (
         .i_pack(i_pack   ),
+        .rstn  (rstn     ),
         .en    (wb_en    ),
         .update(wb_update),
         .o_pack(wb_pack  )
     );
 
     wire dw_en;
-    key_to_switch #(.TICK(KEY_TICK)) u_ks_dw_en (
+    key_to_switch #(
+        .TICK(KEY_TICK),
+        .INIT(1'b1    )
+    ) u_ks_dw_en (
         .clk   (clk   ),
+        .rstn  (rstn  ),
         .key   (wb_key),
         .switch(dw_en )
     );

@@ -1,10 +1,12 @@
 module white_balance #(
-    parameter H_ACT = 1280,
-    parameter V_ACT = 720
+    parameter H_ACT     = 1280  ,
+    parameter V_ACT     = 720   ,
+    parameter INIT_HOLD = 50_000
 ) (
     input  [48:0] i_pack,
+    input         rstn  ,
     input         en    ,
-    input         update ,
+    input         update,
     output [48:0] o_pack
 );
 
@@ -66,22 +68,34 @@ module white_balance #(
     end
 
     reg i_vsync_d;
-    always_ff @(posedge clk) begin
-        i_vsync_d <= #1 i_vsync;
-        if (i_vsync==1 && i_vsync_d==0) begin
-            r_current_sum <= #1 'b0;
-            g_current_sum <= #1 'b0;
-            b_current_sum <= #1 'b0;
-            if (update) begin
-                r_last_sum <= #1 r_current_sum;
-                g_last_sum <= #1 g_current_sum;
-                b_last_sum <= #1 b_current_sum;
-            end
+
+    reg [$clog2(INIT_HOLD)-1:0] init_cnt;
+    wire inited;
+    assign inited = init_cnt==INIT_HOLD-1;
+
+    always_ff @(posedge clk or negedge rstn) begin
+        if(~rstn) begin
+            init_cnt <= #1 'b0;
         end else begin
-            if (i_de) begin
-                r_current_sum <= #1 r_current_sum + i_r;
-                g_current_sum <= #1 g_current_sum + i_g;
-                b_current_sum <= #1 b_current_sum + i_b;
+            if (init_cnt!=INIT_HOLD-1) begin
+                init_cnt <= #1 init_cnt + 1'b1;
+            end
+            i_vsync_d <= #1 i_vsync;
+            if (i_vsync==1 && i_vsync_d==0) begin
+                r_current_sum <= #1 'b0;
+                g_current_sum <= #1 'b0;
+                b_current_sum <= #1 'b0;
+                if (update) begin
+                    r_last_sum <= #1 r_current_sum;
+                    g_last_sum <= #1 g_current_sum;
+                    b_last_sum <= #1 b_current_sum;
+                end
+            end else begin
+                if (i_de || ~inited) begin
+                    r_current_sum <= #1 r_current_sum + i_r;
+                    g_current_sum <= #1 g_current_sum + i_g;
+                    b_current_sum <= #1 b_current_sum + i_b;
+                end
             end
         end
     end

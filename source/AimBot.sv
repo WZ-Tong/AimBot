@@ -150,13 +150,15 @@ module AimBot #(
 
     wire [48:0] hdmi_cam1;
     frame_process #(
-        .V_BOX_WIDTH(2    ),
-        .H_BOX_WIDTH(2    ),
-        .N_BOX      (N_BOX),
-        .H_ACT      (H_ACT),
-        .V_ACT      (V_ACT)
+        .V_BOX_WIDTH (2         ),
+        .H_BOX_WIDTH (2         ),
+        .N_BOX       (N_BOX     ),
+        .H_ACT       (H_ACT     ),
+        .V_ACT       (V_ACT     ),
+        .WB_INIT_HOLD(50_000_000)
     ) u_cam1_process (
         .clk      (clk        ),
+        .rstn     (rstn       ),
         .wb_update(~wb_rstn   ),
         .wb_key   (wb_key     ),
         .dw_key   (dw_key     ),
@@ -171,28 +173,31 @@ module AimBot #(
 
     wire [48:0] hdmi_cam2;
     frame_process #(
-        .V_BOX_WIDTH(2    ),
-        .H_BOX_WIDTH(2    ),
-        .N_BOX      (N_BOX),
-        .H_ACT      (H_ACT),
-        .V_ACT      (V_ACT)
+        .V_BOX_WIDTH (2         ),
+        .H_BOX_WIDTH (2         ),
+        .N_BOX       (N_BOX     ),
+        .H_ACT       (H_ACT     ),
+        .V_ACT       (V_ACT     ),
+        .WB_INIT_HOLD(50_000_000)
     ) u_cam2_process (
-        .clk     (clk        ),
-        .wb_update   (~wb_rstn   ),
-        .wb_key  (wb_key     ),
-        .dw_key  (dw_key     ),
-        .i_pack  (disp_pack_2),
-        .o_pack  (hdmi_cam2  ),
-        .start_xs(dw_start_xs),
-        .start_ys(dw_start_ys),
-        .end_xs  (dw_end_xs  ),
-        .end_ys  (dw_end_ys  ),
-        .colors  (dw_colors  )
+        .clk      (clk        ),
+        .rstn     (rstn       ),
+        .wb_update(~wb_rstn   ),
+        .wb_key   (wb_key     ),
+        .dw_key   (dw_key     ),
+        .i_pack   (disp_pack_2),
+        .o_pack   (hdmi_cam2  ),
+        .start_xs (dw_start_xs),
+        .start_ys (dw_start_ys),
+        .end_xs   (dw_end_xs  ),
+        .end_ys   (dw_end_ys  ),
+        .colors   (dw_colors  )
     );
 
     wire [48:0] hdmi_pack;
     pack_switch u_switch_cam (
         .clk     (clk      ),
+        .rstn    (rstn     ),
         .key     (cam_key  ),
         .i_pack_1(hdmi_cam1),
         .i_pack_2(hdmi_cam2),
