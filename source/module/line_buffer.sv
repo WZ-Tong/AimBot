@@ -73,8 +73,8 @@ module line_buffer #(
         .o_rst(error   )
     );
 
-    localparam X_PACK = H_ACT; // 1280
-    localparam Y_PACK = V_ACT; // 720
+    localparam X_PACK = H_ACT    ; // 1280
+    localparam Y_PACK = V_ACT * 2; // 1440
 
     reg [$clog2(X_PACK)-1:0] x; // [10:0]
     reg [$clog2(Y_PACK)-1:0] y; // [10:0]
