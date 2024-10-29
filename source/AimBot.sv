@@ -1,11 +1,18 @@
 `timescale 1ns / 1ps
 
 module AimBot #(
-    parameter  N_BOX        = 1          ,
+    parameter  N_BOX        = 1                    ,
 
-    localparam H_ACT        = 1280       ,
-    localparam V_ACT        = 720        ,
-    localparam WB_INIT_HOLD = 500_000_000
+    localparam H_ACT        = 1280                 ,
+    localparam V_ACT        = 720                  ,
+    localparam WB_INIT_HOLD = 500_000_000          ,
+    localparam KEY_HOLD     = 50_000_000           ,
+
+    parameter  LOCAL_MAC    = 48'h01_02_03_04_05_06,
+    parameter  LOCAL_IP     = 32'hC0_A8_02_65      ,
+    parameter  LOCAL_PORT   = 16'h1F90             ,
+    parameter  DEST_IP      = 32'hC0_A8_02_64      ,
+    parameter  DEST_PORT    = 16'h1F90
 ) (
     input        clk          ,
     input        rstn         ,
@@ -206,9 +213,9 @@ module AimBot #(
 
     wire [PACK_SIZE-1:0] hdmi_pack;
     pack_switch #(
-        .TICK (50_000_000),
-        .H_ACT(H_ACT     ),
-        .V_ACT(V_ACT     )
+        .TICK (KEY_HOLD),
+        .H_ACT(H_ACT   ),
+        .V_ACT(V_ACT   )
     ) u_switch_cam (
         .clk     (clk      ),
         .rstn    (rstn     ),
@@ -250,7 +257,7 @@ module AimBot #(
     wire udp_tx_re;
 
     wire ub_trig;
-    trig_gen #(.TICK(1000)) u_trig_gen (
+    trig_gen #(.TICK(KEY_HOLD)) u_trig_gen (
         .clk   (rgmii_clk  ),
         .rstn  (rstn       ),
         .switch(send_switch),
@@ -280,11 +287,11 @@ module AimBot #(
     wire [ 7:0] udp_rx_data    ;
     wire [15:0] udp_rx_data_len;
     udp_packet #(
-        .LOCAL_MAC (48'h01_02_03_04_05_06),
-        .LOCAL_IP  (32'hC0_A8_02_65      ),
-        .LOCAL_PORT(16'h1F90             ),
-        .DEST_IP   (32'hC0_A8_02_64      ),
-        .DEST_PORT (16'h1F90             )
+        .LOCAL_MAC (LOCAL_MAC ),
+        .LOCAL_IP  (LOCAL_IP  ),
+        .LOCAL_PORT(LOCAL_PORT),
+        .DEST_IP   (DEST_IP   ),
+        .DEST_PORT (DEST_PORT )
     ) u_udp_packet (
         .rgmii_clk   (rgmii_clk      ),
         .arp_rstn    (rstn           ),
@@ -325,7 +332,7 @@ module AimBot #(
         .o_data(udp_data      )
     );
 
-    rst_gen #(.TICK(125_000_000)) u_udp_fill_gen (
+    rst_gen #(.TICK(KEY_HOLD)) u_udp_fill_gen (
         .clk  (rgmii_clk     ),
         .i_rst(udp_buf_filled),
         .o_rst(udp_fill      )
