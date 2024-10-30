@@ -100,8 +100,8 @@ module reg_config (
 
 	always@(reg_index) begin
 		case(reg_index)
-			0   : reg_data <=24'h310311;
-			1   : reg_data <=24'h300882;
+			20  : reg_data <=24'h310311;
+			21  : reg_data <=24'h300882;
 			102 : reg_data <=24'h300842;
 			103 : reg_data <=24'h310303;
 			104 : reg_data <=24'h3017ff;
