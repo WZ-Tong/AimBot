@@ -124,11 +124,11 @@ module cam_switch #(
 
     wire wclk, wrst, wen;
     assign wclk = minor_clk;
-    assign wrst = switch_switch ? 1'b1 : minor_vsync;
-    assign wen  = switch_switch ? 1'b0 : minor_de;
+    assign wrst = cam_id ? 1'b1 : minor_vsync;
+    assign wen  = cam_id ? 1'b0 : minor_de;
 
     wire [23:0] wdata;
-    assign wdata = switch_switch ? (~24'b0) : minor_data;
+    assign wdata = cam_id ? (~24'b0) : minor_data;
 
     wire [23:0] rdata;
     async_fifo_lite u_pack_sync (
