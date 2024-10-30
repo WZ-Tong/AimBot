@@ -1,4 +1,4 @@
-module  DDR3_50H #(
+module  DDR3_50H_32 #(
 
    parameter DFI_CLK_PERIOD       = 10000         ,
 

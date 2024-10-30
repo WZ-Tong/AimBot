@@ -51,7 +51,7 @@ module ddr3_32 (
         .o_rstn(ddr3_rstn)
     );
 
-    DDR3_50H u_ddr3_intrinsic (
+    DDR3_50H_32 u_ddr3_intrinsic (
         .ref_clk                (clk            ),
         .resetn                 (ddr3_rstn      ),
         .ddr_init_done          (inited         ),

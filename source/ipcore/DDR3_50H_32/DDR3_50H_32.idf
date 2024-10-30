@@ -6,7 +6,7 @@
         <display_name>DDR3 Interface</display_name>
         <name>Logos HMIC_S</name>
         <version>1.4</version>
-        <instance>DDR3_50H</instance>
+        <instance>DDR3_50H_32</instance>
         <family>Logos</family>
         <device>PGL50H</device>
         <package>FBG484</package>
@@ -2103,12 +2103,12 @@
             <file pathname="generate.log" format="log" description="Generate Log"/>
             <file pathname="example_design/rtl/test_ddr.v" format="verilog" description="Compiled File"/>
             <file pathname="example_design/bench/ddr3_tb/ddr_test_top_tb.v" format="verilog" description="Compiled File"/>
-            <file pathname="DDR3_50H_tmpl.v" format="verilog" description="Instantiation Template"/>
-            <file pathname="DDR3_50H_tmpl.vhdl" format="vhdl" description="Instantiation Template"/>
+            <file pathname="DDR3_50H_32_tmpl.v" format="verilog" description="Instantiation Template"/>
+            <file pathname="DDR3_50H_32_tmpl.vhdl" format="vhdl" description="Instantiation Template"/>
         </output>
         <source>
-            <file pathname="DDR3_50H.v"/>
-            <file pathname="DDR3_50H_ddrphy_top.v"/>
+            <file pathname="DDR3_50H_32.v"/>
+            <file pathname="DDR3_50H_32_ddrphy_top.v"/>
             <file pathname="rtl/ipsxb_rst_sync_v1_1.v"/>
             <file pathname="rtl/ddrphy/ipsxb_ddrphy_calib_mux_v1_3.vp"/>
             <file pathname="rtl/ddrphy/ipsxb_ddrphy_calib_top_v1_3.vp"/>
