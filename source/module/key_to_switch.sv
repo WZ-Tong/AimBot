@@ -18,7 +18,8 @@ module key_to_switch #(
 
     always_ff @(posedge clk or negedge rstn) begin
         if(~rstn) begin
-            state <= #1 INIT;
+            state   <= #1 INIT;
+            press_d <= #1 1'b1;
         end else begin
             press_d <= #1 press;
             if (press_d==0 && press==1) begin

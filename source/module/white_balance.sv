@@ -79,7 +79,14 @@ module white_balance #(
 
     always_ff @(posedge clk or negedge rstn) begin
         if(~rstn) begin
-            init_cnt <= #1 'b0;
+            init_cnt      <= #1 'b0;
+            i_vsync_d     <= #1 'b0;
+            r_current_sum <= #1 'b0;
+            g_current_sum <= #1 'b0;
+            b_current_sum <= #1 'b0;
+            r_last_sum    <= #1 'b0;
+            g_last_sum    <= #1 'b0;
+            b_last_sum    <= #1 'b0;
         end else begin
             if (init_cnt!=INIT_HOLD-1) begin
                 init_cnt <= #1 init_cnt + 1'b1;
