@@ -38,11 +38,11 @@ module async_fifo_lite
 
 localparam WR_DEPTH_WIDTH = 5 ; // @IPC int 9,20
 
-localparam WR_DATA_WIDTH = 16 ; // @IPC int 1,1152
+localparam WR_DATA_WIDTH = 24 ; // @IPC int 1,1152
 
 localparam RD_DEPTH_WIDTH = 5 ; // @IPC int 9,20
 
-localparam RD_DATA_WIDTH = 16 ; // @IPC int 1,1152
+localparam RD_DATA_WIDTH = 24 ; // @IPC int 1,1152
 
 localparam OUTPUT_REG = 0 ; // @IPC bool
 
