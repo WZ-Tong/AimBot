@@ -123,10 +123,12 @@ module cam_switch #(
     wire [23:0] minor_data;
     assign minor_data = {minor_r, minor_g, minor_b};
 
-    wire wclk, wrst, wen;
+    wire wclk, wrst, wen, rrst, ren;
     assign wclk = minor_clk;
     assign wrst = cam_id ? 1'b1 : minor_vsync;
     assign wen  = cam_id ? 1'b0 : minor_de;
+    assign rrst = cam_id ? 1'b1 : main_vsync;
+    assign ren  = cam_id ? 1'b0 : mo_de;
 
     wire [23:0] wdata;
     assign wdata = cam_id ? (~24'b0) : minor_data;
@@ -143,7 +145,7 @@ module cam_switch #(
         // Read
         .rd_clk      (main_clk  ),   // Avoid using comb logic: delay can be ignored
         .rd_rst      (main_vsync),   // Avoid using comb logic: delay can be ignored
-        .rd_en       (mo_de     ),
+        .rd_en       (ren       ),
         .rd_data     (rdata     ),
         .rd_empty    (/*unused*/),
         .almost_empty(/*unused*/)
