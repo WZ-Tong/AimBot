@@ -81,14 +81,11 @@ module AimBot #(
     output [  DDR_DM_WIDTH-1:0] mem_dm       ,
 
     // Debug signals
-    output                      hdmi_inited  ,
-    output                      cam_inited   ,
-    output                      cam1_tick    ,
-    output                      cam2_tick    ,
-    output                      rgmii_conn   ,
+    output                      io_init      ,
+    output                      net_conn     ,
+    output                      cam_tick     ,
     output                      line_err     ,
-    output                      udp_fill     ,
-    output                      wb_refresh
+    output                      udp_fill
 );
 
     aim_bot_pl #(
@@ -159,14 +156,10 @@ module AimBot #(
         .mem_dqs_n    (mem_dqs_n    ),
         .mem_dq       (mem_dq       ),
         .mem_dm       (mem_dm       ),
-        .hdmi_inited  (hdmi_inited  ),
-        .cam_inited   (cam_inited   ),
-        .cam1_tick    (cam1_tick    ),
-        .cam2_tick    (cam2_tick    ),
-        .rgmii_conn   (rgmii_conn   ),
         .line_err     (line_err     ),
         .udp_fill     (udp_fill     ),
-        .wb_refresh   (wb_refresh   )
+        .net_conn     (net_conn     ),
+        .cam_tick     (cam_tick     )
     );
 
     ddr3 #(.DATA_WIDTH(DDR_DATA_WIDTH)) u_ddr3 (

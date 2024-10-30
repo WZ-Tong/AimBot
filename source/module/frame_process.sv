@@ -9,22 +9,21 @@ module frame_process #(
     parameter KEY_TICK     = 500_000   ,
     parameter WB_INIT_HOLD = 50_000_000
 ) (
-    input                                          clk       ,
-    input                                          rstn      ,
+    input                                          clk      ,
+    input                                          rstn     ,
 
-    input                                          wb_update ,
-    input                                          wb_key    ,
-    input                                          dw_key    ,
+    input                                          wb_update,
+    input                                          wb_key   ,
+    input                                          dw_key   ,
 
-    input  [              N_BOX*$clog2(H_ACT)-1:0] start_xs  ,
-    input  [              N_BOX*$clog2(V_ACT)-1:0] start_ys  ,
-    input  [              N_BOX*$clog2(H_ACT)-1:0] end_xs    ,
-    input  [              N_BOX*$clog2(V_ACT)-1:0] end_ys    ,
-    input  [                         N_BOX*24-1:0] colors    ,
+    input  [              N_BOX*$clog2(H_ACT)-1:0] start_xs ,
+    input  [              N_BOX*$clog2(V_ACT)-1:0] start_ys ,
+    input  [              N_BOX*$clog2(H_ACT)-1:0] end_xs   ,
+    input  [              N_BOX*$clog2(V_ACT)-1:0] end_ys   ,
+    input  [                         N_BOX*24-1:0] colors   ,
 
-    input  [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] i_pack    ,
-    output [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] o_pack    ,
-    output                                         wb_refresh
+    input  [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] i_pack   ,
+    output [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] o_pack
 );
 
     localparam PACK_SIZE = 3*8+4+$clog2(H_ACT)+$clog2(V_ACT);
@@ -46,12 +45,11 @@ module frame_process #(
         .V_ACT    (V_ACT       ),
         .INIT_HOLD(WB_INIT_HOLD)
     ) u_white_balance (
-        .i_pack (i_pack    ),
-        .rstn   (rstn      ),
-        .en     (wb_en     ),
-        .update (wb_update ),
-        .o_pack (wb_pack   ),
-        .refresh(wb_refresh)
+        .i_pack(i_pack   ),
+        .rstn  (rstn     ),
+        .en    (wb_en    ),
+        .update(wb_update),
+        .o_pack(wb_pack  )
     );
 
     wire dw_en;

@@ -3,12 +3,11 @@ module white_balance #(
     parameter V_ACT     = 720   ,
     parameter INIT_HOLD = 50_000
 ) (
-    input  [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] i_pack ,
-    input                                          rstn   ,
-    input                                          en     ,
-    input                                          update ,
-    output [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] o_pack ,
-    output                                         refresh
+    input  [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] i_pack,
+    input                                          rstn  ,
+    input                                          en    ,
+    input                                          update,
+    output [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] o_pack
 );
 
     wire       clk;
@@ -57,8 +56,16 @@ module white_balance #(
     wire [23:0] r_v;
     wire [23:0] g_v;
     wire [23:0] b_v;
-    mul_15_9 u_mul_r_v (.clk(clk), .a(DFT), .b(r_v_trim), .p(r_v));
-    mul_15_9 u_mul_g_v (.clk(clk), .a(DFT), .b(g_v_trim), .p(g_v));
+    mul_15_9 u_mul_r_v (
+        .clk(clk     ),
+        .a  (DFT     ),
+        .b  (r_v_trim),
+        .p  (r_v));
+             mul_15_9 u_mul_g_v (.clk(clk),
+        .a  (DFT     ),
+        .b  (g_v_trim),
+        .p  (g_v     )
+    );
     mul_15_9 u_mul_b_v (.clk(clk), .a(DFT), .b(b_v_trim), .p(b_v));
 
     wire [25:0] s_v  ;
@@ -73,8 +80,8 @@ module white_balance #(
 
     reg i_vsync_d;
 
-    reg [$clog2(INIT_HOLD)-1:0] init_cnt;
-    wire inited;
+    reg  [$clog2(INIT_HOLD)-1:0] init_cnt;
+    wire                         inited  ;
     assign inited = init_cnt==INIT_HOLD-1;
 
     always_ff @(posedge clk or negedge rstn) begin
@@ -112,18 +119,38 @@ module white_balance #(
     end
 
     wire [15:0] r_kv, g_kv, b_kv;
-    mul_8_8 u_mul_r_kv (.clk(clk), .a(i_r), .b(k_v[22:15]), .p(r_kv));
-    mul_8_8 u_mul_g_kv (.clk(clk), .a(i_g), .b(k_v[22:15]), .p(g_kv));
+    mul_8_8 u_mul_r_kv (
+        .clk(clk       ),
+        .a  (i_r       ),
+        .b  (k_v[22:15]),
+        .p  (r_kv));
+             mul_8_8 u_mul_g_kv (.clk(clk),
+        .a  (i_g       ),
+        .b  (k_v[22:15]),
+        .p  (g_kv      )
+    );
     mul_8_8 u_mul_b_kv (.clk(clk), .a(i_b), .b(k_v[22:15]), .p(b_kv));
 
     wire [31:0] rev_r_v, rev_g_v, rev_b_v;
-    Reciprocal u_rev_r (.Average(r_v[22:15]), .Recip(rev_r_v));
-    Reciprocal u_rev_g (.Average(g_v[22:15]), .Recip(rev_g_v));
+    Reciprocal u_rev_r (
+        .Average(r_v[22:15]),
+        .Recip  (rev_r_v));
+                 Reciprocal u_rev_g (.Average(g_v[22:15]),
+        .Recip  (rev_g_v   )
+    );
     Reciprocal u_rev_b (.Average(b_v[22:15]), .Recip(rev_b_v));
 
     wire [47:0] r_new_full, g_new_full, b_new_full;
-    mul_32_16 u_mul_r (.clk(clk), .a(rev_r_v), .b(r_kv), .p(r_new_full));
-    mul_32_16 u_mul_g (.clk(clk), .a(rev_g_v), .b(g_kv), .p(g_new_full));
+    mul_32_16 u_mul_r (
+        .clk(clk       ),
+        .a  (rev_r_v   ),
+        .b  (r_kv      ),
+        .p  (r_new_full));
+             mul_32_16 u_mul_g (.clk(clk),
+        .a  (rev_g_v   ),
+        .b  (g_kv      ),
+        .p  (g_new_full)
+    );
     mul_32_16 u_mul_b (.clk(clk), .a(rev_b_v), .b(b_kv), .p(b_new_full));
 
     wire [15:0] r_new, g_new, b_new;

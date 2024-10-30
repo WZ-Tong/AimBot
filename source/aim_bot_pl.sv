@@ -81,14 +81,11 @@ module aim_bot_pl #(
     output [  DDR_DM_WIDTH-1:0] mem_dm       ,
 
     // Debug signals
-    output                      hdmi_inited  ,
-    output                      cam_inited   ,
-    output                      cam1_tick    ,
-    output                      cam2_tick    ,
-    output                      rgmii_conn   ,
+    output                      io_init      ,
+    output                      net_conn     ,
+    output                      cam_tick     ,
     output                      line_err     ,
-    output                      udp_fill     ,
-    output                      wb_refresh
+    output                      udp_fill
 );
 
     localparam PACK_SIZE = 3*8+4+$clog2(H_ACT)+$clog2(V_ACT);
@@ -104,6 +101,7 @@ module aim_bot_pl #(
     );
 
     // HDMI configure
+    wire hdmi_inited;
     hdmi_ctrl u_hdmi_ctrl (
         .clk10    (clk10      ),
         .rstn     (rstn       ),
@@ -118,10 +116,14 @@ module aim_bot_pl #(
     // OV5640 configure & read
     wire [15:0] cam1_data_565, cam2_data_565;
 
-    wire cam1_inited, cam2_inited;
     wire cam1_pclk_565, cam2_pclk_565;
     wire cam1_href_565, cam2_href_565;
+
+    wire cam_inited;
+    wire cam1_inited, cam2_inited;
     assign cam_inited = cam1_inited && cam2_inited;
+
+    assign io_init = hdmi_inited && cam_inited;
 
     ov5640_reader u_cam1_reader (
         .clk25   (clk25        ),
@@ -202,8 +204,7 @@ module aim_bot_pl #(
         .start_ys  (dw_start_ys),
         .end_xs    (dw_end_xs  ),
         .end_ys    (dw_end_ys  ),
-        .colors    (dw_colors  ),
-        .wb_refresh(wb_refresh )
+        .colors    (dw_colors  )
     );
 
     wire                 cam2_wbr ;
@@ -227,11 +228,8 @@ module aim_bot_pl #(
         .start_ys  (dw_start_ys),
         .end_xs    (dw_end_xs  ),
         .end_ys    (dw_end_ys  ),
-        .colors    (dw_colors  ),
-        .wb_refresh(cam2_wbr   )
+        .colors    (dw_colors  )
     );
-
-    assign wb_refresh = cam1_wbr || cam2_wbr;
 
     wire [PACK_SIZE-1:0] hdmi_pack;
     pack_switch #(
@@ -261,18 +259,11 @@ module aim_bot_pl #(
         .b    (hdmi_b    )
     );
 
-    tick #(.TICK(30*2)) u_cam1_tick (
-        .clk (cam1_pclk ),
-        .rstn(rstn      ),
-        .trig(cam1_vsync),
-        .tick(cam1_tick )
-    );
-
-    tick #(.TICK(30*2)) u_cam2_tick (
-        .clk (cam2_pclk ),
-        .rstn(rstn      ),
-        .trig(cam2_vsync),
-        .tick(cam2_tick )
+    tick #(.TICK(30*2)) u_cam_tick (
+        .clk (clk                  ),
+        .rstn(rstn                 ),
+        .trig(cam1_vsync^cam2_vsync),
+        .tick(cam_tick             )
     );
 
     wire rgmii_clk /*synthesis PAP_MARK_DEBUG="true"*/;
@@ -329,7 +320,7 @@ module aim_bot_pl #(
         .rx_data_len (udp_rx_data_len),
         .rx_error    (/*unused*/     ),
         // Hardware
-        .connected   (rgmii_conn     ),
+        .connected   (net_conn       ),
         .rgmii_rxc   (rgmii1_rxc     ),
         .rgmii_rx_ctl(rgmii1_rx_ctl  ),
         .rgmii_rxd   (rgmii1_rxd     ),
