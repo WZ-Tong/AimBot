@@ -32,7 +32,7 @@ module udp_reader #(parameter CAPACITY = 1) (
     end
 
     genvar j;
-    for (j = 0; j < CAPACITY; j=j+1) begin : gen_unpack
+    for (j = 0; j < CAPACITY; j=j+1) begin : g_unpack
         assign o_data[(j+1)*8-1:j*8] = mem[CAPACITY-j-1];
     end
 

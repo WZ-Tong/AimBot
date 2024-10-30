@@ -47,7 +47,7 @@ module ddr3 #(
     output [  DM_WIDTH-1:0] mem_dm
 );
 
-    if (DATA_WIDTH==16) begin : gen_ddr3_16
+    if (DATA_WIDTH==16) begin : g_ddr3_16
         ddr3_16 u_ddr3_16 (
             .clk            (clk            ),
             .inited         (inited         ),
@@ -85,7 +85,7 @@ module ddr3 #(
             .mem_dq         (mem_dq         ),
             .mem_dm         (mem_dm         )
         );
-    end else if (DATA_WIDTH==32) begin : gen_ddr3_32
+    end else if (DATA_WIDTH==32) begin : g_ddr3_32
         ddr3_32 u_ddr3_32 (
             .clk            (clk            ),
             .inited         (inited         ),

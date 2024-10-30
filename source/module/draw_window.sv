@@ -35,7 +35,7 @@ module draw_window #(
         localparam V_ACT_BITS = $clog2(V_ACT);
 
         genvar i;
-        for (i = 0; i < N_BOX; i=i+1) begin : gen_boxes
+        for (i = 0; i < N_BOX; i=i+1) begin : g_boxes
             wire [H_ACT_BITS-1:0] start_x0, start_x1, start_x2;
             assign start_x0 = start_xs[(i+1)*H_ACT_BITS-1:i*H_ACT_BITS];
             assign start_x1 = start_x0;

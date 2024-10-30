@@ -18,7 +18,7 @@ module udp_parser #(
     localparam UDP_PACK_SEG_SIZE = ($clog2(H_ACT)+$clog2(V_ACT))*2+C_DEP*3;
 
     genvar i;
-    for (i = 0; i < N_BOX; i=i+1) begin: gen_udp_unpack
+    for (i = 0; i < N_BOX; i=i+1) begin: g_udp_unpack
         wire [UDP_PACK_SEG_SIZE-1:0] packed_data;
         assign packed_data = udp_data[(i+1)*48-1:i*48];
 
