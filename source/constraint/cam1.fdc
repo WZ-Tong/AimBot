@@ -80,5 +80,3 @@ define_attribute {p:cam1_vsync} {PAP_IO_LOC} {U12}
 define_attribute {p:cam1_vsync} {PAP_IO_VCCIO} {3.3}
 define_attribute {p:cam1_vsync} {PAP_IO_STANDARD} {LVCMOS33}
 define_attribute {p:cam1_vsync} {PAP_IO_NONE} {TRUE}
-
-define_attribute {n:cam1_pclk} {PAP_CLOCK_DEDICATED_ROUTE} {FALSE}
