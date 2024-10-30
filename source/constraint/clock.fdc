@@ -23,3 +23,10 @@ set_clock_groups -name clk50 -asynchronous -group [get_clocks {clk50}]
 # set_clock_groups -name clk37_125 -asynchronous -group [get_clocks {clk37_125}]
 set_clock_groups -name cam1_pclk -asynchronous -group [get_clocks {cam1_pclk}]
 set_clock_groups -name cam2_pclk -asynchronous -group [get_clocks {cam2_pclk}]
+set_clock_groups -name cam1_pclk_565 -asynchronous -group [get_clocks {cam1_pclk_565}]
+set_clock_groups -name cam2_pclk_565 -asynchronous -group [get_clocks {cam2_pclk_565}]
+
+set_clock_uncertainty {0.200} [get_clocks {cam1_pclk}]  -setup -hold
+set_clock_uncertainty {0.200} [get_clocks {cam2_pclk}]  -setup -hold
+set_clock_uncertainty {0.200} [get_clocks {cam1_pclk_565}]  -setup -hold
+set_clock_uncertainty {0.200} [get_clocks {cam2_pclk_565}]  -setup -hold
