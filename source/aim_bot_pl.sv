@@ -68,7 +68,6 @@ module aim_bot_pl #(
     output                      rgmii1_tx_ctl  ,
     output [               3:0] rgmii1_txd     ,
 
-
     // DDR Write address
     output [              27:0] axi_awaddr     ,
     output [               3:0] axi_awlen      ,
