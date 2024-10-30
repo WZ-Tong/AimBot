@@ -77,8 +77,8 @@ module cam_switch #(
 
     wire mo_hsync, mo_vsync, mo_de;
     delay #(
-        .DELAY(DELAY),
-        .WIDTH(3    )
+        .DELAY(DELAY-1),
+        .WIDTH(3      )
     ) u_mo_sync_de_delay (
         .clk   (main_clk                         ),
         .i_data({main_hsync, main_vsync, main_de}),
