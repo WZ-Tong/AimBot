@@ -22,7 +22,18 @@ module cam_switch #(
         .switch(switch_switch)
     );
 
-    reg cam_id; // TODO: flip when output vsync, key pressed
+    reg cam_id      ;
+    reg main_vsync_d;
+    always_ff @(posedge main_clk or negedge rstn) begin
+        if(~rstn) begin
+            main_vsync_d <= #1 'b0;
+        end else begin
+            main_vsync_d <= #1 main_vsync;
+            if (main_vsync_d==1 && main_vsync==1) begin
+                cam_id <= #1 switch_switch;
+            end
+        end
+    end
 
     wire                     main_clk  ;
     wire                     main_hsync;
@@ -129,8 +140,8 @@ module cam_switch #(
         .wr_full     (/*unused*/),
         .almost_full (/*unused*/),
         // Read
-        .rd_clk      (main_clk  ),
-        .rd_rst      (main_vsync),
+        .rd_clk      (main_clk  ),   // Avoid using comb logic: delay can be ignored
+        .rd_rst      (main_vsync),   // Avoid using comb logic: delay can be ignored
         .rd_en       (mo_de     ),
         .rd_data     (rdata     ),
         .rd_empty    (/*unused*/),
