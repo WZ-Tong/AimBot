@@ -1,72 +1,93 @@
 `timescale 1ns / 1ps
 
 module AimBot #(
-    parameter  N_BOX        = 1                    ,
+    parameter  N_BOX          = 1                    ,
 
-    localparam H_ACT        = 1280                 ,
-    localparam V_ACT        = 720                  ,
-    localparam WB_INIT_HOLD = 500_000_000          ,
-    localparam KEY_HOLD     = 50_000_000           ,
+    parameter  LOCAL_MAC      = 48'h01_02_03_04_05_06,
+    parameter  LOCAL_IP       = 32'hC0_A8_02_65      ,
+    parameter  LOCAL_PORT     = 16'h1F90             ,
+    parameter  DEST_IP        = 32'hC0_A8_02_64      ,
+    parameter  DEST_PORT      = 16'h1F90             ,
 
-    parameter  LOCAL_MAC    = 48'h01_02_03_04_05_06,
-    parameter  LOCAL_IP     = 32'hC0_A8_02_65      ,
-    parameter  LOCAL_PORT   = 16'h1F90             ,
-    parameter  DEST_IP      = 32'hC0_A8_02_64      ,
-    parameter  DEST_PORT    = 16'h1F90
+    localparam H_ACT          = 1280                 ,
+    localparam V_ACT          = 720                  ,
+    localparam WB_INIT_HOLD   = 500_000_000          ,
+    localparam KEY_HOLD       = 50_000_000           ,
+
+    localparam DDR_DATA_WIDTH = 16                   ,
+    localparam DDR_DM_WIDTH   = 2                    ,
+    localparam DDR_DQ_WIDTH   = 2
 ) (
-    input        clk          ,
-    input        rstn         ,
-    input        cam_key      ,
-    input        wb_key       ,
-    input        dw_key       ,
-    input        send_switch  ,
-    input        wb_rstn      ,
+    input                       clk          ,
+    input                       rstn         ,
+    input                       cam_key      ,
+    input                       wb_key       ,
+    input                       dw_key       ,
+    input                       send_switch  ,
+    input                       wb_rstn      ,
 
-    inout        cam1_scl     ,
-    inout        cam1_sda     ,
-    input        cam1_vsync   ,
-    input        cam1_href    ,
-    input        cam1_pclk    ,
-    input  [7:0] cam1_data    ,
-    output       cam1_rstn    ,
+    inout                       cam1_scl     ,
+    inout                       cam1_sda     ,
+    input                       cam1_vsync   ,
+    input                       cam1_href    ,
+    input                       cam1_pclk    ,
+    input  [               7:0] cam1_data    ,
+    output                      cam1_rstn    ,
 
-    inout        cam2_scl     ,
-    inout        cam2_sda     ,
-    input        cam2_vsync   ,
-    input        cam2_href    ,
-    input        cam2_pclk    ,
-    input  [7:0] cam2_data    ,
-    output       cam2_rstn    ,
+    inout                       cam2_scl     ,
+    inout                       cam2_sda     ,
+    input                       cam2_vsync   ,
+    input                       cam2_href    ,
+    input                       cam2_pclk    ,
+    input  [               7:0] cam2_data    ,
+    output                      cam2_rstn    ,
 
-    output       hdmi_clk     ,
-    output       hdmi_hsync   ,
-    output       hdmi_vsync   ,
-    output       hdmi_de      ,
-    output [7:0] hdmi_r       ,
-    output [7:0] hdmi_g       ,
-    output [7:0] hdmi_b       ,
+    output                      hdmi_clk     ,
+    output                      hdmi_hsync   ,
+    output                      hdmi_vsync   ,
+    output                      hdmi_de      ,
+    output [               7:0] hdmi_r       ,
+    output [               7:0] hdmi_g       ,
+    output [               7:0] hdmi_b       ,
 
-    output       hdmi_rstn    ,
-    output       hdmi_scl     ,
-    inout        hdmi_sda     ,
+    output                      hdmi_rstn    ,
+    output                      hdmi_scl     ,
+    inout                       hdmi_sda     ,
 
-    input        rgmii1_rxc   ,
-    input        rgmii1_rx_ctl,
-    input  [3:0] rgmii1_rxd   ,
+    input                       rgmii1_rxc   ,
+    input                       rgmii1_rx_ctl,
+    input  [               3:0] rgmii1_rxd   ,
 
-    output       rgmii1_txc   ,
-    output       rgmii1_tx_ctl,
-    output [3:0] rgmii1_txd   ,
+    output                      rgmii1_txc   ,
+    output                      rgmii1_tx_ctl,
+    output [               3:0] rgmii1_txd   ,
+
+    // DDR
+    output                      mem_rst_n    ,
+    output                      mem_ck       ,
+    output                      mem_ck_n     ,
+    output                      mem_cke      ,
+    output                      mem_cs_n     ,
+    output                      mem_ras_n    ,
+    output                      mem_cas_n    ,
+    output                      mem_we_n     ,
+    output                      mem_odt      ,
+    output [              14:0] mem_a        ,
+    output [               2:0] mem_ba       ,
+    inout  [  DDR_DQ_WIDTH-1:0] mem_dqs      ,
+    inout  [  DDR_DQ_WIDTH-1:0] mem_dqs_n    ,
+    inout  [DDR_DATA_WIDTH-1:0] mem_dq       ,
+    output [  DDR_DM_WIDTH-1:0] mem_dm       ,
 
     // Debug signals
-    output       hdmi_inited  ,
-    output       cam_inited   ,
-    output       cam1_tick    ,
-    output       cam2_tick    ,
-    output       rgmii_conn   ,
-    output       line_err     ,
-    output       udp_fill     ,
-    output       wb_refresh
+    output                      hdmi_inited  ,
+    output                      cam_inited   ,
+    output                      cam1_tick    ,
+    output                      cam2_tick    ,
+    output                      rgmii_conn   ,
+    output                      line_err     ,
+    output                      udp_fill     ,
+    output                      wb_refresh
 );
 
     localparam PACK_SIZE = 3*8+4+$clog2(H_ACT)+$clog2(V_ACT);
@@ -159,7 +180,7 @@ module AimBot #(
     wire [N_BOX*$clog2(V_ACT)-1:0] dw_end_ys  ;
     wire [           N_BOX*24-1:0] dw_colors  ;
 
-    wire cam1_wbr;
+    wire                 cam1_wbr ;
     wire [PACK_SIZE-1:0] hdmi_cam1;
     frame_process #(
         .V_BOX_WIDTH (2           ),
@@ -184,7 +205,7 @@ module AimBot #(
         .wb_refresh(wb_refresh )
     );
 
-    wire cam2_wbr;
+    wire                 cam2_wbr ;
     wire [PACK_SIZE-1:0] hdmi_cam2;
     frame_process #(
         .V_BOX_WIDTH (2           ),
@@ -359,6 +380,75 @@ module AimBot #(
         assign end_ys   = 'b0;
         assign colors   = 'b0;
     end
+
+    DDR3_50H_16 u_ddr3_16 (
+        .ref_clk                (         ),
+        .resetn                 (         ),
+        .ddr_init_done          (         ),
+        .ddrphy_clkin           (         ),
+        .pll_lock               (         ),
+        .axi_awaddr             (         ),
+        .axi_awuser_ap          (         ),
+        .axi_awuser_id          (         ),
+        .axi_awlen              (         ),
+        .axi_awready            (         ),
+        .axi_awvalid            (         ),
+        .axi_wdata              (         ),
+        .axi_wstrb              (         ),
+        .axi_wready             (         ),
+        .axi_wusero_id          (         ),
+        .axi_wusero_last        (         ),
+        .axi_araddr             (         ),
+        .axi_aruser_ap          (         ),
+        .axi_aruser_id          (         ),
+        .axi_arlen              (         ),
+        .axi_arready            (         ),
+        .axi_arvalid            (         ),
+        .axi_rdata              (         ),
+        .axi_rid                (         ),
+        .axi_rlast              (         ),
+        .axi_rvalid             (         ),
+        .apb_clk                (         ),
+        .apb_rst_n              (         ),
+        .apb_sel                (         ),
+        .apb_enable             (         ),
+        .apb_addr               (         ),
+        .apb_write              (         ),
+        .apb_ready              (         ),
+        .apb_wdata              (         ),
+        .apb_rdata              (         ),
+        .apb_int                (         ),
+        .debug_data             (         ),
+        .debug_slice_state      (         ),
+        .debug_calib_ctrl       (         ),
+        .ck_dly_set_bin         (         ),
+        .force_ck_dly_en        (         ),
+        .force_ck_dly_set_bin   (         ),
+        .dll_step               (         ),
+        .dll_lock               (         ),
+        .init_read_clk_ctrl     (         ),
+        .init_slip_step         (         ),
+        .force_read_clk_ctrl    (         ),
+        .ddrphy_gate_update_en  (         ),
+        .update_com_val_err_flag(         ),
+        .rd_fake_stop           (         ),
+        .mem_rst_n              (mem_rst_n),
+        .mem_ck                 (mem_ck   ),
+        .mem_ck_n               (mem_ck_n ),
+        .mem_cke                (mem_cke  ),
+        .mem_cs_n               (mem_cs_n ),
+        .mem_ras_n              (mem_ras_n),
+        .mem_cas_n              (mem_cas_n),
+        .mem_we_n               (mem_we_n ),
+        .mem_odt                (mem_odt  ),
+        .mem_a                  (mem_a    ),   // TODO: Check connection ! Signal/port not matching : Expecting logic [MEM_ROW_WIDTH-1:0]  -- Found logic [14:0]
+        .mem_ba                 (mem_ba   ),   // TODO: Check connection ! Signal/port not matching : Expecting logic [MEM_BANK_WIDTH-1:0]  -- Found logic [2:0]
+        .mem_dqs                (mem_dqs  ),   // TODO: Check connection ! Signal/port not matching : Expecting logic [MEM_DQS_WIDTH-1:0]  -- Found logic [DDR_DQ_WIDTH-1:0]
+        .mem_dqs_n              (mem_dqs_n),   // TODO: Check connection ! Signal/port not matching : Expecting logic [MEM_DQS_WIDTH-1:0]  -- Found logic [DDR_DQ_WIDTH-1:0]
+        .mem_dq                 (mem_dq   ),   // TODO: Check connection ! Signal/port not matching : Expecting logic [MEM_DQ_WIDTH-1:0]  -- Found logic [DDR_DATA_WIDTH-1:0]
+        .mem_dm                 (mem_dm   )    // TODO: Check connection ! Signal/port not matching : Expecting logic [MEM_DM_WIDTH-1:0]  -- Found logic [DDR_DM_WIDTH-1:0]
+    );
+
 
 
 endmodule : AimBot
