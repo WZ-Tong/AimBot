@@ -88,6 +88,69 @@ module AimBot #(
     output                      udp_fill
 );
 
+    wire ddr_clk, ddr_clkl, ddr_inited;
+
+    wire [              27:0] pl_ddr_awaddr     ;
+    wire [               3:0] pl_ddr_awlen      ;
+    wire                      pl_ddr_awready    ;
+    wire                      pl_ddr_awvalid    ;
+    wire [  DDR_DATA_LEN-1:0] pl_ddr_wdata      ;
+    wire [DDR_DATA_WIDTH-1:0] pl_ddr_wstrb      ;
+    wire                      pl_ddr_wready     ;
+    wire                      pl_ddr_wusero_last;
+
+    wire [            27:0] ps_ddr_araddr ;
+    wire [             3:0] ps_ddr_arlen  ;
+    wire                    ps_ddr_arready;
+    wire                    ps_ddr_arvalid;
+    wire [DDR_DATA_LEN-1:0] ps_ddr_rdata  ;
+    wire [             3:0] ps_ddr_rid    ;
+    wire                    ps_ddr_rlast  ;
+    wire                    ps_ddr_rvalid ;
+
+    ddr3 #(.DATA_WIDTH(DDR_DATA_WIDTH)) u_ddr3 (
+        .clk            (clk               ),
+        .inited         (ddr_inited        ),
+        .phy_clk        (ddr_clk           ),
+        .phy_clkl       (ddr_clkl          ),
+        // Write address
+        .axi_awaddr     (pl_ddr_awaddr     ),
+        .axi_awlen      (pl_ddr_awlen      ),
+        .axi_awready    (pl_ddr_awready    ),
+        .axi_awvalid    (pl_ddr_awvalid    ),
+        // Write data
+        .axi_wdata      (pl_ddr_wdata      ),
+        .axi_wstrb      (pl_ddr_wstrb      ),
+        .axi_wready     (pl_ddr_wready     ),
+        .axi_wusero_last(pl_ddr_wusero_last),
+        // Read address
+        .axi_araddr     (ps_ddr_araddr     ),
+        .axi_arlen      (ps_ddr_arlen      ),
+        .axi_arready    (ps_ddr_arready    ),
+        .axi_arvalid    (ps_ddr_arvalid    ),
+        // Read data
+        .axi_rdata      (ps_ddr_rdata      ),
+        .axi_rid        (ps_ddr_rid        ),
+        .axi_rlast      (ps_ddr_rlast      ),
+        .axi_rvalid     (ps_ddr_rvalid     ),
+        // Physical
+        .mem_rst_n      (mem_rst_n         ),
+        .mem_ck         (mem_ck            ),
+        .mem_ck_n       (mem_ck_n          ),
+        .mem_cke        (mem_cke           ),
+        .mem_cs_n       (mem_cs_n          ),
+        .mem_ras_n      (mem_ras_n         ),
+        .mem_cas_n      (mem_cas_n         ),
+        .mem_we_n       (mem_we_n          ),
+        .mem_odt        (mem_odt           ),
+        .mem_a          (mem_a             ),
+        .mem_ba         (mem_ba            ),
+        .mem_dqs        (mem_dqs           ),
+        .mem_dqs_n      (mem_dqs_n         ),
+        .mem_dq         (mem_dq            ),
+        .mem_dm         (mem_dm            )
+    );
+
     aim_bot_pl #(
         .N_BOX         (N_BOX         ),
         .LOCAL_MAC     (LOCAL_MAC     ),
@@ -160,44 +223,6 @@ module AimBot #(
         .udp_fill     (udp_fill     ),
         .net_conn     (net_conn     ),
         .cam_tick     (cam_tick     )
-    );
-
-    ddr3 #(.DATA_WIDTH(DDR_DATA_WIDTH)) u_ddr3 (
-        .clk            (         ),
-        .inited         (         ),
-        .phy_clk        (         ),
-        .phy_clkl       (         ),
-        .axi_awaddr     (         ),
-        .axi_awlen      (         ),
-        .axi_awready    (         ),
-        .axi_awvalid    (         ),
-        .axi_wdata      (         ),
-        .axi_wstrb      (         ),
-        .axi_wready     (         ),
-        .axi_wusero_last(         ),
-        .axi_araddr     (         ),
-        .axi_arlen      (         ),
-        .axi_arready    (         ),
-        .axi_arvalid    (         ),
-        .axi_rdata      (         ),
-        .axi_rid        (         ),
-        .axi_rlast      (         ),
-        .axi_rvalid     (         ),
-        .mem_rst_n      (mem_rst_n),
-        .mem_ck         (mem_ck   ),
-        .mem_ck_n       (mem_ck_n ),
-        .mem_cke        (mem_cke  ),
-        .mem_cs_n       (mem_cs_n ),
-        .mem_ras_n      (mem_ras_n),
-        .mem_cas_n      (mem_cas_n),
-        .mem_we_n       (mem_we_n ),
-        .mem_odt        (mem_odt  ),
-        .mem_a          (mem_a    ),
-        .mem_ba         (mem_ba   ),
-        .mem_dqs        (mem_dqs  ),
-        .mem_dqs_n      (mem_dqs_n),
-        .mem_dq         (mem_dq   ),
-        .mem_dm         (mem_dm   )
     );
 
 endmodule : AimBot
