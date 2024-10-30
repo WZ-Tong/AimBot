@@ -28,6 +28,7 @@ module cam_switch #(
     always_ff @(posedge main_clk or negedge rstn) begin
         if(~rstn) begin
             main_vsync_d <= #1 'b0;
+            cam_id       <= #1 'b0;
         end else begin
             main_vsync_d <= #1 main_vsync;
             if (main_vsync_d==1 && main_vsync==1) begin
