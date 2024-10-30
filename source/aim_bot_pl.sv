@@ -1,22 +1,23 @@
 `timescale 1ns / 1ps
 
 module aim_bot_pl #(
-    parameter N_BOX          = 1                    ,
+    parameter N_BOX          = 1                                                        ,
 
-    parameter LOCAL_MAC      = 48'h01_02_03_04_05_06,
-    parameter LOCAL_IP       = 32'hC0_A8_02_65      ,
-    parameter LOCAL_PORT     = 16'h1F90             ,
-    parameter DEST_IP        = 32'hC0_A8_02_64      ,
-    parameter DEST_PORT      = 16'h1F90             ,
+    parameter LOCAL_MAC      = 48'h01_02_03_04_05_06                                    ,
+    parameter LOCAL_IP       = 32'hC0_A8_02_65                                          ,
+    parameter LOCAL_PORT     = 16'h1F90                                                 ,
+    parameter DEST_IP        = 32'hC0_A8_02_64                                          ,
+    parameter DEST_PORT      = 16'h1F90                                                 ,
 
-    parameter H_ACT          = 1280                 ,
-    parameter V_ACT          = 720                  ,
-    parameter WB_INIT_HOLD   = 500_000_000          ,
-    parameter KEY_HOLD       = 50_000_000           ,
+    parameter H_ACT          = 1280                                                     ,
+    parameter V_ACT          = 720                                                      ,
+    parameter WB_INIT_HOLD   = 500_000_000                                              ,
+    parameter KEY_HOLD       = 50_000_000                                               ,
 
-    parameter DDR_DATA_WIDTH = 16                   ,
-    parameter DDR_DM_WIDTH   = 2                    ,
-    parameter DDR_DQ_WIDTH   = 2
+    parameter DDR_DATA_WIDTH = 16                                                       ,
+    parameter DDR_DM_WIDTH   = DDR_DATA_WIDTH==16 ? 2 : (DDR_DATA_WIDTH==32 ? 4 : 0)    ,
+    parameter DDR_DQ_WIDTH   = DDR_DATA_WIDTH==16 ? 2 : (DDR_DATA_WIDTH==32 ? 4 : 0)    ,
+    parameter DDR_DATA_LEN   = DDR_DATA_WIDTH==16 ? 128 : (DDR_DATA_WIDTH==32 ? 256 : 0)
 ) (
     input                       clk          ,
     input                       rstn         ,
