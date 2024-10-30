@@ -4,6 +4,7 @@ module cam_switch #(
     parameter DELAY = 5   ,
     parameter TICK  = 5
 ) (
+    input                                          clk       ,
     input                                          rstn      ,
     input  [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] main_pack ,
     input  [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] minor_pack,
@@ -16,7 +17,7 @@ module cam_switch #(
         .TICK(TICK),
         .INIT(1'b1)
     ) u_cam_id_switch_gen (
-        .clk   (main_clk     ),
+        .clk   (clk          ),
         .rstn  (rstn         ),
         .key   (key          ),
         .switch(switch_switch)

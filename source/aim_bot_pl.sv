@@ -12,7 +12,7 @@ module aim_bot_pl #(
     parameter H_ACT          = 1280                                                     ,
     parameter V_ACT          = 720                                                      ,
     parameter WB_INIT_HOLD   = 500_000_000                                              ,
-    parameter KEY_HOLD       = 50_000_000                                               ,
+    parameter KEY_HOLD       = 500_000                                                  ,
 
     parameter DDR_DATA_WIDTH = 16                                                       ,
     parameter DDR_DM_WIDTH   = DDR_DATA_WIDTH==16 ? 2 : (DDR_DATA_WIDTH==32 ? 4 : 0)    ,
@@ -255,6 +255,7 @@ module aim_bot_pl #(
         .TICK (KEY_HOLD),
         .DELAY(20      )
     ) u_cam_switch (
+        .clk       (clk      ),
         .rstn      (rstn     ),
         .main_pack (hdmi_cam1),
         .minor_pack(hdmi_cam2),
@@ -288,7 +289,7 @@ module aim_bot_pl #(
 
     wire ub_trig;
     trig_gen #(.TICK(KEY_HOLD)) u_trig_gen (
-        .clk   (rgmii_clk  ),
+        .clk   (clk        ),
         .rstn  (rstn       ),
         .switch(send_switch),
         .trig  (ub_trig    )
@@ -363,7 +364,7 @@ module aim_bot_pl #(
     );
 
     rst_gen #(.TICK(KEY_HOLD)) u_udp_fill_gen (
-        .clk  (rgmii_clk     ),
+        .clk  (clk           ),
         .i_rst(udp_buf_filled),
         .o_rst(udp_fill      )
     );
