@@ -253,7 +253,7 @@ module aim_bot_pl #(
         .H_ACT(H_ACT   ),
         .V_ACT(V_ACT   ),
         .TICK (KEY_HOLD),
-        .DELAY(20      )
+        .DELAY(8       )
     ) u_cam_switch (
         .clk       (clk      ),
         .rstn      (rstn     ),
