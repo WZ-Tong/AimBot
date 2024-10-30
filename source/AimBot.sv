@@ -167,4 +167,42 @@ module AimBot #(
         .wb_refresh   (wb_refresh   )
     );
 
+    ddr3 #(.DATA_WIDTH(DDR_DATA_WIDTH)) u_ddr3 (
+        .clk            (         ),
+        .inited         (         ),
+        .phy_clk        (         ),
+        .phy_clkl       (         ),
+        .axi_awaddr     (         ),
+        .axi_awlen      (         ),
+        .axi_awready    (         ),
+        .axi_awvalid    (         ),
+        .axi_wdata      (         ),
+        .axi_wstrb      (         ),
+        .axi_wready     (         ),
+        .axi_wusero_last(         ),
+        .axi_araddr     (         ),
+        .axi_arlen      (         ),
+        .axi_arready    (         ),
+        .axi_arvalid    (         ),
+        .axi_rdata      (         ),
+        .axi_rid        (         ),
+        .axi_rlast      (         ),
+        .axi_rvalid     (         ),
+        .mem_rst_n      (mem_rst_n),
+        .mem_ck         (mem_ck   ),
+        .mem_ck_n       (mem_ck_n ),
+        .mem_cke        (mem_cke  ),
+        .mem_cs_n       (mem_cs_n ),
+        .mem_ras_n      (mem_ras_n),
+        .mem_cas_n      (mem_cas_n),
+        .mem_we_n       (mem_we_n ),
+        .mem_odt        (mem_odt  ),
+        .mem_a          (mem_a    ),
+        .mem_ba         (mem_ba   ),
+        .mem_dqs        (mem_dqs  ),
+        .mem_dqs_n      (mem_dqs_n),
+        .mem_dq         (mem_dq   ),
+        .mem_dm         (mem_dm   )
+    );
+
 endmodule : AimBot
