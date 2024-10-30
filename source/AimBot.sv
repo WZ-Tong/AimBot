@@ -90,365 +90,81 @@ module AimBot #(
     output                      wb_refresh
 );
 
-    localparam PACK_SIZE = 3*8+4+$clog2(H_ACT)+$clog2(V_ACT);
-
-    wire clk10, clk25;
-    clk_div #(.DIV(5)) u_clk10_gen (
-        .i_clk(clk  ),
-        .o_clk(clk10)
+    aim_bot_pl #(
+        .N_BOX         (N_BOX         ),
+        .LOCAL_MAC     (LOCAL_MAC     ),
+        .LOCAL_IP      (LOCAL_IP      ),
+        .LOCAL_PORT    (LOCAL_PORT    ),
+        .DEST_IP       (DEST_IP       ),
+        .DEST_PORT     (DEST_PORT     ),
+        .H_ACT         (H_ACT         ),
+        .V_ACT         (V_ACT         ),
+        .WB_INIT_HOLD  (WB_INIT_HOLD  ),
+        .KEY_HOLD      (KEY_HOLD      ),
+        .DDR_DATA_WIDTH(DDR_DATA_WIDTH),
+        .DDR_DM_WIDTH  (DDR_DM_WIDTH  ),
+        .DDR_DQ_WIDTH  (DDR_DQ_WIDTH  )
+    ) u_pl (
+        .clk          (clk          ),
+        .rstn         (rstn         ),
+        .cam_key      (cam_key      ),
+        .wb_key       (wb_key       ),
+        .dw_key       (dw_key       ),
+        .send_switch  (send_switch  ),
+        .wb_rstn      (wb_rstn      ),
+        .cam1_scl     (cam1_scl     ),
+        .cam1_sda     (cam1_sda     ),
+        .cam1_vsync   (cam1_vsync   ),
+        .cam1_href    (cam1_href    ),
+        .cam1_pclk    (cam1_pclk    ),
+        .cam1_data    (cam1_data    ),
+        .cam1_rstn    (cam1_rstn    ),
+        .cam2_scl     (cam2_scl     ),
+        .cam2_sda     (cam2_sda     ),
+        .cam2_vsync   (cam2_vsync   ),
+        .cam2_href    (cam2_href    ),
+        .cam2_pclk    (cam2_pclk    ),
+        .cam2_data    (cam2_data    ),
+        .cam2_rstn    (cam2_rstn    ),
+        .hdmi_clk     (hdmi_clk     ),
+        .hdmi_hsync   (hdmi_hsync   ),
+        .hdmi_vsync   (hdmi_vsync   ),
+        .hdmi_de      (hdmi_de      ),
+        .hdmi_r       (hdmi_r       ),
+        .hdmi_g       (hdmi_g       ),
+        .hdmi_b       (hdmi_b       ),
+        .hdmi_rstn    (hdmi_rstn    ),
+        .hdmi_scl     (hdmi_scl     ),
+        .hdmi_sda     (hdmi_sda     ),
+        .rgmii1_rxc   (rgmii1_rxc   ),
+        .rgmii1_rx_ctl(rgmii1_rx_ctl),
+        .rgmii1_rxd   (rgmii1_rxd   ),
+        .rgmii1_txc   (rgmii1_txc   ),
+        .rgmii1_tx_ctl(rgmii1_tx_ctl),
+        .rgmii1_txd   (rgmii1_txd   ),
+        .mem_rst_n    (mem_rst_n    ),
+        .mem_ck       (mem_ck       ),
+        .mem_ck_n     (mem_ck_n     ),
+        .mem_cke      (mem_cke      ),
+        .mem_cs_n     (mem_cs_n     ),
+        .mem_ras_n    (mem_ras_n    ),
+        .mem_cas_n    (mem_cas_n    ),
+        .mem_we_n     (mem_we_n     ),
+        .mem_odt      (mem_odt      ),
+        .mem_a        (mem_a        ),
+        .mem_ba       (mem_ba       ),
+        .mem_dqs      (mem_dqs      ),
+        .mem_dqs_n    (mem_dqs_n    ),
+        .mem_dq       (mem_dq       ),
+        .mem_dm       (mem_dm       ),
+        .hdmi_inited  (hdmi_inited  ),
+        .cam_inited   (cam_inited   ),
+        .cam1_tick    (cam1_tick    ),
+        .cam2_tick    (cam2_tick    ),
+        .rgmii_conn   (rgmii_conn   ),
+        .line_err     (line_err     ),
+        .udp_fill     (udp_fill     ),
+        .wb_refresh   (wb_refresh   )
     );
-    clk_div #(.DIV(2)) u_clk25_gen (
-        .i_clk(clk  ),
-        .o_clk(clk25)
-    );
-
-    // HDMI configure
-    hdmi_ctrl u_hdmi_ctrl (
-        .clk10    (clk10      ),
-        .rstn     (rstn       ),
-        .inited   (hdmi_inited),
-        .iic_rstn (hdmi_rstn  ),
-        .iic_i_scl(/*unused*/ ),
-        .iic_i_sda(/*unused*/ ),
-        .iic_o_scl(hdmi_scl   ),
-        .iic_o_sda(hdmi_sda   )
-    );
-
-    // OV5640 configure & read
-    wire [15:0] cam1_data_565, cam2_data_565;
-
-    wire cam1_inited, cam2_inited;
-    wire cam1_pclk_565, cam2_pclk_565;
-    wire cam1_href_565, cam2_href_565;
-    assign cam_inited = cam1_inited && cam2_inited;
-
-    ov5640_reader u_cam1_reader (
-        .clk25   (clk25        ),
-        .rstn    (rstn         ),
-        .vsync   (cam1_vsync   ),
-        .href    (cam1_href    ),
-        .pclk    (cam1_pclk    ),
-        .data    (cam1_data    ),
-        .inited  (cam1_inited  ),
-        .href_565(cam1_href_565),
-        .pclk_565(cam1_pclk_565),
-        .data_565(cam1_data_565),
-        .cfg_scl (cam1_scl     ),
-        .cfg_sda (cam1_sda     ),
-        .cfg_rstn(cam1_rstn    )
-    );
-
-    wire [PACK_SIZE-1:0] disp_pack_1;
-    hdmi_display u_cam1_disp (
-        .clk    (cam1_pclk_565),
-        .rstn   (rstn         ),
-        .i_vsync(cam1_vsync   ),
-        .i_data (cam1_data_565),
-        .i_href (cam1_href_565),
-        .o_pack (disp_pack_1  )
-    );
-
-    ov5640_reader u_cam2_reader (
-        .clk25   (clk25        ),
-        .rstn    (rstn         ),
-        .vsync   (cam2_vsync   ),
-        .href    (cam2_href    ),
-        .pclk    (cam2_pclk    ),
-        .data    (cam2_data    ),
-        .inited  (cam2_inited  ),
-        .href_565(cam2_href_565),
-        .pclk_565(cam2_pclk_565),
-        .data_565(cam2_data_565),
-        .cfg_scl (cam2_scl     ),
-        .cfg_sda (cam2_sda     ),
-        .cfg_rstn(cam2_rstn    )
-    );
-
-    wire [PACK_SIZE-1:0] disp_pack_2;
-    hdmi_display u_cam2_disp (
-        .clk    (cam2_pclk_565),
-        .rstn   (rstn         ),
-        .i_vsync(cam2_vsync   ),
-        .i_data (cam2_data_565),
-        .i_href (cam2_href_565),
-        .o_pack (disp_pack_2  )
-    );
-
-    wire [N_BOX*$clog2(H_ACT)-1:0] dw_start_xs;
-    wire [N_BOX*$clog2(V_ACT)-1:0] dw_start_ys;
-    wire [N_BOX*$clog2(H_ACT)-1:0] dw_end_xs  ;
-    wire [N_BOX*$clog2(V_ACT)-1:0] dw_end_ys  ;
-    wire [           N_BOX*24-1:0] dw_colors  ;
-
-    wire                 cam1_wbr ;
-    wire [PACK_SIZE-1:0] hdmi_cam1;
-    frame_process #(
-        .V_BOX_WIDTH (2           ),
-        .H_BOX_WIDTH (2           ),
-        .N_BOX       (N_BOX       ),
-        .H_ACT       (H_ACT       ),
-        .V_ACT       (V_ACT       ),
-        .WB_INIT_HOLD(WB_INIT_HOLD)
-    ) u_cam1_process (
-        .clk       (clk        ),
-        .rstn      (rstn       ),
-        .wb_update (~wb_rstn   ),
-        .wb_key    (wb_key     ),
-        .dw_key    (dw_key     ),
-        .i_pack    (disp_pack_1),
-        .o_pack    (hdmi_cam1  ),
-        .start_xs  (dw_start_xs),
-        .start_ys  (dw_start_ys),
-        .end_xs    (dw_end_xs  ),
-        .end_ys    (dw_end_ys  ),
-        .colors    (dw_colors  ),
-        .wb_refresh(wb_refresh )
-    );
-
-    wire                 cam2_wbr ;
-    wire [PACK_SIZE-1:0] hdmi_cam2;
-    frame_process #(
-        .V_BOX_WIDTH (2           ),
-        .H_BOX_WIDTH (2           ),
-        .N_BOX       (N_BOX       ),
-        .H_ACT       (H_ACT       ),
-        .V_ACT       (V_ACT       ),
-        .WB_INIT_HOLD(WB_INIT_HOLD)
-    ) u_cam2_process (
-        .clk       (clk        ),
-        .rstn      (rstn       ),
-        .wb_update (~wb_rstn   ),
-        .wb_key    (wb_key     ),
-        .dw_key    (dw_key     ),
-        .i_pack    (disp_pack_2),
-        .o_pack    (hdmi_cam2  ),
-        .start_xs  (dw_start_xs),
-        .start_ys  (dw_start_ys),
-        .end_xs    (dw_end_xs  ),
-        .end_ys    (dw_end_ys  ),
-        .colors    (dw_colors  ),
-        .wb_refresh(cam2_wbr   )
-    );
-
-    assign wb_refresh = cam1_wbr || cam2_wbr;
-
-    wire [PACK_SIZE-1:0] hdmi_pack;
-    pack_switch #(
-        .TICK (KEY_HOLD),
-        .H_ACT(H_ACT   ),
-        .V_ACT(V_ACT   )
-    ) u_switch_cam (
-        .clk     (clk      ),
-        .rstn    (rstn     ),
-        .key     (cam_key  ),
-        .i_pack_1(hdmi_cam1),
-        .i_pack_2(hdmi_cam2),
-        .o_pack  (hdmi_pack)
-    );
-
-    hdmi_unpack #(
-        .H_ACT(H_ACT),
-        .V_ACT(V_ACT)
-    ) u_hdmi_output (
-        .pack (hdmi_pack ),
-        .clk  (hdmi_clk  ),
-        .hsync(hdmi_hsync),
-        .vsync(hdmi_vsync),
-        .de   (hdmi_de   ),
-        .r    (hdmi_r    ),
-        .g    (hdmi_g    ),
-        .b    (hdmi_b    )
-    );
-
-    tick #(.TICK(30*2)) u_cam1_tick (
-        .clk (cam1_pclk ),
-        .rstn(rstn      ),
-        .trig(cam1_vsync),
-        .tick(cam1_tick )
-    );
-
-    tick #(.TICK(30*2)) u_cam2_tick (
-        .clk (cam2_pclk ),
-        .rstn(rstn      ),
-        .trig(cam2_vsync),
-        .tick(cam2_tick )
-    );
-
-    wire rgmii_clk /*synthesis PAP_MARK_DEBUG="true"*/;
-    wire udp_tx_re;
-
-    wire ub_trig;
-    trig_gen #(.TICK(KEY_HOLD)) u_trig_gen (
-        .clk   (rgmii_clk  ),
-        .rstn  (rstn       ),
-        .switch(send_switch),
-        .trig  (ub_trig    )
-    );
-
-    wire        udp_trig;
-    wire [ 7:0] ub_data ;
-    wire [10:0] ub_row  ;
-
-    wire [4:0] ub_id;
-    line_swap_buffer #(.H_ACT(H_ACT), .V_ACT(V_ACT)) u_udp_buffer (
-        .rstn     (rstn     ),
-        .cam1_pack(hdmi_cam1),
-        .cam2_pack(hdmi_cam2),
-        .trig     (ub_trig  ),
-        .aquire   (udp_trig ),
-        .rclk     (rgmii_clk),
-        .read_en  (udp_tx_re),
-        .cam_data (ub_data  ),
-        .cam_row  (ub_row   ),
-        .cam_id   (ub_id    ),
-        .error    (line_err )
-    );
-
-    wire        udp_rx_valid   ;
-    wire [ 7:0] udp_rx_data    ;
-    wire [15:0] udp_rx_data_len;
-    udp_packet #(
-        .LOCAL_MAC (LOCAL_MAC ),
-        .LOCAL_IP  (LOCAL_IP  ),
-        .LOCAL_PORT(LOCAL_PORT),
-        .DEST_IP   (DEST_IP   ),
-        .DEST_PORT (DEST_PORT )
-    ) u_udp_packet (
-        .rgmii_clk   (rgmii_clk      ),
-        .arp_rstn    (rstn           ),
-        .trig        (udp_trig       ),
-        .index       ({ub_id, ub_row}),
-        // TX
-        .tx_read_en  (udp_tx_re      ),
-        .tx_data     (ub_data        ),
-        .tx_data_len (16'd1280       ),
-        // RX
-        .rx_valid    (udp_rx_valid   ),
-        .rx_data     (udp_rx_data    ),
-        .rx_data_len (udp_rx_data_len),
-        .rx_error    (/*unused*/     ),
-        // Hardware
-        .connected   (rgmii_conn     ),
-        .rgmii_rxc   (rgmii1_rxc     ),
-        .rgmii_rx_ctl(rgmii1_rx_ctl  ),
-        .rgmii_rxd   (rgmii1_rxd     ),
-        .rgmii_txc   (rgmii1_txc     ),
-        .rgmii_tx_ctl(rgmii1_tx_ctl  ),
-        .rgmii_txd   (rgmii1_txd     )
-    );
-
-    localparam DRAW_BOX_DATA_BYTE = 6;
-
-    localparam UDP_READ_CAPACITY = DRAW_BOX_DATA_BYTE * N_BOX;
-
-    wire [UDP_READ_CAPACITY*8-1:0] udp_data /*synthesis PAP_MARK_DEBUG="true"*/;
-
-    wire udp_buf_filled;
-    udp_reader #(.CAPACITY(UDP_READ_CAPACITY)) u_udp_reader (
-        .clk   (rgmii_clk     ),
-        .rstn  (rstn          ),
-        .valid (udp_rx_valid  ),
-        .i_data(udp_rx_data   ),
-        .filled(udp_buf_filled),
-        .o_data(udp_data      )
-    );
-
-    rst_gen #(.TICK(KEY_HOLD)) u_udp_fill_gen (
-        .clk  (rgmii_clk     ),
-        .i_rst(udp_buf_filled),
-        .o_rst(udp_fill      )
-    );
-
-    if (H_ACT==1280 && V_ACT==720) begin : gen_draw_box_720
-        udp_parser #(
-            .N_BOX(N_BOX),
-            .H_ACT(H_ACT),
-            .V_ACT(V_ACT),
-            .C_DEP(2    )
-        ) u_udp_parser_720 (
-            .udp_data(udp_data   ),
-            .start_xs(dw_start_xs),
-            .start_ys(dw_start_ys),
-            .end_xs  (dw_end_xs  ),
-            .end_ys  (dw_end_ys  ),
-            .colors  (dw_colors  )
-        );
-    end else begin : gen_draw_box_default
-        assign start_xs = 'b0;
-        assign start_ys = 'b0;
-        assign end_xs   = 'b0;
-        assign end_ys   = 'b0;
-        assign colors   = 'b0;
-    end
-
-    DDR3_50H_16 u_ddr3_16 (
-        .ref_clk                (         ),
-        .resetn                 (         ),
-        .ddr_init_done          (         ),
-        .ddrphy_clkin           (         ),
-        .pll_lock               (         ),
-        .axi_awaddr             (         ),
-        .axi_awuser_ap          (         ),
-        .axi_awuser_id          (         ),
-        .axi_awlen              (         ),
-        .axi_awready            (         ),
-        .axi_awvalid            (         ),
-        .axi_wdata              (         ),
-        .axi_wstrb              (         ),
-        .axi_wready             (         ),
-        .axi_wusero_id          (         ),
-        .axi_wusero_last        (         ),
-        .axi_araddr             (         ),
-        .axi_aruser_ap          (         ),
-        .axi_aruser_id          (         ),
-        .axi_arlen              (         ),
-        .axi_arready            (         ),
-        .axi_arvalid            (         ),
-        .axi_rdata              (         ),
-        .axi_rid                (         ),
-        .axi_rlast              (         ),
-        .axi_rvalid             (         ),
-        .apb_clk                (         ),
-        .apb_rst_n              (         ),
-        .apb_sel                (         ),
-        .apb_enable             (         ),
-        .apb_addr               (         ),
-        .apb_write              (         ),
-        .apb_ready              (         ),
-        .apb_wdata              (         ),
-        .apb_rdata              (         ),
-        .apb_int                (         ),
-        .debug_data             (         ),
-        .debug_slice_state      (         ),
-        .debug_calib_ctrl       (         ),
-        .ck_dly_set_bin         (         ),
-        .force_ck_dly_en        (         ),
-        .force_ck_dly_set_bin   (         ),
-        .dll_step               (         ),
-        .dll_lock               (         ),
-        .init_read_clk_ctrl     (         ),
-        .init_slip_step         (         ),
-        .force_read_clk_ctrl    (         ),
-        .ddrphy_gate_update_en  (         ),
-        .update_com_val_err_flag(         ),
-        .rd_fake_stop           (         ),
-        .mem_rst_n              (mem_rst_n),
-        .mem_ck                 (mem_ck   ),
-        .mem_ck_n               (mem_ck_n ),
-        .mem_cke                (mem_cke  ),
-        .mem_cs_n               (mem_cs_n ),
-        .mem_ras_n              (mem_ras_n),
-        .mem_cas_n              (mem_cas_n),
-        .mem_we_n               (mem_we_n ),
-        .mem_odt                (mem_odt  ),
-        .mem_a                  (mem_a    ),   // TODO: Check connection ! Signal/port not matching : Expecting logic [MEM_ROW_WIDTH-1:0]  -- Found logic [14:0]
-        .mem_ba                 (mem_ba   ),   // TODO: Check connection ! Signal/port not matching : Expecting logic [MEM_BANK_WIDTH-1:0]  -- Found logic [2:0]
-        .mem_dqs                (mem_dqs  ),   // TODO: Check connection ! Signal/port not matching : Expecting logic [MEM_DQS_WIDTH-1:0]  -- Found logic [DDR_DQ_WIDTH-1:0]
-        .mem_dqs_n              (mem_dqs_n),   // TODO: Check connection ! Signal/port not matching : Expecting logic [MEM_DQS_WIDTH-1:0]  -- Found logic [DDR_DQ_WIDTH-1:0]
-        .mem_dq                 (mem_dq   ),   // TODO: Check connection ! Signal/port not matching : Expecting logic [MEM_DQ_WIDTH-1:0]  -- Found logic [DDR_DATA_WIDTH-1:0]
-        .mem_dm                 (mem_dm   )    // TODO: Check connection ! Signal/port not matching : Expecting logic [MEM_DM_WIDTH-1:0]  -- Found logic [DDR_DM_WIDTH-1:0]
-    );
-
-
 
 endmodule : AimBot
