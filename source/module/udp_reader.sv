@@ -9,8 +9,8 @@ module udp_reader #(parameter CAPACITY = 1) (
     output reg                  filled
 );
 
-    reg [$clog2(CAPACITY)-1:0] wptr          ;
-    reg [                 7:0] mem [CAPACITY];
+    reg [$clog2(CAPACITY)-1:0] wptr;
+    reg [      CAPACITY*8-1:0] mem ;
 
     integer i;
     always_ff @(posedge clk or negedge rstn) begin

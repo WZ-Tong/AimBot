@@ -59,7 +59,7 @@ module frame_process #(
     ) u_ks_dw_en (
         .clk   (clk   ),
         .rstn  (rstn  ),
-        .key   (wb_key),
+        .key   (dw_key),
         .switch(dw_en )
     );
 
