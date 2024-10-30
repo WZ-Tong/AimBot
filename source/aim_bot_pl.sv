@@ -249,17 +249,17 @@ module aim_bot_pl #(
     );
 
     wire [PACK_SIZE-1:0] hdmi_pack;
-    pack_switch #(
-        .TICK (KEY_HOLD),
+    cam_switch #(
         .H_ACT(H_ACT   ),
-        .V_ACT(V_ACT   )
-    ) u_switch_cam (
-        .clk     (clk      ),
-        .rstn    (rstn     ),
-        .key     (cam_key  ),
-        .i_pack_1(hdmi_cam1),
-        .i_pack_2(hdmi_cam2),
-        .o_pack  (hdmi_pack)
+        .V_ACT(V_ACT   ),
+        .TICK (KEY_HOLD),
+        .DELAY(20      )
+    ) u_cam_switch (
+        .rstn      (rstn     ),
+        .main_pack (hdmi_cam1),
+        .minor_pack(hdmi_cam2),
+        .key       (cam_key  ),
+        .pack      (hdmi_pack)
     );
 
     hdmi_unpack #(

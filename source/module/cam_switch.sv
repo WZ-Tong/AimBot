@@ -7,7 +7,7 @@ module cam_switch #(
     input                                          rstn      ,
     input  [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] main_pack ,
     input  [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] minor_pack,
-    input                                          switch_key,
+    input                                          key       ,
     output [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] pack
 );
 
@@ -18,7 +18,7 @@ module cam_switch #(
     ) u_cam_id_switch_gen (
         .clk   (main_clk     ),
         .rstn  (rstn         ),
-        .key   (switch_key   ),
+        .key   (key          ),
         .switch(switch_switch)
     );
 
