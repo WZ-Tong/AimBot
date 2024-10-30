@@ -18,6 +18,6 @@ module delay #(
         delay[0] <= #1 i_data;
     end
 
-    assign o_data = delay[i-1];
+    assign o_data = delay[DELAY-1];
 
 endmodule : delay
