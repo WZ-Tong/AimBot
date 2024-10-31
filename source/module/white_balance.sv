@@ -1,12 +1,11 @@
 module white_balance #(
-    parameter H_ACT     = 1280  ,
-    parameter V_ACT     = 720   ,
-    parameter INIT_HOLD = 50_000
+    parameter H_ACT = 1280,
+    parameter V_ACT = 720
 ) (
     input  [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] i_pack,
     input                                          rstn  ,
-    input                                          en    ,
-    input                                          update,
+    input                                          en    , // Switch
+    input                                          update, // Key
     output [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] o_pack
 );
 
@@ -60,13 +59,20 @@ module white_balance #(
         .clk(clk     ),
         .a  (DFT     ),
         .b  (r_v_trim),
-        .p  (r_v));
-             mul_15_9 u_mul_g_v (.clk(clk),
+        .p  (r_v     )
+    );
+    mul_15_9 u_mul_g_v (
+        .clk(clk     ),
         .a  (DFT     ),
         .b  (g_v_trim),
         .p  (g_v     )
     );
-    mul_15_9 u_mul_b_v (.clk(clk), .a(DFT), .b(b_v_trim), .p(b_v));
+    mul_15_9 u_mul_b_v (
+        .clk(clk     ),
+        .a  (DFT     ),
+        .b  (b_v_trim),
+        .p  (b_v     )
+    );
 
     wire [25:0] s_v  ;
     wire [25:0] k_v_w;
@@ -79,42 +85,87 @@ module white_balance #(
     end
 
     reg i_vsync_d;
+    always_ff @(posedge clk or negedge rstn) begin
+        if(~rstn) begin
+            i_vsync_d <= #1 'b0;
+        end else begin
+            i_vsync_d <= #1 i_vsync;
+        end
+    end
 
-    reg  [$clog2(INIT_HOLD)-1:0] init_cnt;
-    wire                         inited  ;
-    assign inited = init_cnt==INIT_HOLD-1;
+    wire pos_vsync, neg_vsync;
+    assign pos_vsync = i_vsync==1 && i_vsync_d==0;
+    assign neg_vsync = i_vsync==0 && i_vsync_d==1;
+
+    // Triggers whenever key is pressed
+    // Reset to LOW when NEGEDGE vsync
+    reg update_d;
+    always_ff @(posedge clk or posedge update) begin
+        if(update) begin
+            update_d <= #1 'b1;
+        end else if (neg_vsync) begin
+            update_d <= #1 'b0;
+        end
+    end
+
+    localparam DARK_THRESH = H_ACT * V_ACT * 4;
+
+    wire frame_dark;
+    assign frame_dark = 1
+        && r_current_sum<=DARK_THRESH
+        && g_current_sum<=DARK_THRESH
+        && b_current_sum<=DARK_THRESH;
+
+    // Keeps at least a frame
+    // Changing when POSEDGE vsync
+    // Enable when:
+    //   1. Reset
+    //   2. Last frame dark
+    //   3. Update key pressed
+    reg refresh;
+    always_ff @(posedge clk or negedge rstn) begin
+        if(~rstn) begin
+            refresh <= #1 'b1;
+        end else if (pos_vsync) begin
+            if (update_d) begin
+                refresh <= #1 'b1;
+            end else if (frame_dark) begin
+                refresh <= #1 'b1;
+            end else begin
+                refresh <= #1 'b0;
+            end
+        end
+    end
 
     always_ff @(posedge clk or negedge rstn) begin
         if(~rstn) begin
-            init_cnt      <= #1 'b0;
-            i_vsync_d     <= #1 'b0;
             r_current_sum <= #1 'b0;
             g_current_sum <= #1 'b0;
             b_current_sum <= #1 'b0;
             r_last_sum    <= #1 'b0;
             g_last_sum    <= #1 'b0;
             b_last_sum    <= #1 'b0;
-        end else begin
-            if (init_cnt!=INIT_HOLD-1) begin
-                init_cnt <= #1 init_cnt + 1'b1;
-            end
-            i_vsync_d <= #1 i_vsync;
-            if (i_vsync==1 && i_vsync_d==0) begin
+        end else if (refresh) begin
+            if (neg_vsync) begin
                 r_current_sum <= #1 'b0;
                 g_current_sum <= #1 'b0;
                 b_current_sum <= #1 'b0;
-                if (update) begin
-                    r_last_sum <= #1 r_current_sum;
-                    g_last_sum <= #1 g_current_sum;
-                    b_last_sum <= #1 b_current_sum;
-                end
-            end else begin
-                if (i_de || ~inited) begin
-                    r_current_sum <= #1 r_current_sum + i_r;
-                    g_current_sum <= #1 g_current_sum + i_g;
-                    b_current_sum <= #1 b_current_sum + i_b;
-                end
+
+                r_last_sum <= #1 r_current_sum;
+                g_last_sum <= #1 g_current_sum;
+                b_last_sum <= #1 b_current_sum;
+            end else if (i_de) begin
+                r_current_sum <= #1 r_current_sum + i_r;
+                g_current_sum <= #1 g_current_sum + i_g;
+                b_current_sum <= #1 b_current_sum + i_b;
             end
+        end
+    end
+
+    always_ff @(posedge clk or negedge rstn) begin
+        if(~rstn) begin
+            refresh <= #1 'b1;
+        end else begin
         end
     end
 
@@ -123,35 +174,54 @@ module white_balance #(
         .clk(clk       ),
         .a  (i_r       ),
         .b  (k_v[22:15]),
-        .p  (r_kv));
-             mul_8_8 u_mul_g_kv (.clk(clk),
+        .p  (r_kv      )
+    );
+    mul_8_8 u_mul_g_kv (
+        .clk(clk       ),
         .a  (i_g       ),
         .b  (k_v[22:15]),
         .p  (g_kv      )
     );
-    mul_8_8 u_mul_b_kv (.clk(clk), .a(i_b), .b(k_v[22:15]), .p(b_kv));
+    mul_8_8 u_mul_b_kv (
+        .clk(clk       ),
+        .a  (i_b       ),
+        .b  (k_v[22:15]),
+        .p  (b_kv      )
+    );
 
     wire [31:0] rev_r_v, rev_g_v, rev_b_v;
     Reciprocal u_rev_r (
         .Average(r_v[22:15]),
-        .Recip  (rev_r_v));
-                 Reciprocal u_rev_g (.Average(g_v[22:15]),
+        .Recip  (rev_r_v   )
+    );
+    Reciprocal u_rev_g (
+        .Average(g_v[22:15]),
         .Recip  (rev_g_v   )
     );
-    Reciprocal u_rev_b (.Average(b_v[22:15]), .Recip(rev_b_v));
+    Reciprocal u_rev_b (
+        .Average(b_v[22:15]),
+        .Recip  (rev_b_v   )
+    );
 
     wire [47:0] r_new_full, g_new_full, b_new_full;
     mul_32_16 u_mul_r (
         .clk(clk       ),
         .a  (rev_r_v   ),
         .b  (r_kv      ),
-        .p  (r_new_full));
-             mul_32_16 u_mul_g (.clk(clk),
+        .p  (r_new_full)
+    );
+    mul_32_16 u_mul_g (
+        .clk(clk       ),
         .a  (rev_g_v   ),
         .b  (g_kv      ),
         .p  (g_new_full)
     );
-    mul_32_16 u_mul_b (.clk(clk), .a(rev_b_v), .b(b_kv), .p(b_new_full));
+    mul_32_16 u_mul_b (
+        .clk(clk       ),
+        .a  (rev_b_v   ),
+        .b  (b_kv      ),
+        .p  (b_new_full)
+    );
 
     wire [15:0] r_new, g_new, b_new;
     assign r_new = r_new_full[47:32];

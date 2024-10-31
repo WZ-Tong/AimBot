@@ -1,12 +1,11 @@
 module frame_process #(
-    parameter BOX_NUM      = 1         ,
-    parameter BOX_WIDTH    = 1         ,
+    parameter BOX_NUM   = 1      ,
+    parameter BOX_WIDTH = 1      ,
 
-    parameter H_ACT        = 1280      ,
-    parameter V_ACT        = 720       ,
+    parameter H_ACT     = 1280   ,
+    parameter V_ACT     = 720    ,
 
-    parameter KEY_TICK     = 500_000   ,
-    parameter WB_INIT_HOLD = 50_000_000
+    parameter KEY_TICK  = 500_000
 ) (
     input                                          clk      ,
     input                                          rstn     ,
@@ -40,9 +39,8 @@ module frame_process #(
 
     wire [PACK_SIZE-1:0] wb_pack;
     white_balance #(
-        .H_ACT    (H_ACT       ),
-        .V_ACT    (V_ACT       ),
-        .INIT_HOLD(WB_INIT_HOLD)
+        .H_ACT(H_ACT),
+        .V_ACT(V_ACT)
     ) u_white_balance (
         .i_pack(i_pack   ),
         .rstn  (rstn     ),

@@ -12,7 +12,6 @@ module AimBot #(
 
     localparam H_ACT          = 1280                                                     ,
     localparam V_ACT          = 720                                                      ,
-    localparam WB_INIT_HOLD   = 500_000_000                                              ,
     localparam KEY_HOLD       = 500_000                                                  ,
 
     localparam DDR_DATA_WIDTH = 16                                                       ,
@@ -176,7 +175,6 @@ module AimBot #(
         .DEST_PORT     (DEST_PORT     ),
         .H_ACT         (H_ACT         ),
         .V_ACT         (V_ACT         ),
-        .WB_INIT_HOLD  (WB_INIT_HOLD  ),
         .KEY_HOLD      (KEY_HOLD      ),
         .DDR_DATA_WIDTH(DDR_DATA_WIDTH),
         .DDR_DM_WIDTH  (DDR_DM_WIDTH  ),

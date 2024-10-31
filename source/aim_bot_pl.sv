@@ -12,7 +12,6 @@ module aim_bot_pl #(
 
     parameter H_ACT          = 1280                                                     ,
     parameter V_ACT          = 720                                                      ,
-    parameter WB_INIT_HOLD   = 500_000_000                                              ,
     parameter KEY_HOLD       = 500_000                                                  ,
 
     parameter DDR_DATA_WIDTH = 16                                                       ,
@@ -207,8 +206,7 @@ module aim_bot_pl #(
         .BOX_WIDTH   (BOX_WIDTH   ),
         .BOX_NUM     (BOX_NUM     ),
         .H_ACT       (H_ACT       ),
-        .V_ACT       (V_ACT       ),
-        .WB_INIT_HOLD(WB_INIT_HOLD)
+        .V_ACT       (V_ACT       )
     ) u_cam1_process (
         .clk      (clk        ),
         .rstn     (rstn       ),
@@ -230,8 +228,7 @@ module aim_bot_pl #(
         .BOX_WIDTH   (BOX_WIDTH   ),
         .BOX_NUM     (BOX_NUM     ),
         .H_ACT       (H_ACT       ),
-        .V_ACT       (V_ACT       ),
-        .WB_INIT_HOLD(WB_INIT_HOLD)
+        .V_ACT       (V_ACT       )
     ) u_cam2_process (
         .clk      (clk        ),
         .rstn     (rstn       ),
