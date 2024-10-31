@@ -1,6 +1,6 @@
 module gus_filter #(
-    parameter  V_ACT     = 12'd720                          ,
     parameter  H_ACT     = 12'd1280                         ,
+    parameter  V_ACT     = 12'd720                          ,
     localparam PACK_SIZE = 3*8+4+$clog2(H_ACT)+$clog2(V_ACT)
 ) (
     input                  en    ,
