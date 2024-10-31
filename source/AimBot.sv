@@ -24,6 +24,7 @@ module AimBot #(
     // PL ctrl key
     input                       cam_key      ,
     input                       wb_key       ,
+    input                       gc_key       ,
     input                       dw_key       ,
     input                       send_switch  ,
     input                       wb_rstn      ,

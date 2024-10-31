@@ -24,6 +24,7 @@ module aim_bot_pl #(
     // Ctrl key
     input                       cam_key        ,
     input                       wb_key         ,
+    input                       gc_key         ,
     input                       dw_key         ,
     input                       send_switch    ,
     input                       wb_rstn        ,
@@ -194,54 +195,35 @@ module aim_bot_pl #(
         .o_pack (disp_pack_2  )
     );
 
-    wire [BOX_NUM*$clog2(H_ACT)-1:0] dw_start_xs;
-    wire [BOX_NUM*$clog2(V_ACT)-1:0] dw_start_ys;
-    wire [BOX_NUM*$clog2(H_ACT)-1:0] dw_end_xs  ;
-    wire [BOX_NUM*$clog2(V_ACT)-1:0] dw_end_ys  ;
-    wire [           BOX_NUM*24-1:0] dw_colors  ;
-
     wire                 cam1_wbr ;
     wire [PACK_SIZE-1:0] hdmi_cam1;
     frame_process #(
-        .BOX_WIDTH   (BOX_WIDTH   ),
-        .BOX_NUM     (BOX_NUM     ),
-        .H_ACT       (H_ACT       ),
-        .V_ACT       (V_ACT       )
+        .H_ACT    (H_ACT    ),
+        .V_ACT    (V_ACT    ),
+        .KEY_TICK (KEY_HOLD )
     ) u_cam1_process (
         .clk      (clk        ),
         .rstn     (rstn       ),
         .wb_update(~wb_rstn   ),
         .wb_key   (wb_key     ),
-        .dw_key   (dw_key     ),
+        .gc_key   (gc_key     ),
         .i_pack   (disp_pack_1),
-        .o_pack   (hdmi_cam1  ),
-        .start_xs (dw_start_xs),
-        .start_ys (dw_start_ys),
-        .end_xs   (dw_end_xs  ),
-        .end_ys   (dw_end_ys  ),
-        .colors   (dw_colors  )
+        .o_pack   (hdmi_cam1  )
     );
 
     wire                 cam2_wbr ;
     wire [PACK_SIZE-1:0] hdmi_cam2;
     frame_process #(
-        .BOX_WIDTH   (BOX_WIDTH   ),
-        .BOX_NUM     (BOX_NUM     ),
-        .H_ACT       (H_ACT       ),
-        .V_ACT       (V_ACT       )
+        .H_ACT(H_ACT),
+        .V_ACT(V_ACT)
     ) u_cam2_process (
         .clk      (clk        ),
         .rstn     (rstn       ),
         .wb_update(~wb_rstn   ),
         .wb_key   (wb_key     ),
-        .dw_key   (dw_key     ),
+        .gc_key   (gc_key     ),
         .i_pack   (disp_pack_2),
-        .o_pack   (hdmi_cam2  ),
-        .start_xs (dw_start_xs),
-        .start_ys (dw_start_ys),
-        .end_xs   (dw_end_xs  ),
-        .end_ys   (dw_end_ys  ),
-        .colors   (dw_colors  )
+        .o_pack   (hdmi_cam2  )
     );
 
     wire [PACK_SIZE-1:0] hdmi_pack;
@@ -259,11 +241,43 @@ module aim_bot_pl #(
         .pack      (hdmi_pack)
     );
 
+    wire dw_en;
+    key_to_switch #(
+        .TICK(KEY_HOLD),
+        .INIT(1'b1    )
+    ) u_ks_dw_en (
+        .clk   (clk   ),
+        .rstn  (rstn  ),
+        .key   (dw_key),
+        .switch(dw_en )
+    );
+
+    wire [BOX_NUM*$clog2(H_ACT)-1:0] dw_start_xs;
+    wire [BOX_NUM*$clog2(V_ACT)-1:0] dw_start_ys;
+    wire [BOX_NUM*$clog2(H_ACT)-1:0] dw_end_xs  ;
+    wire [BOX_NUM*$clog2(V_ACT)-1:0] dw_end_ys  ;
+    wire [           BOX_NUM*24-1:0] dw_colors  ;
+
+    wire [PACK_SIZE-1:0] dw_pack;
+    draw_window #(
+        .BOX_WIDTH(BOX_WIDTH),
+        .BOX_NUM  (BOX_NUM  )
+    ) u_draw_window (
+        .en      (dw_en      ),
+        .i_pack  (hdmi_pack  ),
+        .o_pack  (dw_pack    ),
+        .start_xs(dw_start_xs),
+        .start_ys(dw_start_ys),
+        .end_xs  (dw_end_xs  ),
+        .end_ys  (dw_end_ys  ),
+        .colors  (dw_colors  )
+    );
+
     hdmi_unpack #(
         .H_ACT(H_ACT),
         .V_ACT(V_ACT)
     ) u_hdmi_output (
-        .pack (hdmi_pack ),
+        .pack (dw_pack   ),
         .clk  (hdmi_clk  ),
         .hsync(hdmi_hsync),
         .vsync(hdmi_vsync),

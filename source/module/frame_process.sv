@@ -1,7 +1,4 @@
 module frame_process #(
-    parameter BOX_NUM   = 1      ,
-    parameter BOX_WIDTH = 1      ,
-
     parameter H_ACT     = 1280   ,
     parameter V_ACT     = 720    ,
 
@@ -12,13 +9,7 @@ module frame_process #(
 
     input                                          wb_update,
     input                                          wb_key   ,
-    input                                          dw_key   ,
-
-    input  [            BOX_NUM*$clog2(H_ACT)-1:0] start_xs ,
-    input  [            BOX_NUM*$clog2(V_ACT)-1:0] start_ys ,
-    input  [            BOX_NUM*$clog2(H_ACT)-1:0] end_xs   ,
-    input  [            BOX_NUM*$clog2(V_ACT)-1:0] end_ys   ,
-    input  [                       BOX_NUM*24-1:0] colors   ,
+    input                                          gc_key   ,
 
     input  [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] i_pack   ,
     output [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] o_pack
@@ -49,30 +40,24 @@ module frame_process #(
         .o_pack(wb_pack  )
     );
 
-    wire dw_en;
+    wire gc_en;
     key_to_switch #(
         .TICK(KEY_TICK),
         .INIT(1'b1    )
-    ) u_ks_dw_en (
+    ) u_ks_gc_en (
         .clk   (clk   ),
         .rstn  (rstn  ),
-        .key   (dw_key),
-        .switch(dw_en )
+        .key   (gc_key),
+        .switch(gc_en )
     );
 
-    wire [PACK_SIZE-1:0] win_pack;
-    draw_window #(
-        .BOX_WIDTH(BOX_WIDTH),
-        .BOX_NUM  (BOX_NUM  )
-    ) u_draw_window (
-        .en      (dw_en   ),
-        .i_pack  (wb_pack ),
-        .o_pack  (o_pack  ),
-        .start_xs(start_xs),
-        .start_ys(start_ys),
-        .end_xs  (end_xs  ),
-        .end_ys  (end_ys  ),
-        .colors  (colors  )
+    gray_convert #(
+        .H_ACT(H_ACT),
+        .V_ACT(V_ACT)
+    ) u_gray_convert (
+        .en    (gc_en  ),
+        .i_pack(wb_pack),
+        .o_pack(o_pack )
     );
 
 endmodule : frame_process
