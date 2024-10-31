@@ -295,7 +295,8 @@ module aim_bot_pl #(
     wire [ 7:0] ub_data ;
     wire [10:0] ub_row  ;
 
-    wire [4:0] ub_id;
+    wire       ub_id ;
+    wire [4:0] ub_cnt;
     line_swap_buffer #(.H_ACT(H_ACT), .V_ACT(V_ACT)) u_udp_buffer (
         .rstn     (rstn     ),
         .cam1_pack(hdmi_cam1),
@@ -307,8 +308,11 @@ module aim_bot_pl #(
         .cam_data (ub_data  ),
         .cam_row  (ub_row   ),
         .cam_id   (ub_id    ),
+        .cnt      (ub_cnt   ),
         .error    (line_err )
     );
+    wire [15:0] ub_index;
+    assign ub_index = {ub_id, ub_cnt, ub_row};
 
     wire        udp_rx_valid   ;
     wire [ 7:0] udp_rx_data    ;
@@ -323,7 +327,7 @@ module aim_bot_pl #(
         .rgmii_clk   (rgmii_clk      ),
         .arp_rstn    (rstn           ),
         .trig        (udp_trig       ),
-        .index       ({ub_id, ub_row}),
+        .index       (ub_index       ),
         // TX
         .tx_read_en  (udp_tx_re      ),
         .tx_data     (ub_data        ),

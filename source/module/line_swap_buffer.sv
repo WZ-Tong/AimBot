@@ -1,20 +1,23 @@
 module line_swap_buffer #(
-    parameter H_ACT = 1280,
-    parameter V_ACT = 720
+    parameter  H_ACT     = 1280                             ,
+    parameter  V_ACT     = 720                              ,
+
+    localparam PACK_SIZE = 3*8+4+$clog2(H_ACT)+$clog2(V_ACT)
 ) (
-    input                                          rstn     ,
-    input                                          trig     ,
-    input  [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] cam1_pack,
-    input  [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] cam2_pack,
+    input                      rstn     ,
+    input                      trig     ,
+    input      [PACK_SIZE-1:0] cam1_pack,
+    input      [PACK_SIZE-1:0] cam2_pack,
 
-    input                                          rclk     ,
-    output                                         aquire     /*synthesis PAP_MARK_DEBUG="true"*/,
-    input                                          read_en    /*synthesis PAP_MARK_DEBUG="true"*/,
-    output [                                  7:0] cam_data ,
-    output [                                 10:0] cam_row  ,
-    output [                                  4:0] cam_id   ,
+    input                      rclk     ,
+    output                     aquire     /*synthesis PAP_MARK_DEBUG="true"*/,
+    input                      read_en    /*synthesis PAP_MARK_DEBUG="true"*/,
+    output     [          7:0] cam_data ,
+    output     [         10:0] cam_row  ,
+    output                     cam_id   ,
+    output reg [          4:0] cnt      ,
 
-    output                                         error
+    output                     error
 );
 
     reg         cam1_trig  ;
@@ -57,13 +60,12 @@ module line_swap_buffer #(
         .busy    (cam2_busy  )
     );
 
-    reg cam_no /*synthesis PAP_MARK_DEBUG="true"*/;
-    assign cam_id   = cam_no==0 ? 5'b10000 : 5'b01000;
-    assign cam1_re  = cam_no==0 ? read_en : 'b0;
-    assign cam2_re  = cam_no==1 ? read_en : 'b0;
-    assign aquire   = cam_no==0 ? cam1_aquire : cam2_aquire;
-    assign cam_data = cam_no==0 ? cam1_data : cam2_data;
-    assign cam_row  = cam_no==0 ? cam1_row : cam2_row;
+    reg cam_id /*synthesis PAP_MARK_DEBUG="true"*/;
+    assign cam1_re  = cam_id==0 ? read_en : 'b0;
+    assign cam2_re  = cam_id==1 ? read_en : 'b0;
+    assign aquire   = cam_id==0 ? cam1_aquire : cam2_aquire;
+    assign cam_data = cam_id==0 ? cam1_data : cam2_data;
+    assign cam_row  = cam_id==0 ? cam1_row : cam2_row;
     assign error    = cam1_err || cam2_err;
 
     localparam IDLE      = 3'b000;
@@ -92,7 +94,8 @@ module line_swap_buffer #(
 
     always_ff @(posedge rclk or negedge rstn) begin
         if(~rstn) begin
-            cam_no    <= #1 'b0;
+            cnt       <= #1 'b0;
+            cam_id    <= #1 'b0;
             state     <= #1 IDLE;
             cam1_trig <= #1 'b0;
             cam2_trig <= #1 'b0;
@@ -102,9 +105,10 @@ module line_swap_buffer #(
                 IDLE : begin
                     cam1_trig <= #1 'b0;
                     cam2_trig <= #1 'b0;
-                    cam_no    <= #1 'b0;
+                    cam_id    <= #1 'b0;
                     gap_cnt   <= #1 'b0;
                     if (trig_d) begin
+                        cnt   <= #1 cnt + 1'b1;
                         state <= #1 TRIG_CAM1;
                     end
                 end
@@ -126,7 +130,7 @@ module line_swap_buffer #(
                     if (gap_cnt!=GAP_WAIT) begin
                         gap_cnt <= #1 gap_cnt + 1'b1;
                     end else begin
-                        cam_no <= #1 'b1;
+                        cam_id <= #1 'b1;
                         if (~cam1_busy && ~cam2_busy) begin
                             state <= #1 TRIG_CAM2;
                         end
