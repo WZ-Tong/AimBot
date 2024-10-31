@@ -74,20 +74,27 @@ module hdmi_display #(
         o_data <= #1 i_data;
     end
 
+    wire [7:0] o_r;
+    wire [7:0] o_g;
+    wire [7:0] o_b;
+    assign o_r = {o_data[04:00], o_data[02:00]};
+    assign o_g = {o_data[10:05], o_data[06:05]};
+    assign o_b = {o_data[15:11], o_data[13:11]};
+
     hdmi_pack #(
         .H_ACT(H_ACT),
         .V_ACT(V_ACT)
     ) u_disp_pack (
-        .clk  (clk                  ),
-        .hsync(o_hsync              ),
-        .vsync(o_vsync              ),
-        .de   (o_de                 ),
-        .r    ({o_data[04:00], 3'b0}),
-        .g    ({o_data[10:05], 2'b0}),
-        .b    ({o_data[15:11], 3'b0}),
-        .x    (o_x                  ),
-        .y    (o_y                  ),
-        .pack (o_pack               )
+        .clk  (clk    ),
+        .hsync(o_hsync),
+        .vsync(o_vsync),
+        .de   (o_de   ),
+        .r    (o_r    ),
+        .g    (o_g    ),
+        .b    (o_b    ),
+        .x    (o_x    ),
+        .y    (o_y    ),
+        .pack (o_pack )
     );
 
 endmodule : hdmi_display
