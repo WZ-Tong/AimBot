@@ -29,41 +29,40 @@ module three_line_buffer #(
         .x    (x     ),
         .y    (y     )
     );
+    wire [23:0] wdata;
+    assign wdata = {r, g, b};
 
     logic        wen_a  ;
-    wire  [23:0] wdata_a;
     wire  [23:0] rdata_a;
     line_ram u_line_a (
-        .clk    (clk    ),
-        .rst    (1'b0   ),
-        .addr   (x      ),
-        .wr_en  (wen_a  ),
-        .wr_data(wdata_a),
-        .rd_data(rdata_a)
+        .clk    (clk     ),
+        .rst    (1'b0    ),
+        .addr   (x       ),
+        .wr_en  (wen_a&de),
+        .wr_data(wdata   ),
+        .rd_data(rdata_a )
     );
 
     logic        wen_b  ;
-    wire  [23:0] wdata_b;
     wire  [23:0] rdata_b;
     line_ram u_line_b (
-        .clk    (clk    ),
-        .rst    (1'b0   ),
-        .addr   (x      ),
-        .wr_en  (wen_b  ),
-        .wr_data(wdata_b),
-        .rd_data(rdata_b)
+        .clk    (clk     ),
+        .rst    (1'b0    ),
+        .addr   (x       ),
+        .wr_en  (wen_b&de),
+        .wr_data(wdata   ),
+        .rd_data(rdata_b )
     );
 
     logic        wen_c  ;
-    wire  [23:0] wdata_c;
     wire  [23:0] rdata_c;
     line_ram u_line_c (
-        .clk    (clk    ),
-        .rst    (1'b0   ),
-        .addr   (x      ),
-        .wr_en  (wen_c  ),
-        .wr_data(wdata_c),
-        .rd_data(rdata_c)
+        .clk    (clk     ),
+        .rst    (1'b0    ),
+        .addr   (x       ),
+        .wr_en  (wen_c&de),
+        .wr_data(wdata   ),
+        .rd_data(rdata_c )
     );
 
     reg [1:0] wid; // Which ram is currently write
