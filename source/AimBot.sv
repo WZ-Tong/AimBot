@@ -15,7 +15,6 @@ module AimBot #(
     localparam KEY_HOLD   = 500_000
 ) (
     input        clk          ,
-    input        rstn         ,
 
     // Ctrl key
     input        cam_key      ,
@@ -78,14 +77,14 @@ module AimBot #(
     localparam PACK_SIZE = 3*8+4+$clog2(H_ACT)+$clog2(V_ACT);
 
     wire clk10, clk25;
-    clk_div #(.DIV(5)) u_clk10_gen (
-        .i_clk(clk  ),
-        .o_clk(clk10)
+    wire pll_lock, rstn;
+    pll u_pll (
+        .clkin1  (clk     ),
+        .clkout0 (clk10   ),
+        .clkout1 (clk25   ),
+        .pll_lock(pll_lock)
     );
-    clk_div #(.DIV(2)) u_clk25_gen (
-        .i_clk(clk  ),
-        .o_clk(clk25)
-    );
+    assign rstn = pll_lock;
 
     // HDMI configure
     wire hdmi_inited;
