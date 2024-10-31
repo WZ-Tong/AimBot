@@ -1,24 +1,24 @@
 module udp_parser #(
-    parameter N_BOX = 1   ,
-    parameter H_ACT = 1280,
-    parameter V_ACT = 720 ,
-    parameter C_DEP = 2     // Color depth
+    parameter BOX_NUM = 1   ,
+    parameter H_ACT   = 1280,
+    parameter V_ACT   = 720 ,
+    parameter C_DEP   = 2     // Color depth
 ) (
-    input  [N_BOX*(C_DEP*3+(2*($clog2(H_ACT)+$clog2(V_ACT))))-1:0] udp_data,
+    input  [BOX_NUM*(C_DEP*3+(2*($clog2(H_ACT)+$clog2(V_ACT))))-1:0] udp_data,
 
-    output [                              N_BOX*$clog2(H_ACT)-1:0] start_xs,
-    output [                              N_BOX*$clog2(V_ACT)-1:0] start_ys,
+    output [                              BOX_NUM*$clog2(H_ACT)-1:0] start_xs,
+    output [                              BOX_NUM*$clog2(V_ACT)-1:0] start_ys,
 
-    output [                              N_BOX*$clog2(H_ACT)-1:0] end_xs  ,
-    output [                              N_BOX*$clog2(V_ACT)-1:0] end_ys  ,
+    output [                              BOX_NUM*$clog2(H_ACT)-1:0] end_xs  ,
+    output [                              BOX_NUM*$clog2(V_ACT)-1:0] end_ys  ,
 
-    output [                                         N_BOX*24-1:0] colors
+    output [                                         BOX_NUM*24-1:0] colors
 );
 
     localparam UDP_PACK_SEG_SIZE = ($clog2(H_ACT)+$clog2(V_ACT))*2+C_DEP*3;
 
     genvar i;
-    for (i = 0; i < N_BOX; i=i+1) begin: g_udp_unpack
+    for (i = 0; i < BOX_NUM; i=i+1) begin: g_udp_unpack
         wire [UDP_PACK_SEG_SIZE-1:0] packed_data;
         assign packed_data = udp_data[(i+1)*48-1:i*48];
 

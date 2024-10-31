@@ -1,7 +1,8 @@
 `timescale 1ns / 1ps
 
 module aim_bot_pl #(
-    parameter N_BOX          = 1                                                        ,
+    parameter BOX_NUM        = 1                                                        ,
+    parameter BOX_WIDTH      = 1                                                        ,
 
     parameter LOCAL_MAC      = 48'h01_02_03_04_05_06                                    ,
     parameter LOCAL_IP       = 32'hC0_A8_02_65                                          ,
@@ -194,18 +195,17 @@ module aim_bot_pl #(
         .o_pack (disp_pack_2  )
     );
 
-    wire [N_BOX*$clog2(H_ACT)-1:0] dw_start_xs;
-    wire [N_BOX*$clog2(V_ACT)-1:0] dw_start_ys;
-    wire [N_BOX*$clog2(H_ACT)-1:0] dw_end_xs  ;
-    wire [N_BOX*$clog2(V_ACT)-1:0] dw_end_ys  ;
-    wire [           N_BOX*24-1:0] dw_colors  ;
+    wire [BOX_NUM*$clog2(H_ACT)-1:0] dw_start_xs;
+    wire [BOX_NUM*$clog2(V_ACT)-1:0] dw_start_ys;
+    wire [BOX_NUM*$clog2(H_ACT)-1:0] dw_end_xs  ;
+    wire [BOX_NUM*$clog2(V_ACT)-1:0] dw_end_ys  ;
+    wire [           BOX_NUM*24-1:0] dw_colors  ;
 
     wire                 cam1_wbr ;
     wire [PACK_SIZE-1:0] hdmi_cam1;
     frame_process #(
-        .V_BOX_WIDTH (2           ),
-        .H_BOX_WIDTH (2           ),
-        .N_BOX       (N_BOX       ),
+        .BOX_WIDTH   (BOX_WIDTH   ),
+        .BOX_NUM     (BOX_NUM     ),
         .H_ACT       (H_ACT       ),
         .V_ACT       (V_ACT       ),
         .WB_INIT_HOLD(WB_INIT_HOLD)
@@ -227,9 +227,8 @@ module aim_bot_pl #(
     wire                 cam2_wbr ;
     wire [PACK_SIZE-1:0] hdmi_cam2;
     frame_process #(
-        .V_BOX_WIDTH (2           ),
-        .H_BOX_WIDTH (2           ),
-        .N_BOX       (N_BOX       ),
+        .BOX_WIDTH   (BOX_WIDTH   ),
+        .BOX_NUM     (BOX_NUM     ),
         .H_ACT       (H_ACT       ),
         .V_ACT       (V_ACT       ),
         .WB_INIT_HOLD(WB_INIT_HOLD)
@@ -349,7 +348,7 @@ module aim_bot_pl #(
 
     localparam DRAW_BOX_DATA_BYTE = 6;
 
-    localparam UDP_READ_CAPACITY = DRAW_BOX_DATA_BYTE * N_BOX;
+    localparam UDP_READ_CAPACITY = DRAW_BOX_DATA_BYTE * BOX_NUM;
 
     wire [UDP_READ_CAPACITY*8-1:0] udp_data /*synthesis PAP_MARK_DEBUG="true"*/;
 
@@ -371,7 +370,7 @@ module aim_bot_pl #(
 
     if (H_ACT==1280 && V_ACT==720) begin : g_draw_box_720
         udp_parser #(
-            .N_BOX(N_BOX),
+            .BOX_NUM(BOX_NUM),
             .H_ACT(H_ACT),
             .V_ACT(V_ACT),
             .C_DEP(2    )

@@ -1,7 +1,8 @@
 `timescale 1ns / 1ps
 
 module AimBot #(
-    parameter  N_BOX          = 1                                                        ,
+    parameter  BOX_NUM        = 1                                                        ,
+    parameter  BOX_WIDTH      = 1                                                        ,
 
     parameter  LOCAL_MAC      = 48'h01_02_03_04_05_06                                    ,
     parameter  LOCAL_IP       = 32'hC0_A8_02_65                                          ,
@@ -19,77 +20,77 @@ module AimBot #(
     localparam DDR_DQ_WIDTH   = DDR_DATA_WIDTH==16 ? 2 : (DDR_DATA_WIDTH==32 ? 4 : 0)    ,
     localparam DDR_DATA_LEN   = DDR_DATA_WIDTH==16 ? 128 : (DDR_DATA_WIDTH==32 ? 256 : 0)
 ) (
-    input                       clk            ,
-    input                       rstn           ,
+    input                       clk          ,
+    input                       rstn         ,
     // PL ctrl key
-    input                       cam_key        ,
-    input                       wb_key         ,
-    input                       dw_key         ,
-    input                       send_switch    ,
-    input                       wb_rstn        ,
+    input                       cam_key      ,
+    input                       wb_key       ,
+    input                       dw_key       ,
+    input                       send_switch  ,
+    input                       wb_rstn      ,
 
     // PL debug signals
-    output                      io_init        ,
-    output                      net_conn       ,
-    output                      cam_tick       ,
-    output                      line_err       ,
-    output                      udp_fill       ,
+    output                      io_init      ,
+    output                      net_conn     ,
+    output                      cam_tick     ,
+    output                      line_err     ,
+    output                      udp_fill     ,
 
     // Cam1 ctrl/data
-    inout                       cam1_scl       ,
-    inout                       cam1_sda       ,
-    input                       cam1_vsync     ,
-    input                       cam1_href      ,
-    input                       cam1_pclk      ,
-    input  [               7:0] cam1_data      ,
-    output                      cam1_rstn      ,
+    inout                       cam1_scl     ,
+    inout                       cam1_sda     ,
+    input                       cam1_vsync   ,
+    input                       cam1_href    ,
+    input                       cam1_pclk    ,
+    input  [               7:0] cam1_data    ,
+    output                      cam1_rstn    ,
 
     // Cam2 ctrl/data
-    inout                       cam2_scl       ,
-    inout                       cam2_sda       ,
-    input                       cam2_vsync     ,
-    input                       cam2_href      ,
-    input                       cam2_pclk      ,
-    input  [               7:0] cam2_data      ,
-    output                      cam2_rstn      ,
+    inout                       cam2_scl     ,
+    inout                       cam2_sda     ,
+    input                       cam2_vsync   ,
+    input                       cam2_href    ,
+    input                       cam2_pclk    ,
+    input  [               7:0] cam2_data    ,
+    output                      cam2_rstn    ,
 
     // HDMI Disp data
-    output                      hdmi_clk       ,
-    output                      hdmi_hsync     ,
-    output                      hdmi_vsync     ,
-    output                      hdmi_de        ,
-    output [               7:0] hdmi_r         ,
-    output [               7:0] hdmi_g         ,
-    output [               7:0] hdmi_b         ,
+    output                      hdmi_clk     ,
+    output                      hdmi_hsync   ,
+    output                      hdmi_vsync   ,
+    output                      hdmi_de      ,
+    output [               7:0] hdmi_r       ,
+    output [               7:0] hdmi_g       ,
+    output [               7:0] hdmi_b       ,
 
     // HDMI Ctrl
-    output                      hdmi_rstn      ,
-    output                      hdmi_scl       ,
-    inout                       hdmi_sda       ,
+    output                      hdmi_rstn    ,
+    output                      hdmi_scl     ,
+    inout                       hdmi_sda     ,
 
     // RGMII Interface 1
-    input                       rgmii1_rxc     ,
-    input                       rgmii1_rx_ctl  ,
-    input  [               3:0] rgmii1_rxd     ,
-    output                      rgmii1_txc     ,
-    output                      rgmii1_tx_ctl  ,
-    output [               3:0] rgmii1_txd     ,
+    input                       rgmii1_rxc   ,
+    input                       rgmii1_rx_ctl,
+    input  [               3:0] rgmii1_rxd   ,
+    output                      rgmii1_txc   ,
+    output                      rgmii1_tx_ctl,
+    output [               3:0] rgmii1_txd   ,
 
     // DDR Physics
-    output                      mem_rst_n      ,
-    output                      mem_ck         ,
-    output                      mem_ck_n       ,
-    output                      mem_cke        ,
-    output                      mem_cs_n       ,
-    output                      mem_ras_n      ,
-    output                      mem_cas_n      ,
-    output                      mem_we_n       ,
-    output                      mem_odt        ,
-    output [              14:0] mem_a          ,
-    output [               2:0] mem_ba         ,
-    inout  [  DDR_DQ_WIDTH-1:0] mem_dqs        ,
-    inout  [  DDR_DQ_WIDTH-1:0] mem_dqs_n      ,
-    inout  [DDR_DATA_WIDTH-1:0] mem_dq         ,
+    output                      mem_rst_n    ,
+    output                      mem_ck       ,
+    output                      mem_ck_n     ,
+    output                      mem_cke      ,
+    output                      mem_cs_n     ,
+    output                      mem_ras_n    ,
+    output                      mem_cas_n    ,
+    output                      mem_we_n     ,
+    output                      mem_odt      ,
+    output [              14:0] mem_a        ,
+    output [               2:0] mem_ba       ,
+    inout  [  DDR_DQ_WIDTH-1:0] mem_dqs      ,
+    inout  [  DDR_DQ_WIDTH-1:0] mem_dqs_n    ,
+    inout  [DDR_DATA_WIDTH-1:0] mem_dq       ,
     output [  DDR_DM_WIDTH-1:0] mem_dm
 );
 
@@ -166,7 +167,8 @@ module AimBot #(
     logic axi_wready;
     logic axi_wusero_last;
     aim_bot_pl #(
-        .N_BOX         (N_BOX         ),
+        .BOX_NUM       (BOX_NUM       ),
+        .BOX_WIDTH     (BOX_WIDTH     ),
         .LOCAL_MAC     (LOCAL_MAC     ),
         .LOCAL_IP      (LOCAL_IP      ),
         .LOCAL_PORT    (LOCAL_PORT    ),

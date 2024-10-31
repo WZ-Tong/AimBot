@@ -1,7 +1,6 @@
 module frame_process #(
-    parameter N_BOX        = 1         ,
-    parameter V_BOX_WIDTH  = 1         ,
-    parameter H_BOX_WIDTH  = 1         ,
+    parameter BOX_NUM      = 1         ,
+    parameter BOX_WIDTH    = 1         ,
 
     parameter H_ACT        = 1280      ,
     parameter V_ACT        = 720       ,
@@ -16,11 +15,11 @@ module frame_process #(
     input                                          wb_key   ,
     input                                          dw_key   ,
 
-    input  [              N_BOX*$clog2(H_ACT)-1:0] start_xs ,
-    input  [              N_BOX*$clog2(V_ACT)-1:0] start_ys ,
-    input  [              N_BOX*$clog2(H_ACT)-1:0] end_xs   ,
-    input  [              N_BOX*$clog2(V_ACT)-1:0] end_ys   ,
-    input  [                         N_BOX*24-1:0] colors   ,
+    input  [            BOX_NUM*$clog2(H_ACT)-1:0] start_xs ,
+    input  [            BOX_NUM*$clog2(V_ACT)-1:0] start_ys ,
+    input  [            BOX_NUM*$clog2(H_ACT)-1:0] end_xs   ,
+    input  [            BOX_NUM*$clog2(V_ACT)-1:0] end_ys   ,
+    input  [                       BOX_NUM*24-1:0] colors   ,
 
     input  [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] i_pack   ,
     output [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] o_pack
@@ -65,9 +64,8 @@ module frame_process #(
 
     wire [PACK_SIZE-1:0] win_pack;
     draw_window #(
-        .V_BOX_WIDTH(V_BOX_WIDTH),
-        .H_BOX_WIDTH(H_BOX_WIDTH),
-        .N_BOX      (N_BOX      )
+        .BOX_WIDTH(BOX_WIDTH),
+        .BOX_NUM  (BOX_NUM  )
     ) u_draw_window (
         .en      (dw_en   ),
         .i_pack  (wb_pack ),

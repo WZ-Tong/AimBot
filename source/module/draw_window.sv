@@ -1,75 +1,87 @@
 `timescale 1ns / 1ps
 
 module draw_window #(
-    parameter V_BOX_WIDTH = 1'b1    ,
-    parameter H_BOX_WIDTH = 1'b1    ,
-    parameter N_BOX       = 1       ,
+    parameter BOX_WIDTH = 1'b1    ,
+    parameter BOX_NUM   = 1       ,
 
-    parameter V_ACT       = 12'd720 ,
-    parameter H_ACT       = 12'd1280
+    parameter V_ACT     = 12'd720 ,
+    parameter H_ACT     = 12'd1280
 ) (
     input                                          en      ,
     input  [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] i_pack  ,
     output [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] o_pack  ,
 
-    input  [              N_BOX*$clog2(H_ACT)-1:0] start_xs,
-    input  [              N_BOX*$clog2(V_ACT)-1:0] start_ys,
+    input  [            BOX_NUM*$clog2(H_ACT)-1:0] start_xs,
+    input  [            BOX_NUM*$clog2(V_ACT)-1:0] start_ys,
 
-    input  [              N_BOX*$clog2(H_ACT)-1:0] end_xs  ,
-    input  [              N_BOX*$clog2(V_ACT)-1:0] end_ys  ,
+    input  [            BOX_NUM*$clog2(H_ACT)-1:0] end_xs  ,
+    input  [            BOX_NUM*$clog2(V_ACT)-1:0] end_ys  ,
 
-    input  [                         N_BOX*24-1:0] colors
+    input  [                       BOX_NUM*24-1:0] colors
 );
+
+    localparam H_ACT_BITS = $clog2(H_ACT);
+    localparam V_ACT_BITS = $clog2(V_ACT);
 
     wire clk;
 
-    wire [$clog2(H_ACT)-1:0] x;
-    wire [$clog2(V_ACT)-1:0] y;
+    wire [H_ACT_BITS-1:0] x;
+    wire [V_ACT_BITS-1:0] y;
 
-    wire [N_BOX-1:0] active;
-    wire [7:0] color_r [N_BOX];
-    wire [7:0] color_g [N_BOX];
-    wire [7:0] color_b [N_BOX];
+    wire [BOX_NUM-1:0] active;
+    wire [7:0] color_r [BOX_NUM];
+    wire [7:0] color_g [BOX_NUM];
+    wire [7:0] color_b [BOX_NUM];
+
     generate
-        localparam H_ACT_BITS = $clog2(H_ACT);
-        localparam V_ACT_BITS = $clog2(V_ACT);
-
         genvar i;
-        for (i = 0; i < N_BOX; i=i+1) begin : g_boxes
-            wire [H_ACT_BITS-1:0] start_x0, start_x1, start_x2;
+        for (i = 0; i < BOX_NUM; i=i+1) begin : g_boxes
+            wire [H_ACT_BITS-1:0] start_x0, start_x1;
             assign start_x0 = start_xs[(i+1)*H_ACT_BITS-1:i*H_ACT_BITS];
-            assign start_x1 = start_x0;
-            assign start_x2 = start_x1 + H_BOX_WIDTH;
+            assign start_x1 = start_x0 + BOX_WIDTH;
 
-            wire [H_ACT_BITS-1:0] end_x0, end_x1, end_x2;
+            wire [H_ACT_BITS-1:0] end_x0, end_x1;
             assign end_x0 = end_xs[(i+1)*H_ACT_BITS-1:i*H_ACT_BITS];
-            assign end_x1 = end_x0;
-            assign end_x2 = end_x1 + H_BOX_WIDTH;
+            assign end_x1 = end_x0 + BOX_WIDTH;
 
-            wire [V_ACT_BITS-1:0] start_y0, start_y1, start_y2;
-            assign start_y0 = start_ys[(i+1)*V_ACT_BITS-1:i*V_ACT_BITS];
-            assign start_y2 = start_y0;
-            assign start_y1 = start_y2 - V_BOX_WIDTH;
+            wire [V_ACT_BITS-1:0] start_y0, start_y1;
+            assign start_y1 = start_ys[(i+1)*V_ACT_BITS-1:i*V_ACT_BITS];
+            assign start_y0 = start_y1 - BOX_WIDTH;
 
-            wire [V_ACT_BITS-1:0] end_y0, end_y1, end_y2;
-            assign end_y0 = end_ys[(i+1)*V_ACT_BITS-1:i*V_ACT_BITS];
-            assign end_y2 = end_y0;
-            assign end_y1 = end_y2 - V_BOX_WIDTH;
+            wire [V_ACT_BITS-1:0] end_y0, end_y1;
+            assign end_y1 = end_ys[(i+1)*V_ACT_BITS-1:i*V_ACT_BITS];
+            assign end_y0 = end_y1 - BOX_WIDTH;
+
+            wire [H_ACT_BITS:0] x_total;
+            wire [V_ACT_BITS:0] y_total;
+            assign x_total = start_x0 + end_x0;
+            assign y_total = start_y1 + end_y1;
+
+            wire [H_ACT_BITS-1:0] x_center;
+            wire [V_ACT_BITS-1:0] y_center;
+            assign x_center = x_total[H_ACT_BITS:1];
+            assign y_center = y_total[V_ACT_BITS:1];
 
             wire [8*3-1:0] color;
             assign color = colors[(i+1)*(8*3)-1:i*(8*3)];
             assign {color_r[i], color_g[i], color_b[i]} = color;
 
             wire outer_active, inner_active;
-            assign outer_active = x>=start_x1 && x<=end_x2 && y>=start_y1 && y<=end_y2;
-            assign inner_active = x>=start_x2 && x<=end_x1 && y>=start_y2 && y<=end_y1;
+            assign outer_active = x>=start_x0 && x<=end_x1 && y>=start_y0 && y<=end_y1;
+            assign inner_active = x>=start_x1 && x<=end_x0 && y>=start_y1 && y<=end_y0;
 
             wire box_valid, start_valid, end_valid;
             assign start_valid = start_x0!=0 && start_y0!=0;
             assign end_valid   = end_x0!=0 && end_y0!=0;
             assign box_valid   = start_valid||end_valid;
 
-            assign active[i] = box_valid && outer_active && !inner_active;
+            wire window_valid;
+            assign window_valid = box_valid && outer_active && !inner_active;
+
+            wire center_valid;
+            // TODO
+
+            assign active[i] = window_valid || center_valid;
         end
     endgenerate
 
@@ -102,7 +114,7 @@ module draw_window #(
         c_r = hdmi_r;
         c_g = hdmi_g;
         c_b = hdmi_b;
-        for (j = 0; j < N_BOX; j=j+1) begin
+        for (j = 0; j < BOX_NUM; j=j+1) begin
             if (active[j]) begin
                 c_r = color_r[j];
                 c_g = color_g[j];
