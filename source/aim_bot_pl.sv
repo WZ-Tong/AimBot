@@ -26,7 +26,7 @@ module aim_bot_pl #(
     input                       wb_key         ,
     input                       gc_key         ,
     input                       dw_key         ,
-    input                       send_switch    ,
+    input                       send_key       ,
     input                       wb_rstn        ,
 
     // Cam1 ctrl/data
@@ -198,9 +198,9 @@ module aim_bot_pl #(
     wire                 cam1_wbr ;
     wire [PACK_SIZE-1:0] hdmi_cam1;
     frame_process #(
-        .H_ACT    (H_ACT    ),
-        .V_ACT    (V_ACT    ),
-        .KEY_TICK (KEY_HOLD )
+        .H_ACT   (H_ACT   ),
+        .V_ACT   (V_ACT   ),
+        .KEY_TICK(KEY_HOLD)
     ) u_cam1_process (
         .clk      (clk        ),
         .rstn     (rstn       ),
@@ -299,10 +299,10 @@ module aim_bot_pl #(
 
     wire ub_trig;
     trig_gen #(.TICK(KEY_HOLD)) u_trig_gen (
-        .clk   (clk        ),
-        .rstn  (rstn       ),
-        .switch(send_switch),
-        .trig  (ub_trig    )
+        .clk   (clk     ),
+        .rstn  (rstn    ),
+        .switch(send_key),
+        .trig  (ub_trig )
     );
 
     wire        udp_trig;

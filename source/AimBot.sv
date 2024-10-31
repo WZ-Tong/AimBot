@@ -26,7 +26,7 @@ module AimBot #(
     input                       wb_key       ,
     input                       gc_key       ,
     input                       dw_key       ,
-    input                       send_switch  ,
+    input                       send_key     ,
     input                       wb_rstn      ,
 
     // PL debug signals
@@ -158,14 +158,14 @@ module AimBot #(
     );
 
 
-    logic [27:0] axi_awaddr;
-    logic [3:0] axi_awlen;
-    logic axi_awready;
-    logic axi_awvalid;
+    logic [27:0] axi_awaddr ;
+    logic [ 3:0] axi_awlen  ;
+    logic        axi_awready;
+    logic        axi_awvalid;
     logic [DDR_DATA_WIDTH==16 ? 128 : (DDR_DATA_WIDTH==32 ? 256 : 0)-1:0] axi_wdata;
-    logic [15:0] axi_wstrb;
-    logic axi_wready;
-    logic axi_wusero_last;
+    logic [15:0] axi_wstrb      ;
+    logic        axi_wready     ;
+    logic        axi_wusero_last;
     aim_bot_pl #(
         .BOX_NUM       (BOX_NUM       ),
         .BOX_WIDTH     (BOX_WIDTH     ),
@@ -187,7 +187,7 @@ module AimBot #(
         .cam_key        (cam_key           ),
         .wb_key         (wb_key            ),
         .dw_key         (dw_key            ),
-        .send_switch    (send_switch       ),
+        .send_key       (send_key          ),
         .wb_rstn        (wb_rstn           ),
         .io_init        (io_init           ),
         .net_conn       (net_conn          ),
