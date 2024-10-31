@@ -76,14 +76,34 @@ module cam_switch #(
     wire [7:0] mo_r, mo_g, mo_b;
     assign {mo_r, mo_g, mo_b} = mo_data;
 
-    wire mo_hsync, mo_vsync, mo_de;
+    wire mo_hsync, mo_vsync;
     delay #(
         .DELAY(DELAY),
-        .WIDTH(3    )
-    ) u_mo_sync_de_delay (
-        .clk   (main_clk                         ),
-        .i_data({main_hsync, main_vsync, main_de}),
-        .o_data({mo_hsync, mo_vsync, mo_de}      )
+        .WIDTH(2    )
+    ) u_mo_sync_delay (
+        .clk   (main_clk                ),
+        .i_data({main_hsync, main_vsync}),
+        .o_data({mo_hsync, mo_vsync}    )
+    );
+
+    wire mo_re;
+    delay #(
+        .DELAY(DELAY-1),
+        .WIDTH(1      )
+    ) u_mo_re_gen (
+        .clk   (main_clk),
+        .i_data(main_de ),
+        .o_data(mo_re   )
+    );
+
+    wire mo_de;
+    delay #(
+        .DELAY(1),
+        .WIDTH(1)
+    ) u_mo_de_gen (
+        .clk   (main_clk),
+        .i_data(mo_re   ),
+        .o_data(mo_de   )
     );
 
     wire [$clog2(H_ACT)-1:0] mo_x;
@@ -129,7 +149,7 @@ module cam_switch #(
     assign wrst = cam_id ? 1'b1 : minor_vsync;
     assign wen  = cam_id ? 1'b0 : minor_de;
     assign rrst = cam_id ? 1'b1 : main_vsync;
-    assign ren  = cam_id ? 1'b0 : mo_de;
+    assign ren  = cam_id ? 1'b0 : mo_re;
 
     wire [23:0] wdata;
     assign wdata = cam_id ? (~24'b0) : minor_data;
