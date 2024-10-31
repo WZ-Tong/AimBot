@@ -3,6 +3,7 @@ module three_line_buffer #(
     parameter  V_ACT     = 12'd720                          ,
     localparam PACK_SIZE = 3*8+4+$clog2(H_ACT)+$clog2(V_ACT)
 ) (
+    input                        rstn  ,
     input        [PACK_SIZE-1:0] i_pack,
     output logic [         23:0] line1 ,
     output logic [         23:0] line2
@@ -17,7 +18,10 @@ module three_line_buffer #(
     wire [              7:0] b    ;
     wire [$clog2(H_ACT)-1:0] x    ;
     wire [$clog2(V_ACT)-1:0] y    ;
-    hdmi_unpack #(.H_ACT(H_ACT), .V_ACT(V_ACT)) u_hdmi_unpack (
+    hdmi_unpack #(
+        .H_ACT(H_ACT),
+        .V_ACT(V_ACT)
+    ) u_hdmi_unpack (
         .pack (i_pack),
         .clk  (clk   ),
         .hsync(hsync ),
@@ -98,6 +102,41 @@ module three_line_buffer #(
                 line2 = 'b0;
             end
         endcase
+    end
+
+    reg hsync_d;
+    always_ff @(posedge clk or negedge rstn) begin
+        if(~rstn) begin
+            hsync_d <= #1 'b0;
+        end else begin
+            hsync_d <= #1 hsync;
+        end
+    end
+
+    wire pos_hsync;
+    assign pos_hsync = hsync_d==0 && hsync==1;
+
+    always_ff @(posedge clk or negedge rstn) begin
+        if(~rstn) begin
+            wid <= #1 'b0;
+        end else if (vsync) begin
+            wid <= #1 'b0;
+        end else if (pos_hsync) begin
+            unique case (wid)
+                2'b00 : begin
+                    wid <= #1 2'b01;
+                end
+                2'b01 : begin
+                    wid <= #1 2'b10;
+                end
+                2'b10 : begin
+                    wid <= #1 2'b11;
+                end
+                2'b11 : begin
+                    wid <= #1 wid;
+                end
+            endcase
+        end
     end
 
 endmodule : three_line_buffer
