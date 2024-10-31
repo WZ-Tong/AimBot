@@ -27,6 +27,7 @@ module AimBot #(
     input                       wb_key         ,
     input                       gc_key         ,
     input                       dw_key         ,
+    input                       send_switch    ,
     input                       send_key       ,
     input                       wb_rstn        ,
 
@@ -104,7 +105,8 @@ module AimBot #(
     output                      net_conn       ,
     output                      cam_tick       ,
     output                      line_err       ,
-    output                      udp_fill
+    output                      udp_fill       ,
+    output                      udp_send
 );
 
     localparam PACK_SIZE = 3*8+4+$clog2(H_ACT)+$clog2(V_ACT);
@@ -299,11 +301,27 @@ module AimBot #(
     wire udp_tx_re;
 
     wire ub_trig;
-    trig_gen #(.TICK(KEY_HOLD)) u_trig_gen (
+    trig_gen #(.TICK(KEY_HOLD)) u_send_trig (
         .clk   (clk     ),
         .rstn  (rstn    ),
         .switch(send_key),
         .trig  (ub_trig )
+    );
+    wire ub_switch;
+    key_to_switch #(.TICK(KEY_HOLD), .INIT(1'b1)) u_send_switch (
+        .clk   (clk        ),
+        .rstn  (rstn       ),
+        .key   (send_switch),
+        .switch(ub_switch  )
+    );
+
+    wire lb_trig;
+    assign lb_trig = ub_switch || ub_trig;
+
+    rst_gen #(.TICK(500_000)) u_udp_send_tick (
+        .clk  (clk     ),
+        .i_rst(lb_trig ),
+        .o_rst(udp_send)
     );
 
     wire        udp_trig;
@@ -316,7 +334,7 @@ module AimBot #(
         .rstn     (rstn     ),
         .cam1_pack(hdmi_cam1),
         .cam2_pack(hdmi_cam2),
-        .trig     (ub_trig  ),
+        .trig     (lb_trig  ),
         .aquire   (udp_trig ),
         .rclk     (rgmii_clk),
         .read_en  (udp_tx_re),
