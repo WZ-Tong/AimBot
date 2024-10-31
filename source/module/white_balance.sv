@@ -162,13 +162,6 @@ module white_balance #(
         end
     end
 
-    always_ff @(posedge clk or negedge rstn) begin
-        if(~rstn) begin
-            refresh <= #1 'b1;
-        end else begin
-        end
-    end
-
     wire [15:0] r_kv, g_kv, b_kv;
     mul_8_8 u_mul_r_kv (
         .clk(clk       ),
