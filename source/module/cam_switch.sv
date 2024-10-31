@@ -12,6 +12,8 @@ module cam_switch #(
     output [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] pack
 );
 
+    localparam MINOR_OFFSET = 2;
+
     wire switch_switch;
     key_to_switch #(
         .TICK(TICK),
@@ -88,8 +90,8 @@ module cam_switch #(
 
     wire mo_re;
     delay #(
-        .DELAY(DELAY-1),
-        .WIDTH(1      )
+        .DELAY(DELAY-MINOR_OFFSET),
+        .WIDTH(1                 )
     ) u_mo_re_gen (
         .clk   (main_clk),
         .i_data(main_de ),
@@ -98,8 +100,8 @@ module cam_switch #(
 
     wire mo_de;
     delay #(
-        .DELAY(1),
-        .WIDTH(1)
+        .DELAY(MINOR_OFFSET),
+        .WIDTH(1           )
     ) u_mo_de_gen (
         .clk   (main_clk),
         .i_data(mo_re   ),
