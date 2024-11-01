@@ -40,10 +40,10 @@ module line_buffer #(
 
     localparam IDLE         = 3'b000;
     localparam WAIT_VSYNC   = 3'b001;
-    localparam WAIT_CAM_1   = 3'b010;
-    localparam READ_CAM_1   = 3'b011;
-    localparam WAIT_CAM_2   = 3'b100;
-    localparam READ_CAM_2   = 3'b101;
+    localparam WAIT_LINE_A  = 3'b010;
+    localparam READ_LINE_A  = 3'b011;
+    localparam WAIT_LINE_B  = 3'b100;
+    localparam READ_LINE_B  = 3'b101;
     localparam FIFO_READOUT = 3'b110;
 
     reg [2:0] state;
@@ -51,8 +51,8 @@ module line_buffer #(
     wire cam_we;
     assign cam_we = cam_de && state!=IDLE && state!=WAIT_VSYNC;
 
-    wire cam_re;
-    reg state_re;
+    wire cam_re  ;
+    reg  state_re;
     assign cam_re = read_en || state_re;
 
     assign busy = state!=IDLE;
@@ -119,6 +119,8 @@ module line_buffer #(
             y        <= #1 'b0;
             state    <= #1 IDLE;
             state_re <= #1 'b0;
+        end else if (cam_vsync && state!=IDLE && state!=WAIT_VSYNC) begin
+            state <= #1 IDLE;
         end else begin
             if (state==IDLE) begin
                 x <= #1 'b0;
@@ -147,25 +149,25 @@ module line_buffer #(
                 end
                 WAIT_VSYNC : begin
                     if (cam_vsync_r) begin
-                        state <= #1 WAIT_CAM_1;
+                        state <= #1 WAIT_LINE_A;
                     end
                 end
-                WAIT_CAM_1 : begin
+                WAIT_LINE_A : begin
                     if (cam_ready) begin
-                        state <= #1 READ_CAM_1;
+                        state <= #1 READ_LINE_A;
                     end
                 end
-                READ_CAM_1 : begin
+                READ_LINE_A : begin
                     if (x==X_PACK-1) begin
-                        state <= #1 WAIT_CAM_2;
+                        state <= #1 WAIT_LINE_B;
                     end
                 end
-                WAIT_CAM_2 : begin
+                WAIT_LINE_B : begin
                     if (cam_ready) begin
-                        state <= #1 READ_CAM_2;
+                        state <= #1 READ_LINE_B;
                     end
                 end
-                READ_CAM_2 : begin
+                READ_LINE_B : begin
                     if (x==X_PACK-1) begin
                         state <= #1 FIFO_READOUT;
                     end
@@ -174,7 +176,7 @@ module line_buffer #(
                     if (cam_empty) begin
                         state_re <= #1 'b0;
                         if (y!=0) begin
-                            state <= #1 WAIT_CAM_1;
+                            state <= #1 WAIT_LINE_A;
                         end else begin
                             state <= #1 IDLE;
                         end
