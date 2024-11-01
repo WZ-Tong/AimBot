@@ -23,7 +23,7 @@ module draw_window #(
     localparam H_ACT_BITS = $clog2(H_ACT);
     localparam V_ACT_BITS = $clog2(V_ACT);
 
-    localparam CENTER_WIDTH = BOX_WIDTH * 3;
+    localparam CENTER_WIDTH = BOX_WIDTH * 16;
 
     wire clk;
 
@@ -100,9 +100,17 @@ module draw_window #(
         assign y_cb_end   = y_center_end + CENTER_WIDTH;
 
         // Center cross pattern
+        wire cbx_active, cby_active;
+        assign cbx_active = x>=x_cb_start && x<=x_cb_end;
+        assign cby_active = y>=y_cb_start && y<=y_cb_end;
+
+        wire cx_active, cy_active;
+        assign cx_active = x>=x_center_start && x<=x_center_end;
+        assign cy_active = y>=y_center_start && y<=y_center_end;
+
         wire ch_active, cv_active, center_active;
-        assign ch_active     = x>=x_cb_start && x<=x_cb_end && y>=y_center_start && y<=y_center_end;
-        assign cv_active     = y>=y_cb_start && y<=y_cb_end && x>=x_center_start && x<=x_center_end;
+        assign ch_active     = cbx_active && cy_active;
+        assign cv_active     = cby_active && cx_active;
         assign center_active = ch_active || cv_active;
 
         assign active[i] = (data_valid && gap_valid) && (box_active || center_active);
