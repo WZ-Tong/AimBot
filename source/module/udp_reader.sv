@@ -2,7 +2,7 @@ module udp_reader #(parameter CAPACITY = 1) (
     input                       clk   ,
     input                       rstn  ,
 
-    input                       valid ,
+    input                       valid  /*synthesis PAP_MARK_DEBUG="true"*/,
     input      [           7:0] i_data,
 
     output     [CAPACITY*8-1:0] o_data,
@@ -10,9 +10,10 @@ module udp_reader #(parameter CAPACITY = 1) (
 );
 
     `ifdef UDP_READER_MEM
-        reg     [$clog2(CAPACITY)-1:0] wptr;
-        reg     [      CAPACITY*8-1:0] mem ;
-        integer                        i   ;
+        integer i;
+
+        reg [$clog2(CAPACITY)-1:0] wptr          ;
+        reg [                 7:0] mem [CAPACITY];
         always_ff @(posedge clk or negedge rstn) begin
             if(~rstn) begin
                 filled <= #1 'b0;
