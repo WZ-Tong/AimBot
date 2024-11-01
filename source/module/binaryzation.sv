@@ -63,7 +63,8 @@ module binaryzation #(
     reg refresh, disp_en;
     always_ff @(posedge clk or negedge rstn) begin
         if(~rstn) begin
-            refresh <= #1 'b1;
+            refresh <= #1 'b0;
+            disp_en <= #1 'b0;
         end else if (neg_vsync) begin
             refresh <= #1 en_d;
             disp_en <= #1 refresh;
@@ -107,12 +108,13 @@ module binaryzation #(
     wire [7:0] b_thresh;
 
     // WARN: HARD CODEDED `TRIM_BITS`
-    localparam TRIM_BITS        = 8/2                ;
-    localparam FRAME_TOTAL_BITS = $clog2(H_ACT*V_ACT);
+    localparam TRIM_BITS        = 8/2                       ; // 4
+    localparam FRAME_TOTAL_BITS = $clog2(H_ACT*V_ACT)       ; // 20
+    localparam SELECT_START     = FRAME_TOTAL_BITS+TRIM_BITS;
 
-    assign r_thresh = r_last_sum[FRAME_TOTAL_BITS+TRIM_BITS+8-1:FRAME_TOTAL_BITS+TRIM_BITS];
-    assign g_thresh = g_last_sum[FRAME_TOTAL_BITS+TRIM_BITS+8-1:FRAME_TOTAL_BITS+TRIM_BITS];
-    assign b_thresh = b_last_sum[FRAME_TOTAL_BITS+TRIM_BITS+8-1:FRAME_TOTAL_BITS+TRIM_BITS];
+    assign r_thresh = r_last_sum >> SELECT_START;
+    assign g_thresh = g_last_sum >> SELECT_START;
+    assign b_thresh = b_last_sum >> SELECT_START;
 
     wire [7:0] r_bin;
     wire [7:0] g_bin;
