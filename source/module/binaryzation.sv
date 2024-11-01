@@ -60,16 +60,13 @@ module binaryzation #(
     // Enable when:
     //   1. Reset
     //   3. Module is enabled
-    reg disp_en;
+    reg refresh, disp_en;
     always_ff @(posedge clk or negedge rstn) begin
         if(~rstn) begin
-            disp_en <= #1 'b1;
+            refresh <= #1 'b1;
         end else if (neg_vsync) begin
-            if (en_d) begin
-                disp_en <= #1 'b1;
-            end else begin
-                disp_en <= #1 'b0;
-            end
+            refresh <= #1 en_d;
+            disp_en <= #1 refresh;
         end
     end
 
@@ -88,7 +85,7 @@ module binaryzation #(
             r_last_sum    <= #1 'b0;
             g_last_sum    <= #1 'b0;
             b_last_sum    <= #1 'b0;
-        end else if (disp_en) begin
+        end else if (refresh) begin
             if (pos_vsync) begin
                 r_current_sum <= #1 'b0;
                 g_current_sum <= #1 'b0;
