@@ -50,7 +50,7 @@ module udp_packet #(
     localparam WRITE_IDX2   = 4'b1000;
     localparam WRITE_DATA   = 4'b1001;
 
-    reg [3:0] state /*synthesis PAP_MARK_DEBUG="true"*/;
+    reg [3:0] state;
 
     reg       app_data_in_valid;
     reg [7:0] app_data_in      ;

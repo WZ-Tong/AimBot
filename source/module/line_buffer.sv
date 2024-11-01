@@ -7,8 +7,8 @@ module line_buffer #(
     input  [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] cam_pack,
 
     input                                          rclk    ,
-    output                                         aquire    /*synthesis PAP_MARK_DEBUG="true"*/,
-    input                                          read_en   /*synthesis PAP_MARK_DEBUG="true"*/,
+    output                                         aquire  ,
+    input                                          read_en ,
     output [                                  7:0] cam_data,
     output [                                 10:0] cam_row ,
     output                                         busy    ,
@@ -18,7 +18,7 @@ module line_buffer #(
 
     wire       cam_clk  ;
     wire       cam_vsync;
-    wire       cam_de    /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire       cam_de   ;
     wire [7:0] cam_r    ;
     wire [7:0] cam_g    ;
     wire [7:0] cam_b    ;
@@ -46,13 +46,13 @@ module line_buffer #(
     localparam READ_CAM_2   = 3'b101;
     localparam FIFO_READOUT = 3'b110;
 
-    reg [2:0] state /*synthesis PAP_MARK_DEBUG="true"*/;
+    reg [2:0] state;
 
     wire cam_we;
     assign cam_we = cam_de && state!=IDLE && state!=WAIT_VSYNC;
 
-    wire cam_re /*synthesis PAP_MARK_DEBUG="true"*/;
-    reg state_re /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire cam_re;
+    reg state_re;
     assign cam_re = read_en || state_re;
 
     assign busy = state!=IDLE;
@@ -61,7 +61,7 @@ module line_buffer #(
     assign cam_ready = ~cam_readyn;
     assign aquire    = cam_ready;
 
-    wire cam_empty /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire cam_empty;
     async_fifo_16_8_1280 u_cam_buffer (
         // Write
         .wr_clk      (cam_clk    ),
@@ -87,11 +87,11 @@ module line_buffer #(
     localparam X_PACK = H_ACT    ; // 1280
     localparam Y_PACK = V_ACT * 2; // 1440
 
-    reg [$clog2(X_PACK)-1:0] x /*synthesis PAP_MARK_DEBUG="true"*/;
-    reg [$clog2(Y_PACK)-1:0] y /*synthesis PAP_MARK_DEBUG="true"*/;
+    reg [$clog2(X_PACK)-1:0] x;
+    reg [$clog2(Y_PACK)-1:0] y;
     assign cam_row = y;
 
-    reg trig_r /*synthesis PAP_MARK_DEBUG="true"*/;
+    reg trig_r;
     always_ff @(posedge rclk or posedge trig) begin
         if(trig) begin
             trig_r <= #1 'b1;
@@ -102,7 +102,7 @@ module line_buffer #(
         end
     end
 
-    reg cam_vsync_r /*synthesis PAP_MARK_DEBUG="true"*/;
+    reg cam_vsync_r;
     always_ff @(posedge rclk or posedge cam_vsync) begin
         if(cam_vsync) begin
             cam_vsync_r <= #1 'b1;
