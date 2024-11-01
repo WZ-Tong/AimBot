@@ -29,6 +29,8 @@ module udp_reader #(parameter CAPACITY = 1) (
                     filled <= #1 'b1;
                     wptr   <= #1 'b0;
                 end
+            end else begin
+                filled <= #1 'b0;
             end
         end
 

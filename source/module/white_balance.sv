@@ -117,7 +117,7 @@ module white_balance #(
         && b_current_sum<=DARK_THRESH;
 
     // Keeps at least a frame
-    // Changing when POSEDGE vsync
+    // Changing when NEGEDGE vsync
     // Enable when:
     //   1. Reset
     //   2. Last frame dark
@@ -126,7 +126,7 @@ module white_balance #(
     always_ff @(posedge clk or negedge rstn) begin
         if(~rstn) begin
             refresh <= #1 'b1;
-        end else if (pos_vsync) begin
+        end else if (neg_vsync) begin
             if (update_d) begin
                 refresh <= #1 'b1;
             end else if (frame_dark) begin
@@ -137,6 +137,9 @@ module white_balance #(
         end
     end
 
+    // NEGEDGE: Fixed current frame calc status (refresh)
+    //     ACT: Calc sum (refresh holds)
+    // POSEDGE: Assign value
     always_ff @(posedge clk or negedge rstn) begin
         if(~rstn) begin
             r_current_sum <= #1 'b0;
@@ -146,7 +149,7 @@ module white_balance #(
             g_last_sum    <= #1 'b0;
             b_last_sum    <= #1 'b0;
         end else if (refresh) begin
-            if (neg_vsync) begin
+            if (pos_vsync) begin
                 r_current_sum <= #1 'b0;
                 g_current_sum <= #1 'b0;
                 b_current_sum <= #1 'b0;
