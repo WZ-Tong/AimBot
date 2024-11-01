@@ -58,22 +58,25 @@ module draw_window #(
         assign end_y0 = end_y1 - BOX_WIDTH;
 
         // Box is not (0,0)->(0,0)
-        wire start_valid, end_valid, xy_valid;
+        wire start_valid, end_valid, pos_valid;
         assign start_valid = start_x0!=0 && start_y0!=0;
         assign end_valid   = end_x0!=0 && end_y0!=0;
-        assign xy_valid    = start_valid||end_valid;
-
-        // Box is outside inner bound, inside outer bound
-        wire box_outer_active, box_inner_active, box_active;
-        assign box_outer_active = x>=start_x0 && x<=end_x1 && y>=start_y0 && y<=end_y1;
-        assign box_inner_active = x>=start_x1 && x<=end_x0 && y>=start_y1 && y<=end_y0;
-        assign box_active       = box_outer_active && !box_inner_active;
+        assign pos_valid = start_valid && end_valid;
 
         // Box should be able to contain center cross
         wire x_gap_valid, y_gap_valid, gap_valid;
         assign x_gap_valid = (end_x0-start_x0) >= (CENTER_WIDTH*2+BOX_WIDTH);
         assign y_gap_valid = (end_y1-start_y1) >= (CENTER_WIDTH*2+BOX_WIDTH);
         assign gap_valid   = x_gap_valid && y_gap_valid;
+
+        wire data_valid;
+        assign data_valid = pos_valid && gap_valid;
+
+        // Box is outside inner bound, inside outer bound
+        wire box_outer_active, box_inner_active, box_active;
+        assign box_outer_active = x>=start_x0 && x<=end_x1 && y>=start_y0 && y<=end_y1;
+        assign box_inner_active = x>=start_x1 && x<=end_x0 && y>=start_y1 && y<=end_y0;
+        assign box_active       = box_outer_active && !box_inner_active;
 
         wire [H_ACT_BITS:0] x_total_start, x_total_end;
         wire [V_ACT_BITS:0] y_total_start, y_total_end;
@@ -102,7 +105,7 @@ module draw_window #(
         assign cv_active     = y>=y_cb_start && y<=y_cb_end && x>=x_center_start && x<=x_center_end;
         assign center_active = ch_active || cv_active;
 
-        assign active[i] = (xy_valid && gap_valid) && (box_active || center_active);
+        assign active[i] = (data_valid && gap_valid) && (box_active || center_active);
     end
 
     wire [7:0] hdmi_r;
