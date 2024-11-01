@@ -1,8 +1,9 @@
 module line_swap_buffer #(
-    parameter  H_ACT     = 1280                             ,
-    parameter  V_ACT     = 720                              ,
+    parameter  H_ACT       = 1280                             ,
+    parameter  V_ACT       = 720                              ,
+    parameter  DEAFULT_CAM = 1                                ,
 
-    localparam PACK_SIZE = 3*8+4+$clog2(H_ACT)+$clog2(V_ACT)
+    localparam PACK_SIZE   = 3*8+4+$clog2(H_ACT)+$clog2(V_ACT)
 ) (
     input                      rstn     ,
     input                      trig     ,
@@ -20,53 +21,25 @@ module line_swap_buffer #(
     output                     error
 );
 
-    reg         cam1_trig  ;
-    wire        cam1_aquire;
-    wire        cam1_re    ;
-    wire [ 7:0] cam1_data  ;
-    wire [10:0] cam1_row   ;
-    wire        cam1_err   ;
-    wire        cam1_busy  ;
-    line_buffer #(.H_ACT(H_ACT), .V_ACT(V_ACT)) u_udp_buffer_1 (
-        .rstn    (rstn       ),
-        .cam_pack(cam1_pack  ),
-        .trig    (cam1_trig  ),
-        .aquire  (cam1_aquire),
-        .rclk    (rclk       ),
-        .read_en (cam1_re    ),
-        .cam_data(cam1_data  ),
-        .cam_row (cam1_row   ),
-        .error   (cam1_err   ),
-        .busy    (cam1_busy  )
-    );
+    reg cam_id  ;
+    reg cam_trig;
 
-    reg         cam2_trig  ;
-    wire        cam2_aquire;
-    wire        cam2_re    ;
-    wire [ 7:0] cam2_data  ;
-    wire [10:0] cam2_row   ;
-    wire        cam2_err   ;
-    wire        cam2_busy  ;
-    line_buffer #(.H_ACT(H_ACT), .V_ACT(V_ACT)) u_udp_buffer_2 (
-        .rstn    (rstn       ),
-        .cam_pack(cam2_pack  ),
-        .trig    (cam2_trig  ),
-        .aquire  (cam2_aquire),
-        .rclk    (rclk       ),
-        .read_en (cam2_re    ),
-        .cam_data(cam2_data  ),
-        .cam_row (cam2_row   ),
-        .error   (cam2_err   ),
-        .busy    (cam2_busy  )
-    );
+    wire [PACK_SIZE-1:0] cam_pack;
+    assign cam_pack = cam_id==DEAFULT_CAM ? cam1_pack : cam2_pack;
 
-    reg cam_id ;
-    assign cam1_re  = cam_id==0 ? read_en : 'b0;
-    assign cam2_re  = cam_id==1 ? read_en : 'b0;
-    assign aquire   = cam_id==0 ? cam1_aquire : cam2_aquire;
-    assign cam_data = cam_id==0 ? cam1_data : cam2_data;
-    assign cam_row  = cam_id==0 ? cam1_row : cam2_row;
-    assign error    = cam1_err || cam2_err;
+    wire busy;
+    line_buffer #(.H_ACT(H_ACT), .V_ACT(V_ACT)) u_udp_buffer (
+        .rstn    (rstn    ),
+        .cam_pack(cam_pack),
+        .trig    (cam_trig),
+        .aquire  (aquire  ),
+        .rclk    (rclk    ),
+        .read_en (read_en ),
+        .cam_data(cam_data),
+        .cam_row (cam_row ),
+        .error   (error   ),
+        .busy    (busy    )
+    );
 
     localparam IDLE      = 3'b000;
     localparam TRIG_CAM1 = 3'b001;
@@ -94,34 +67,32 @@ module line_swap_buffer #(
 
     always_ff @(posedge rclk or negedge rstn) begin
         if(~rstn) begin
-            cnt       <= #1 'b0;
-            cam_id    <= #1 'b0;
-            state     <= #1 IDLE;
-            cam1_trig <= #1 'b0;
-            cam2_trig <= #1 'b0;
-            gap_cnt   <= #1 'b0;
+            cnt      <= #1 'b0;
+            cam_id   <= #1 'b0;
+            state    <= #1 IDLE;
+            cam_trig <= #1 'b0;
+            gap_cnt  <= #1 'b0;
         end else begin
             case (state)
                 IDLE : begin
-                    cam1_trig <= #1 'b0;
-                    cam2_trig <= #1 'b0;
-                    cam_id    <= #1 'b0;
-                    gap_cnt   <= #1 'b0;
+                    cam_trig <= #1 'b0;
+                    cam_id   <= #1 'b0;
+                    gap_cnt  <= #1 'b0;
                     if (trig_d) begin
                         cnt   <= #1 cnt + 1'b1;
                         state <= #1 TRIG_CAM1;
                     end
                 end
                 TRIG_CAM1 : begin
-                    if (cam1_busy) begin
-                        cam1_trig <= #1 'b0;
-                        state     <= #1 WAIT_CAM1;
+                    if (busy) begin
+                        cam_trig <= #1 'b0;
+                        state    <= #1 WAIT_CAM1;
                     end else begin
-                        cam1_trig <= #1 'b1;
+                        cam_trig <= #1 'b1;
                     end
                 end
                 WAIT_CAM1 : begin
-                    if (~cam1_busy) begin
+                    if (~busy) begin
                         gap_cnt <= #1 'b0;
                         state   <= #1 GAP;
                     end
@@ -131,21 +102,21 @@ module line_swap_buffer #(
                         gap_cnt <= #1 gap_cnt + 1'b1;
                     end else begin
                         cam_id <= #1 'b1;
-                        if (~cam1_busy && ~cam2_busy) begin
+                        if (~busy) begin
                             state <= #1 TRIG_CAM2;
                         end
                     end
                 end
                 TRIG_CAM2 : begin
-                    if (cam2_busy) begin
-                        cam2_trig <= #1 'b0;
-                        state     <= #1 WAIT_CAM2;
+                    if (busy) begin
+                        cam_trig <= #1 'b0;
+                        state    <= #1 WAIT_CAM2;
                     end else begin
-                        cam2_trig <= #1 'b1;
+                        cam_trig <= #1 'b1;
                     end
                 end
                 WAIT_CAM2 : begin
-                    if (~cam2_busy) begin
+                    if (~busy) begin
                         state <= #1 IDLE;
                     end
                 end
@@ -155,6 +126,5 @@ module line_swap_buffer #(
             endcase
         end
     end
-
 
 endmodule : line_swap_buffer
