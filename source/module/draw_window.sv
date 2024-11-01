@@ -102,7 +102,7 @@ module draw_window #(
         assign cv_active     = y>=y_cb_start && y<=y_cb_end && x>=x_center_start && x<=x_center_end;
         assign center_active = ch_active || cv_active;
 
-        assign active[i] = (xy_valid && gap_valid) && (box_active || ch_active);
+        assign active[i] = (xy_valid && gap_valid) && (box_active || center_active);
     end
 
     wire [7:0] hdmi_r;
