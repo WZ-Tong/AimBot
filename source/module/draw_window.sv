@@ -81,22 +81,22 @@ module draw_window #(
         wire [H_ACT_BITS:0] x_total_start, x_total_end;
         wire [V_ACT_BITS:0] y_total_start, y_total_end;
         assign x_total_start = start_x0 + end_x0;
-        assign y_total_start = start_y1 + end_y1;
         assign x_total_end   = start_x1 + end_x1;
-        assign y_total_end   = start_y0 + end_y0;
+        assign y_total_start = start_y0 + end_y0;
+        assign y_total_end   = start_y1 + end_y1;
 
         wire [H_ACT_BITS-1:0] x_center_start, x_center_end;
         wire [V_ACT_BITS-1:0] y_center_start, y_center_end;
         assign x_center_start = x_total_start[H_ACT_BITS:1];
-        assign y_center_start = y_total_start[V_ACT_BITS:1];
         assign x_center_end   = x_total_end[H_ACT_BITS:1];
+        assign y_center_start = y_total_start[V_ACT_BITS:1];
         assign y_center_end   = y_total_end[V_ACT_BITS:1];
 
         wire [H_ACT_BITS-1:0] x_cb_start, x_cb_end; // Center boundary
         wire [V_ACT_BITS-1:0] y_cb_start, y_cb_end; // Center boundary
         assign x_cb_start = x_center_start - CENTER_WIDTH;
-        assign y_cb_start = y_center_start - CENTER_WIDTH;
         assign x_cb_end   = x_center_end + CENTER_WIDTH;
+        assign y_cb_start = y_center_start - CENTER_WIDTH;
         assign y_cb_end   = y_center_end + CENTER_WIDTH;
 
         // Center cross pattern
