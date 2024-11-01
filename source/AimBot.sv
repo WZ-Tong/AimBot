@@ -163,7 +163,6 @@ module AimBot #(
         .o_pack (disp_pack_2  )
     );
 
-    wire                 cam1_wbr ;
     wire [PACK_SIZE-1:0] hdmi_cam1;
     frame_process #(
         .H_ACT   (H_ACT   ),
@@ -179,7 +178,6 @@ module AimBot #(
         .o_pack   (hdmi_cam1  )
     );
 
-    wire                 cam2_wbr ;
     wire [PACK_SIZE-1:0] hdmi_cam2;
     frame_process #(
         .H_ACT(H_ACT),
