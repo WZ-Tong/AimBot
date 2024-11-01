@@ -21,6 +21,7 @@ module AimBot #(
     input        wb_key       ,
     input        gc_key       ,
     input        dw_key       ,
+    input        b_key        ,
     input        send_switch  ,
     input        send_key     ,
     input        wb_rstn      ,
@@ -174,6 +175,7 @@ module AimBot #(
         .wb_update(~wb_rstn   ),
         .wb_key   (wb_key     ),
         .gc_key   (gc_key     ),
+        .b_key    (b_key      ),
         .i_pack   (disp_pack_1),
         .o_pack   (hdmi_cam1  )
     );
@@ -188,6 +190,7 @@ module AimBot #(
         .wb_update(~wb_rstn   ),
         .wb_key   (wb_key     ),
         .gc_key   (gc_key     ),
+        .b_key    (b_key      ),
         .i_pack   (disp_pack_2),
         .o_pack   (hdmi_cam2  )
     );

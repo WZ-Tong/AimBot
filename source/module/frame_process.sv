@@ -1,8 +1,8 @@
 module frame_process #(
-    parameter H_ACT     = 1280   ,
-    parameter V_ACT     = 720    ,
+    parameter H_ACT    = 1280   ,
+    parameter V_ACT    = 720    ,
 
-    parameter KEY_TICK  = 500_000
+    parameter KEY_TICK = 500_000
 ) (
     input                                          clk      ,
     input                                          rstn     ,
@@ -10,6 +10,7 @@ module frame_process #(
     input                                          wb_update,
     input                                          wb_key   ,
     input                                          gc_key   ,
+    input                                          b_key    ,
 
     input  [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] i_pack   ,
     output [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] o_pack
@@ -51,12 +52,34 @@ module frame_process #(
         .switch(gc_en )
     );
 
+    wire [PACK_SIZE-1:0] gc_pack;
     gray_convert #(
         .H_ACT(H_ACT),
         .V_ACT(V_ACT)
     ) u_gray_convert (
         .en    (gc_en  ),
         .i_pack(wb_pack),
+        .o_pack(gc_pack)
+    );
+
+    wire b_en;
+    key_to_switch #(
+        .TICK(KEY_TICK),
+        .INIT(1'b1    )
+    ) u_ks_b_en (
+        .clk   (clk  ),
+        .rstn  (rstn ),
+        .key   (b_key),
+        .switch(b_en )
+    );
+
+    binaryzation #(
+        .H_ACT(H_ACT),
+        .V_ACT(V_ACT)
+    ) u_binaryzation (
+        .rstn  (rstn   ),
+        .en    (b_en   ),
+        .i_pack(gc_pack),
         .o_pack(o_pack )
     );
 
