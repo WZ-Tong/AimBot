@@ -38,13 +38,13 @@ define_attribute {p:udp_fill} {PAP_IO_DRIVE} {8}
 define_attribute {p:udp_fill} {PAP_IO_NONE} {TRUE}
 define_attribute {p:udp_fill} {PAP_IO_SLEW} {SLOW}
 
-define_attribute {p:udp_send} {PAP_IO_DIRECTION} {OUTPUT}
-define_attribute {p:udp_send} {PAP_IO_LOC} {A5}
-define_attribute {p:udp_send} {PAP_IO_VCCIO} {3.3}
-define_attribute {p:udp_send} {PAP_IO_STANDARD} {LVCMOS33}
-define_attribute {p:udp_send} {PAP_IO_DRIVE} {8}
-define_attribute {p:udp_send} {PAP_IO_NONE} {TRUE}
-define_attribute {p:udp_send} {PAP_IO_SLEW} {SLOW}
+define_attribute {p:udp_busy} {PAP_IO_DIRECTION} {OUTPUT}
+define_attribute {p:udp_busy} {PAP_IO_LOC} {A5}
+define_attribute {p:udp_busy} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:udp_busy} {PAP_IO_STANDARD} {LVCMOS33}
+define_attribute {p:udp_busy} {PAP_IO_DRIVE} {8}
+define_attribute {p:udp_busy} {PAP_IO_NONE} {TRUE}
+define_attribute {p:udp_busy} {PAP_IO_SLEW} {SLOW}
 
 # define_attribute {p:STUB} {PAP_IO_DIRECTION} {OUTPUT}
 # define_attribute {p:STUB} {PAP_IO_LOC} {F7}

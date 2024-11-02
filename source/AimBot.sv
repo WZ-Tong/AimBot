@@ -72,7 +72,7 @@ module AimBot #(
     output       cam_tick     ,
     output       line_err     ,
     output       udp_fill     ,
-    output       udp_send
+    output       udp_busy
 );
 
     localparam PACK_SIZE = 3*8+4+$clog2(H_ACT)+$clog2(V_ACT);
@@ -284,18 +284,13 @@ module AimBot #(
     wire lb_trig;
     assign lb_trig = ub_switch || ub_trig;
 
-    rst_gen #(.TICK(500_000)) u_udp_send_tick (
-        .clk  (clk     ),
-        .i_rst(lb_trig ),
-        .o_rst(udp_send)
-    );
-
     wire        udp_trig;
     wire [ 7:0] ub_data ;
     wire [10:0] ub_row  ;
 
     wire       ub_id ;
     wire [3:0] ub_cnt;
+
     line_swap_buffer #(.H_ACT(H_ACT), .V_ACT(V_ACT)) u_udp_swap_buffer (
         .rstn     (rstn     ),
         .cam1_pack(hdmi_cam1),
@@ -308,7 +303,8 @@ module AimBot #(
         .cam_row  (ub_row   ),
         .cam_id   (ub_id    ),
         .cnt      (ub_cnt   ),
-        .error    (line_err )
+        .error    (line_err ),
+        .busy     (udp_busy )
     );
     wire [15:0] ub_index;
     assign ub_index = {ub_id, ub_cnt, ub_row};
