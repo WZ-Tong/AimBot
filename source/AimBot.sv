@@ -295,7 +295,7 @@ module AimBot #(
     wire [10:0] ub_row  ;
 
     wire       ub_id ;
-    wire [4:0] ub_cnt;
+    wire [3:0] ub_cnt;
     line_swap_buffer #(.H_ACT(H_ACT), .V_ACT(V_ACT)) u_udp_swap_buffer (
         .rstn     (rstn     ),
         .cam1_pack(hdmi_cam1),

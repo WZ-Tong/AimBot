@@ -16,7 +16,7 @@ module line_swap_buffer #(
     output     [          7:0] cam_data ,
     output     [         10:0] cam_row  ,
     output                     cam_id   ,
-    output reg [          4:0] cnt      ,
+    output reg [          3:0] cnt      ,
 
     output                     error
 );
