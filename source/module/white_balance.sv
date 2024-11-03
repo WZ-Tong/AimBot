@@ -108,13 +108,13 @@ module white_balance #(
         end
     end
 
-    localparam DARK_THRESH = H_ACT * V_ACT * 4;
+    localparam DARK_THRESH = 4;
 
     wire frame_dark;
     assign frame_dark = 1
-        && r_current_sum<=DARK_THRESH
-        && g_current_sum<=DARK_THRESH
-        && b_current_sum<=DARK_THRESH;
+        && r_last_sum<=H_ACT*V_ACT*DARK_THRESH
+        && g_last_sum<=H_ACT*V_ACT*DARK_THRESH
+        && b_last_sum<=H_ACT*V_ACT*DARK_THRESH;
 
     // Keeps at least a frame
     // Changing when NEGEDGE vsync
