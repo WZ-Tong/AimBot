@@ -6,23 +6,23 @@ module udp_reader #(parameter CAPACITY = 1) (
     input                       clk   ,
     input                       rstn  ,
 
-    input                       valid   /*synthesis PAP_MARK_DEBUG="true"*/,
-    input                       rx_end  /*synthesis PAP_MARK_DEBUG="true"*/,
-    input      [           7:0] i_data  /*synthesis PAP_MARK_DEBUG="true"*/,
+    input                       valid ,
+    input                       rx_end,
+    input      [           7:0] i_data,
     input      [          15:0] i_len ,
 
     output     [CAPACITY*8-1:0] o_data,
-    output reg                  error   /*synthesis PAP_MARK_DEBUG="true"*/,
-    output reg                  trig    /*synthesis PAP_MARK_DEBUG="true"*/
+    output reg                  error ,
+    output reg                  trig
 );
 
     `ifdef UDP_READER_MEM
         integer i;
 
-        reg  [$clog2(CAPACITY)-1:0] wptr/*synthesis PAP_MARK_DEBUG="true"*/;
+        reg [$clog2(CAPACITY)-1:0] wptr;
 
-        reg  [           7:0] inner_mem [CAPACITY]/*synthesis PAP_MARK_DEBUG="true"*/;
-        wire [CAPACITY*8-1:0] inner_data;
+        reg  [           7:0] inner_mem [CAPACITY];
+        wire [CAPACITY*8-1:0] inner_data          ;
 
         reg [7:0] disp_mem[CAPACITY];
 
@@ -47,18 +47,18 @@ module udp_reader #(parameter CAPACITY = 1) (
                 end else if (rx_end) begin
                     if (wptr!=0) begin
                         error <= #1 'b1;
+                        wptr  <= #1 'b0;
                     end else begin
                         error <= #1 'b0;
+                        wptr  <= #1 'b0;
                     end
 
                     if ((~inner_data)==0) begin
                         trig <= #1 'b1;
                     end else if (inner_data!=0) begin
                         for (i = 0; i < CAPACITY; i=i+1) begin
-                            disp_mem[i]  <= #1 inner_mem[i];
+                            disp_mem[i] <= #1 inner_mem[i];
                         end
-                    end else begin
-                        // `inner_data`==0
                     end
                 end
             end
