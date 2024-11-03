@@ -4,15 +4,16 @@ module frame_process #(
 
     parameter KEY_TICK = 500_000
 ) (
-    input                                          clk      ,
-    input                                          rstn     ,
+    input                                          clk           ,
+    input                                          rstn          ,
 
-    input                                          wb_update,
-    input                                          wb_key   ,
-    input                                          gc_key   ,
-    input                                          b_key    ,
+    input                                          balance_update,
+    input                                          balance_key   ,
+    input                                          gamma_key     ,
+    input                                          gray_key      ,
+    input                                          bin_key       ,
 
-    input  [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] i_pack   ,
+    input  [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] i_pack        ,
     output [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] o_pack
 );
 
@@ -22,11 +23,11 @@ module frame_process #(
     key_to_switch #(
         .TICK(KEY_TICK),
         .INIT(1'b1    )
-    ) u_ks_wb_en (
-        .clk   (clk   ),
-        .rstn  (rstn  ),
-        .key   (wb_key),
-        .switch(wb_en )
+    ) u_wb_en (
+        .clk   (clk        ),
+        .rstn  (rstn       ),
+        .key   (balance_key),
+        .switch(wb_en      )
     );
 
     wire [PACK_SIZE-1:0] wb_pack;
@@ -34,53 +35,74 @@ module frame_process #(
         .H_ACT(H_ACT),
         .V_ACT(V_ACT)
     ) u_white_balance (
-        .i_pack(i_pack   ),
-        .rstn  (rstn     ),
-        .en    (wb_en    ),
-        .update(wb_update),
-        .o_pack(wb_pack  )
+        .i_pack(i_pack        ),
+        .rstn  (rstn          ),
+        .en    (wb_en         ),
+        .update(balance_update),
+        .o_pack(wb_pack       )
     );
 
-    wire gc_en;
+    wire gamma_en;
     key_to_switch #(
         .TICK(KEY_TICK),
         .INIT(1'b1    )
-    ) u_ks_gc_en (
-        .clk   (clk   ),
-        .rstn  (rstn  ),
-        .key   (gc_key),
-        .switch(gc_en )
+    ) u_gamma_en (
+        .clk   (clk      ),
+        .rstn  (rstn     ),
+        .key   (gamma_key),
+        .switch(gamma_en )
     );
 
-    wire [PACK_SIZE-1:0] gc_pack;
+    wire [PACK_SIZE-1:0] gamma_pack;
+    gray_convert #(
+        .H_ACT(H_ACT),
+        .V_ACT(V_ACT)
+    ) u_gamma_correction (
+        .en    (gamma_en  ),
+        .i_pack(wb_pack   ),
+        .o_pack(gamma_pack)
+    );
+
+    wire gray_en;
+    key_to_switch #(
+        .TICK(KEY_TICK),
+        .INIT(1'b1    )
+    ) u_gray_en (
+        .clk   (clk     ),
+        .rstn  (rstn    ),
+        .key   (gray_key),
+        .switch(gray_en )
+    );
+
+    wire [PACK_SIZE-1:0] gray_pack;
     gray_convert #(
         .H_ACT(H_ACT),
         .V_ACT(V_ACT)
     ) u_gray_convert (
-        .en    (gc_en  ),
-        .i_pack(wb_pack),
-        .o_pack(gc_pack)
+        .en    (gray_en   ),
+        .i_pack(gamma_pack),
+        .o_pack(gray_pack )
     );
 
     wire b_en;
     key_to_switch #(
         .TICK(KEY_TICK),
         .INIT(1'b1    )
-    ) u_ks_b_en (
-        .clk   (clk  ),
-        .rstn  (rstn ),
-        .key   (b_key),
-        .switch(b_en )
+    ) u_bin_en (
+        .clk   (clk    ),
+        .rstn  (rstn   ),
+        .key   (bin_key),
+        .switch(b_en   )
     );
 
     binaryzation #(
         .H_ACT(H_ACT),
         .V_ACT(V_ACT)
     ) u_binaryzation (
-        .rstn  (rstn   ),
-        .en    (b_en   ),
-        .i_pack(gc_pack),
-        .o_pack(o_pack )
+        .rstn  (rstn     ),
+        .en    (b_en     ),
+        .i_pack(gray_pack),
+        .o_pack(o_pack   )
     );
 
 endmodule : frame_process

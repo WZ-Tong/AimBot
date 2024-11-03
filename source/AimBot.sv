@@ -18,11 +18,12 @@ module AimBot #(
 
     // Ctrl key
     input        cam_key      ,
-    input        wb_key       ,
-    input        gc_key       ,
-    input        dw_key       ,
-    input        b_key        ,
-    input        wb_rstn      ,
+    input        balance_key  ,
+    input        gray_key     ,
+    input        gammar_key   ,
+    input        box_key      ,
+    input        binary_key   ,
+    input        balance_rstn ,
 
     // Cam1 ctrl/data
     inout        cam1_scl     ,
@@ -168,29 +169,33 @@ module AimBot #(
         .V_ACT   (V_ACT   ),
         .KEY_TICK(KEY_HOLD)
     ) u_cam1_process (
-        .clk      (clk        ),
-        .rstn     (rstn       ),
-        .wb_update(~wb_rstn   ),
-        .wb_key   (wb_key     ),
-        .gc_key   (gc_key     ),
-        .b_key    (b_key      ),
-        .i_pack   (disp_pack_1),
-        .o_pack   (hdmi_cam1  )
+        .clk           (clk          ),
+        .rstn          (rstn         ),
+        .balance_update(~balance_rstn),
+        .balance_key   (balance_key  ),
+        .gamma_key     (gamma_key    ),
+        .gray_key      (gray_key     ),
+        .bin_key       (binary_key   ),
+        .i_pack        (disp_pack_1  ),
+        .o_pack        (hdmi_cam1    )
     );
 
     wire [PACK_SIZE-1:0] hdmi_cam2;
+
+    logic gamma_key;
     frame_process #(
         .H_ACT(H_ACT),
         .V_ACT(V_ACT)
     ) u_cam2_process (
-        .clk      (clk        ),
-        .rstn     (rstn       ),
-        .wb_update(~wb_rstn   ),
-        .wb_key   (wb_key     ),
-        .gc_key   (gc_key     ),
-        .b_key    (b_key      ),
-        .i_pack   (disp_pack_2),
-        .o_pack   (hdmi_cam2  )
+        .clk           (clk          ),
+        .rstn          (rstn         ),
+        .balance_update(~balance_rstn),
+        .balance_key   (balance_key  ),
+        .gamma_key     (gamma_key    ),
+        .gray_key      (gray_key     ),
+        .bin_key       (binary_key   ),
+        .i_pack        (disp_pack_2  ),
+        .o_pack        (hdmi_cam2    )
     );
 
     wire [PACK_SIZE-1:0] hdmi_pack;
@@ -208,15 +213,15 @@ module AimBot #(
         .pack      (hdmi_pack)
     );
 
-    wire dw_en;
+    wire box_en;
     key_to_switch #(
         .TICK(KEY_HOLD),
         .INIT(1'b1    )
-    ) u_ks_dw_en (
-        .clk   (clk   ),
-        .rstn  (rstn  ),
-        .key   (dw_key),
-        .switch(dw_en )
+    ) u_box_en (
+        .clk   (clk    ),
+        .rstn  (rstn   ),
+        .key   (box_key),
+        .switch(box_en )
     );
 
     wire [BOX_NUM*$clog2(H_ACT)-1:0] dw_start_xs;
@@ -230,7 +235,7 @@ module AimBot #(
         .BOX_WIDTH(BOX_WIDTH),
         .BOX_NUM  (BOX_NUM  )
     ) u_draw_window (
-        .en      (dw_en      ),
+        .en      (box_en     ),
         .i_pack  (hdmi_pack  ),
         .o_pack  (dw_pack    ),
         .start_xs(dw_start_xs),
