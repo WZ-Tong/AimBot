@@ -334,14 +334,15 @@ module AimBot #(
 
     wire udp_cap_err;
     udp_reader #(.CAPACITY(UDP_READ_CAPACITY)) u_udp_reader (
-        .clk   (rgmii_clk   ),
-        .rstn  (rstn        ),
-        .valid (udp_rx_valid),
-        .i_data(udp_rx_data ),
-        .error (udp_cap_err ),
-        .o_data(udp_data    ),
-        .rx_end(udp_rx_end  ),
-        .trig  (lb_trig     )
+        .clk   (rgmii_clk      ),
+        .rstn  (rstn           ),
+        .valid (udp_rx_valid   ),
+        .i_data(udp_rx_data    ),
+        .i_len (udp_rx_data_len),
+        .error (udp_cap_err    ),
+        .o_data(udp_data       ),
+        .rx_end(udp_rx_end     ),
+        .trig  (lb_trig        )
     );
 
     rst_gen #(.TICK(KEY_HOLD)) u_udp_err_gen (
