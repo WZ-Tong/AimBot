@@ -111,10 +111,11 @@ module binaryzation #(
     localparam TRIM_BITS        = 8/2                       ; // 4
     localparam FRAME_TOTAL_BITS = $clog2(H_ACT*V_ACT)       ; // 20
     localparam SELECT_START     = FRAME_TOTAL_BITS+TRIM_BITS;
+    localparam SELECT_OFFSET    = 8'h20;
 
-    assign r_thresh = r_last_sum >> SELECT_START;
-    assign g_thresh = g_last_sum >> SELECT_START;
-    assign b_thresh = b_last_sum >> SELECT_START;
+    assign r_thresh = (r_last_sum >> SELECT_START) - SELECT_OFFSET;
+    assign g_thresh = (g_last_sum >> SELECT_START) - SELECT_OFFSET;
+    assign b_thresh = (b_last_sum >> SELECT_START) - SELECT_OFFSET;
 
     wire [7:0] r_bin;
     wire [7:0] g_bin;
