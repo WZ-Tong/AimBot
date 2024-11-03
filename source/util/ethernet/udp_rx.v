@@ -34,7 +34,8 @@ module udp_rx #(
     
     output reg [7:0]       udp_rec_rdata ,      //udp ram read data
     output reg [15:0]      udp_rec_data_length,     //udp data length
-    output reg             udp_rec_data_valid       //udp data valid
+    output reg             udp_rec_data_valid,       //udp data valid
+    output reg             udp_rec_end       //udp data valid
 );
 
     reg  [15:0]             udp_rx_cnt ;
@@ -143,15 +144,14 @@ module udp_rx #(
 
     //**************************************************//
     //generate udp rx end
-    reg  udp_rx_end;
     always @(posedge clk)
     begin
         if (~rstn)
-            udp_rx_end <= 1'b0 ;       
+            udp_rec_end <= 1'b0 ;
         else if (state == REC_END)    
-            udp_rx_end <= 1'b1 ;   
+            udp_rec_end <= 1'b1 ;
         else
-            udp_rx_end <= 1'b0 ;    
+            udp_rec_end <= 1'b0 ;
     end 
     
     always @(posedge clk)

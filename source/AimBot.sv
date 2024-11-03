@@ -22,8 +22,6 @@ module AimBot #(
     input        gc_key       ,
     input        dw_key       ,
     input        b_key        ,
-    input        send_switch  ,
-    input        send_key     ,
     input        wb_rstn      ,
 
     // Cam1 ctrl/data
@@ -71,7 +69,7 @@ module AimBot #(
     output       net_conn     ,
     output       cam_tick     ,
     output       line_err     ,
-    output       udp_fill     ,
+    output       udp_err      ,
     output       udp_busy
 );
 
@@ -256,7 +254,7 @@ module AimBot #(
         .b    (hdmi_b    )
     );
 
-    tick #(.TICK(30*2)) u_cam_tick (
+    tick #(.TICK(4)) u_cam_tick (
         .clk (clk                  ),
         .rstn(rstn                 ),
         .trig(cam1_vsync^cam2_vsync),
@@ -266,23 +264,7 @@ module AimBot #(
     wire rgmii_clk /*synthesis PAP_MARK_DEBUG="true"*/;
     wire udp_tx_re;
 
-    wire ub_trig;
-    trig_gen #(.TICK(KEY_HOLD)) u_send_trig (
-        .clk   (clk     ),
-        .rstn  (rstn    ),
-        .switch(send_key),
-        .trig  (ub_trig )
-    );
-    wire ub_switch;
-    key_to_switch #(.TICK(KEY_HOLD), .INIT(1'b1)) u_send_switch (
-        .clk   (clk        ),
-        .rstn  (rstn       ),
-        .key   (send_switch),
-        .switch(ub_switch  )
-    );
-
     wire lb_trig;
-    assign lb_trig = ub_switch || ub_trig;
 
     wire        udp_trig;
     wire [ 7:0] ub_data ;
@@ -312,6 +294,7 @@ module AimBot #(
     wire        udp_rx_valid   ;
     wire [ 7:0] udp_rx_data    ;
     wire [15:0] udp_rx_data_len;
+    wire        udp_rx_end     ;
     udp_packet #(
         .LOCAL_MAC (LOCAL_MAC ),
         .LOCAL_IP  (LOCAL_IP  ),
@@ -332,6 +315,7 @@ module AimBot #(
         .rx_data     (udp_rx_data    ),
         .rx_data_len (udp_rx_data_len),
         .rx_error    (/*unused*/     ),
+        .rx_end      (udp_rx_end     ),
         // Hardware
         .connected   (net_conn       ),
         .rgmii_rxc   (rgmii1_rxc     ),
@@ -348,20 +332,22 @@ module AimBot #(
 
     wire [UDP_READ_CAPACITY*8-1:0] udp_data /*synthesis PAP_MARK_DEBUG="true"*/;
 
-    wire udp_buf_filled;
+    wire udp_cap_err;
     udp_reader #(.CAPACITY(UDP_READ_CAPACITY)) u_udp_reader (
-        .clk   (rgmii_clk     ),
-        .rstn  (rstn          ),
-        .valid (udp_rx_valid  ),
-        .i_data(udp_rx_data   ),
-        .filled(udp_buf_filled),
-        .o_data(udp_data      )
+        .clk   (rgmii_clk   ),
+        .rstn  (rstn        ),
+        .valid (udp_rx_valid),
+        .i_data(udp_rx_data ),
+        .error (udp_cap_err ),
+        .o_data(udp_data    ),
+        .rx_end(udp_rx_end  ),
+        .trig  (lb_trig     )
     );
 
-    rst_gen #(.TICK(KEY_HOLD)) u_udp_fill_gen (
-        .clk  (clk           ),
-        .i_rst(udp_buf_filled),
-        .o_rst(udp_fill      )
+    rst_gen #(.TICK(KEY_HOLD)) u_udp_err_gen (
+        .clk  (clk        ),
+        .i_rst(udp_cap_err),
+        .o_rst(udp_err    )
     );
 
     if (H_ACT==1280 && V_ACT==720) begin : g_draw_box_720

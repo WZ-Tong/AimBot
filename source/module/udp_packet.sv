@@ -19,6 +19,7 @@ module udp_packet #(
     output            rx_error    ,
     output     [ 7:0] rx_data     ,
     output     [15:0] rx_data_len ,
+    output            rx_end      ,
 
     output reg        connected   ,
 
@@ -220,6 +221,7 @@ module udp_packet #(
         .udp_rec_data_valid (rx_valid         ),
         .udp_rec_rdata      (rx_data          ),
         .udp_rec_data_length(rx_data_len      ),
+        .udp_rec_end        (rx_end           ),
         // ARP
         .arp_req            (arp_req          ),
         .arp_found          (arp_found        ),

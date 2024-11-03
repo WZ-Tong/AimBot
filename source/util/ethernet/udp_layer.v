@@ -52,7 +52,8 @@ module udp_layer #(
     
     output     [7:0]   udp_rec_rdata ,      //udp ram read data
     output     [15:0]  udp_rec_data_length, //udp data length
-    output             udp_rec_data_valid   //udp data valid
+    output             udp_rec_data_valid,  //udp data valid
+    output             udp_rec_end
 );
     
     udp_tx #(
@@ -94,7 +95,8 @@ module udp_layer #(
                                                       
         .udp_rec_rdata         (  udp_rec_rdata       ),//output     [7:0]       udp_rec_rdata ,      //udp ram read data
         .udp_rec_data_length   (  udp_rec_data_length ),//output reg [15:0]      udp_rec_data_length,     //udp data length
-        .udp_rec_data_valid    (  udp_rec_data_valid  ) //output reg             udp_rec_data_valid       //udp data valid
+        .udp_rec_data_valid    (  udp_rec_data_valid  ),//output reg             udp_rec_data_valid       //udp data valid
+        .udp_rec_end           (  udp_rec_end         )
     );
     
 endmodule

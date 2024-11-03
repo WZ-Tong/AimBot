@@ -45,6 +45,7 @@ module udp_ip_mac_top #(
     output  [7:0]   udp_rec_rdata ,      //udp ram read data   
     output  [15:0]  udp_rec_data_length,     //udp data length     
     output          udp_rec_data_valid,       //udp data valid      
+    output          udp_rec_end,
     
     output          mac_data_valid,
     output  [7:0]   mac_tx_data,   
@@ -104,7 +105,8 @@ module udp_ip_mac_top #(
         
         .udp_rec_rdata           (  udp_rec_rdata            ),//output     [7:0]   udp_rec_rdata ,      //udp ram read data
         .udp_rec_data_length     (  udp_rec_data_length      ),//output     [15:0]  udp_rec_data_length,     //udp data length
-        .udp_rec_data_valid      (  udp_rec_data_valid       ) //output             udp_rec_data_valid       //udp data valid
+        .udp_rec_data_valid      (  udp_rec_data_valid       ),//output             udp_rec_data_valid       //udp data valid
+        .udp_rec_end             (  udp_rec_end              )
     );
 
     wire          ip_tx_ready;
