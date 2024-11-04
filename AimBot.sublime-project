@@ -63,6 +63,7 @@
 				"*_backup",
 				"yolo*",
 				"ipcore",
+				"*cortex"
 			]
 		},
 		{
