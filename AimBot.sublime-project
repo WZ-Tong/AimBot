@@ -10,6 +10,8 @@
 			"-t null",
 			// "-i",
 			"-y$project_path\\source",
+			"-y$project_path\\source\\cmsdk",
+			"-y$project_path\\source\\cmsdk\\ahb_busmatrix\\verilog\\built\\ahb_bus_matrix",
 			"-y$project_path\\source\\stub",
 			"-y$project_path\\source\\module",
 			"-y$project_path\\source\\util",

@@ -1,26 +1,26 @@
 module cortex_m0 (
-    input         clk      ,
-    input         rstn     ,
-    input         swclk    ,
-    inout         swdio    ,
+    input             clk      ,
+    input             rstn     ,
+    output reg        hrstn    ,
+    input             swclk    ,
+    inout             swdio    ,
 
     // AHB
-    output [31:0] haddr    ,
-    output [ 2:0] hburst   ,
-    output        hmastlock,
-    output [ 3:0] hprot    ,
-    output [ 2:0] hsize    ,
-    output [ 1:0] htrans   ,
-    output [31:0] hwdata   ,
-    output        hwrite   ,
-    input  [31:0] hrdata   ,
-    input         hready   ,
-    input         hresp    ,
-    output        hmaster
+    output     [31:0] haddr    ,
+    output     [ 2:0] hburst   ,
+    output            hmastlock,
+    output     [ 3:0] hprot    ,
+    output     [ 2:0] hsize    ,
+    output     [ 1:0] htrans   ,
+    output     [31:0] hwdata   ,
+    output            hwrite   ,
+    input      [31:0] hrdata   ,
+    input             hready   ,
+    input             hresp    ,
+    output            hmaster
 );
 
     wire sys_rst_req;
-    reg  hrstn      ;
     always_ff @(posedge clk or negedge rstn) begin
         if(~rstn) begin
             hrstn <= #1 'b0;
