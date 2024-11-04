@@ -42,12 +42,12 @@ module soc (
         .hmaster  (hmaster  )
     );
 
-    wire        hselm0     ;
-    wire        hreadym0   ;
-    wire [ 1:0] htransm0   ;
-    wire [ 2:0] hsizem0    ;
-    wire        hwritem0   ;
-    wire [31:0] haddrm0    ;
+    wire       hselm0  ;
+    wire       hreadym0;
+    wire [1:0] htransm0;
+    wire [2:0] hsizem0 ;
+    wire       hwritem0;
+    // wire [31:0] haddrm0    ;
     wire [31:0] hwdatam0   ;
     wire        hreadyoutm0;
     wire        hrespm0    ;
@@ -55,11 +55,11 @@ module soc (
 
     wire [31:0] itcm_rdata;
     wire [31:0] itcm_wdata;
-    wire [16:0] itcm_addr ;
+    wire [13:0] itcm_addr ;
     wire [03:0] itcm_write;
     wire        itcm_cs   ;
 
-    ahb_to_sram #(.AW(32)) ahb_itcm (
+    ahb_to_sram #(.AW(16)) u_ahb_itcm (
         .HCLK     (soc_clk    ),
         .HRESETn  (hrstn      ),
         // AHB
@@ -68,7 +68,7 @@ module soc (
         .HTRANS   (htransm0   ),
         .HSIZE    (hsizem0    ),
         .HWRITE   (hwritem0   ),
-        .HADDR    (haddrm0    ),
+        .HADDR    (/*haddrm0*/),
         .HWDATA   (hwdatam0   ),
         .HREADYOUT(hreadyoutm0),
         .HRESP    (hrespm0    ),
@@ -80,5 +80,16 @@ module soc (
         .SRAMWDATA(itcm_wdata ),
         .SRAMCS   (itcm_cs    )
     );
+
+    itcm u_itcm (
+        .clk       (clk                    ),
+        .rst       (1'b0                   ),
+        .addr      (itcm_addr              ),
+        .wr_data   (itcm_wdata             ),
+        .rd_data   (itcm_rdata             ),
+        .wr_en     (|itcm_write            ),
+        .wr_byte_en(itcm_write&{4{itcm_cs}})
+    );
+
 
 endmodule : soc
