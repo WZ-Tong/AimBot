@@ -71,7 +71,11 @@ module AimBot #(
     output       cam_tick     ,
     output       line_err     ,
     output       udp_err      ,
-    output       udp_busy
+    output       udp_busy     ,
+
+    // TODO
+    input        swclk        ,
+    inout        swdio
 );
 
     localparam PACK_SIZE = 3*8+4+$clog2(H_ACT)+$clog2(V_ACT);
