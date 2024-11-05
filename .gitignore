@@ -1,6 +1,8 @@
 AimBot.pds*
 
 source/ipcore/**
+source/keil/Objects/**
+source/keil/Listings/**
 
 impl.tcl
 **.log
@@ -31,3 +33,5 @@ cfg_verify_result.sbit
 source/test/*.wdf
 
 **temp**
+
+**.WZTong
