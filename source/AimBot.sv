@@ -15,6 +15,7 @@ module AimBot #(
     localparam KEY_HOLD   = 500_000
 ) (
     input        clk          ,
+    input        soc_rstn     ,
 
     // Ctrl key
     input        cam_key      ,
@@ -383,10 +384,10 @@ module AimBot #(
     end
 
     soc u_soc (
-        .clk  (clk  ),
-        .rstn (rstn ),
-        .swclk(swclk),
-        .swdio(swdio)
+        .clk  (clk          ),
+        .rstn (rstn&soc_rstn),
+        .swclk(swclk        ),
+        .swdio(swdio        )
     );
 
 endmodule : AimBot

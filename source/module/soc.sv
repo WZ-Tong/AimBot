@@ -1,6 +1,6 @@
 module soc (
     input clk  ,
-    input rstn ,
+    input rstn /*synthesis PAP_MARK_DEBUG="true"*/,
     input swclk,
     inout swdio
 );
@@ -237,12 +237,12 @@ module soc (
         .SCANOUTHCLK(/*unused*/ )
     );
 
-    wire [31:0] itcm_rdata    ;
-    wire [31:0] itcm_wdata    ;
-    wire [03:0] itcm_write    ;
-    wire        itcm_cs       ;
-    wire [29:0] itcm_addr_full;
-    wire [13:0] itcm_addr     ;
+    wire [31:0] itcm_rdata    /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire [31:0] itcm_wdata    /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire [03:0] itcm_write    /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire itcm_cs;
+    wire [29:0] itcm_addr_full /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire [13:0] itcm_addr;
     assign itcm_addr = itcm_addr_full[13:0];
 
     ahb_to_sram #(.AW(32)) u_ahb_itcm (
