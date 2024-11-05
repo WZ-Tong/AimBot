@@ -101,35 +101,35 @@ module CORTEXM0INTEGRATION (
 //------------------------------------------------------------------------------
 // Declare visibility signals and some intermediate signals
 //------------------------------------------------------------------------------
-wire    [31: 0] cm0_r00;
-wire    [31: 0] cm0_r01;
-wire    [31: 0] cm0_r02;
-wire    [31: 0] cm0_r03;
-wire    [31: 0] cm0_r04;
-wire    [31: 0] cm0_r05;
-wire    [31: 0] cm0_r06;
-wire    [31: 0] cm0_r07;
-wire    [31: 0] cm0_r08;
-wire    [31: 0] cm0_r09;
-wire    [31: 0] cm0_r10;
-wire    [31: 0] cm0_r11;
-wire    [31: 0] cm0_r12;
-wire    [31: 0] cm0_msp;
-wire    [31: 0] cm0_psp;
-wire    [31: 0] cm0_r14;
-wire    [31: 0] cm0_pc;
-wire    [31: 0] cm0_xpsr;
-wire    [31: 0] cm0_control;
-wire    [31: 0] cm0_primask;
+wire    [31: 0] cm0_r00 /*synthesis PAP_MARK_DEBUG="true"*/;
+wire    [31: 0] cm0_r01 /*synthesis PAP_MARK_DEBUG="true"*/;
+wire    [31: 0] cm0_r02 /*synthesis PAP_MARK_DEBUG="true"*/;
+wire    [31: 0] cm0_r03 /*synthesis PAP_MARK_DEBUG="true"*/;
+wire    [31: 0] cm0_r04 /*synthesis PAP_MARK_DEBUG="true"*/;
+wire    [31: 0] cm0_r05 /*synthesis PAP_MARK_DEBUG="true"*/;
+wire    [31: 0] cm0_r06 /*synthesis PAP_MARK_DEBUG="true"*/;
+wire    [31: 0] cm0_r07 /*synthesis PAP_MARK_DEBUG="true"*/;
+wire    [31: 0] cm0_r08 /*synthesis PAP_MARK_DEBUG="true"*/;
+wire    [31: 0] cm0_r09 /*synthesis PAP_MARK_DEBUG="true"*/;
+wire    [31: 0] cm0_r10 /*synthesis PAP_MARK_DEBUG="true"*/;
+wire    [31: 0] cm0_r11 /*synthesis PAP_MARK_DEBUG="true"*/;
+wire    [31: 0] cm0_r12 /*synthesis PAP_MARK_DEBUG="true"*/;
+wire    [31: 0] cm0_msp /*synthesis PAP_MARK_DEBUG="true"*/;
+wire    [31: 0] cm0_psp /*synthesis PAP_MARK_DEBUG="true"*/;
+wire    [31: 0] cm0_r14 /*synthesis PAP_MARK_DEBUG="true"*/;
+wire    [31: 0] cm0_pc /*synthesis PAP_MARK_DEBUG="true"*/;
+wire    [31: 0] cm0_xpsr /*synthesis PAP_MARK_DEBUG="true"*/;
+wire    [31: 0] cm0_control /*synthesis PAP_MARK_DEBUG="true"*/;
+wire    [31: 0] cm0_primask /*synthesis PAP_MARK_DEBUG="true"*/;
 
-wire    [29: 0] vis_msp;
-wire    [29: 0] vis_psp;
-wire    [30: 0] vis_pc;
-wire    [ 3: 0] vis_apsr;
-wire            vis_tbit;
-wire    [ 5: 0] vis_ipsr;
-wire            vis_control;
-wire            vis_primask;
+wire    [29: 0] vis_msp /*synthesis PAP_MARK_DEBUG="true"*/;
+wire    [29: 0] vis_psp /*synthesis PAP_MARK_DEBUG="true"*/;
+wire    [30: 0] vis_pc /*synthesis PAP_MARK_DEBUG="true"*/;
+wire    [ 3: 0] vis_apsr /*synthesis PAP_MARK_DEBUG="true"*/;
+wire            vis_tbit /*synthesis PAP_MARK_DEBUG="true"*/;
+wire    [ 5: 0] vis_ipsr /*synthesis PAP_MARK_DEBUG="true"*/;
+wire            vis_control /*synthesis PAP_MARK_DEBUG="true"*/;
+wire            vis_primask /*synthesis PAP_MARK_DEBUG="true"*/;
 
 //------------------------------------------------------------------------------
 // Instantiate Cortex-M0 processor logic level
