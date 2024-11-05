@@ -48,6 +48,8 @@ module cortex_m0 (
     assign swdio = swdo_en ? swdo : 1'bz;
     assign swdi  = swdio;
 
+    wire lockup/*synthesis PAP_MARK_DEBUG="true"*/;
+
     CORTEXM0INTEGRATION u_CORTEXM0INTEGRATION (
         .FCLK         (clk             ),
         .SCLK         (clk             ),
@@ -105,7 +107,7 @@ module cortex_m0 (
         .HALTED       (/*unused*/      ),
         .TXEV         (/*unused*/      ),
         .RXEV         (/*unused*/      ),
-        .LOCKUP       (/*unused*/      ),
+        .LOCKUP       (lockup          ),
         .STCLKEN      (1'b1            ),
         .STCALIB      (26'h0           )
     );
