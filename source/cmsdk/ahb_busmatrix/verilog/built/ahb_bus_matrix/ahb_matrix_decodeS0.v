@@ -275,13 +275,13 @@ module ahb_matrix_decodeS0 (
              decode_addr_dec or data_out_port or trans_dec
            )
     begin : p_addr_out_port_comb
-      // Address region 0x20000000-0x2003ffff
-      if (((decode_addr_dec >= 22'h080000) & (decode_addr_dec <= 22'h0800ff))
+      // Address region 0x00000000-0x000fffff
+      if (((decode_addr_dec >= 22'h000000) & (decode_addr_dec <= 22'h0003ff))
                            | ((data_out_port == 4'b0000) & (trans_dec == 2'b00)))
         addr_out_port = 4'b0000;  // Select Output port MI0
 
-      // Address region 0x00000000-0x000fffff
-      else if (((decode_addr_dec >= 22'h000000) & (decode_addr_dec <= 22'h0003ff))
+      // Address region 0x20000000-0x2003ffff
+      else if (((decode_addr_dec >= 22'h080000) & (decode_addr_dec <= 22'h0800ff))
                            | ((data_out_port == 4'b0001) & (trans_dec == 2'b00)))
         addr_out_port = 4'b0001;  // Select Output port MI1
 

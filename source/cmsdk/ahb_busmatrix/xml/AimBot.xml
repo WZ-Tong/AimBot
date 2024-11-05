@@ -56,8 +56,8 @@
     <sparse_connect interface= "M2"/>
     <sparse_connect interface= "M3"/>
     <sparse_connect interface= "M4"/>
-    <address_region interface="M0" mem_lo="20000000" mem_hi='2003ffff' remapping='none'/>
-    <address_region interface="M1" mem_lo="00000000" mem_hi="000fffff" remapping='none'/>
+    <address_region interface="M0" mem_lo="00000000" mem_hi="000fffff" remapping='none'/>
+    <address_region interface="M1" mem_lo="20000000" mem_hi='2003ffff' remapping='none'/>
     <address_region interface="M2" mem_lo="40000000" mem_hi="4000ffff" remapping='none'/>
     <address_region interface="M3" mem_lo="40010000" mem_hi="4001ffff" remapping='none'/>
     <address_region interface="M4" mem_lo="40020000" mem_hi="4002ffff" remapping='none'/>
