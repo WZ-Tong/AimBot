@@ -16,12 +16,12 @@ module line_buffer #(
     output                                         error
 );
 
-    wire cam_clk;
-    wire       cam_vsync/*synthesis PAP_MARK_DEBUG="true"*/;
-    wire       cam_de   /*synthesis PAP_MARK_DEBUG="true"*/;
-    wire [7:0] cam_r;
-    wire [7:0] cam_g;
-    wire [7:0] cam_b;
+    wire       cam_clk  ;
+    wire       cam_vsync;
+    wire       cam_de   ;
+    wire [7:0] cam_r    ;
+    wire [7:0] cam_g    ;
+    wire [7:0] cam_b    ;
     hdmi_unpack #(
         .H_ACT(H_ACT),
         .V_ACT(V_ACT)
@@ -47,7 +47,7 @@ module line_buffer #(
     localparam READ_LINE_B  = 3'b110;
     localparam FIFO_READOUT = 3'b111;
 
-    reg [2:0] state/*synthesis PAP_MARK_DEBUG="true"*/;
+    reg [2:0] state;
 
     wire cam_we;
     assign cam_we = cam_de

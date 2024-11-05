@@ -270,7 +270,7 @@ module AimBot #(
         .tick(cam_tick             )
     );
 
-    wire rgmii_clk /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire rgmii_clk;
     wire udp_tx_re;
 
     wire lb_trig;
@@ -339,7 +339,7 @@ module AimBot #(
 
     localparam UDP_READ_CAPACITY = DRAW_BOX_DATA_BYTE * BOX_NUM;
 
-    wire [UDP_READ_CAPACITY*8-1:0] udp_data /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire [UDP_READ_CAPACITY*8-1:0] udp_data;
 
     wire udp_cap_err;
     udp_reader #(.CAPACITY(UDP_READ_CAPACITY)) u_udp_reader (

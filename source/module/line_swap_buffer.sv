@@ -53,10 +53,10 @@ module line_swap_buffer #(
 
     reg [$clog2(GAP_WAIT)-1:0] gap_cnt;
 
-    reg [2:0] state/*synthesis PAP_MARK_DEBUG="true"*/;
+    reg [2:0] state;
     assign busy = state != IDLE;
 
-    reg trig_d/*synthesis PAP_MARK_DEBUG="true"*/;
+    reg trig_d;
     always_ff @(posedge rclk or posedge trig) begin
         if(trig) begin
             trig_d <= #1 'b1;
