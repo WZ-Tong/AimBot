@@ -1,0 +1,15 @@
+define_attribute {p:swclk} {PAP_IO_DIRECTION} {OUTPUT}
+define_attribute {p:swclk} {PAP_IO_LOC} {AB13}
+define_attribute {p:swclk} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:swclk} {PAP_IO_STANDARD} {LVCMOS33}
+define_attribute {p:swclk} {PAP_IO_DRIVE} {8}
+define_attribute {p:swclk} {PAP_IO_NONE} {TRUE}
+define_attribute {p:swclk} {PAP_IO_SLEW} {SLOW}
+
+define_attribute {p:swdio} {PAP_IO_DIRECTION} {INOUT}
+define_attribute {p:swdio} {PAP_IO_LOC} {Y13}
+define_attribute {p:swdio} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:swdio} {PAP_IO_STANDARD} {LVCMOS33}
+define_attribute {p:swdio} {PAP_IO_DRIVE} {8}
+define_attribute {p:swdio} {PAP_IO_NONE} {TRUE}
+define_attribute {p:swdio} {PAP_IO_SLEW} {SLOW}

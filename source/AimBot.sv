@@ -73,7 +73,7 @@ module AimBot #(
     output       udp_err      ,
     output       udp_busy     ,
 
-    // TODO
+    // Cortex debugger
     input        swclk        ,
     inout        swdio
 );
@@ -381,5 +381,12 @@ module AimBot #(
         assign end_ys   = 'b0;
         assign colors   = 'b0;
     end
+
+    soc u_soc (
+        .clk  (clk  ),
+        .rstn (rstn ),
+        .swclk(swclk),
+        .swdio(swdio)
+    );
 
 endmodule : AimBot
