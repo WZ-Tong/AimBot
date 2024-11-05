@@ -58,8 +58,6 @@ module soc (
     wire  [31:0] hwdatam0   ;
     wire         hmastlockm0;
     wire         hreadymuxm0;
-    wire  [31:0] hauserm0   ;
-    wire  [31:0] hwuserm0   ;
 
     // Input from DTCM
     wire  [31:0] hrdatam1   ;
@@ -77,8 +75,6 @@ module soc (
     wire  [31:0] hwdatam1   ;
     wire         hmastlockm1;
     wire         hreadymuxm1;
-    wire  [31:0] hauserm1   ;
-    wire  [31:0] hwuserm1   ;
 
 
     wire  [31:0] HRDATAM2   ;
@@ -103,8 +99,7 @@ module soc (
     wire  [31:0] HWDATAM2   ;
     wire         HMASTLOCKM2;
     wire         HREADYMUXM2;
-    wire  [31:0] HAUSERM2   ;
-    wire  [31:0] HWUSERM2   ;
+
     wire         HSELM3     ;
     wire  [31:0] HADDRM3    ;
     wire  [ 1:0] HTRANSM3   ;
@@ -115,8 +110,7 @@ module soc (
     wire  [31:0] HWDATAM3   ;
     wire         HMASTLOCKM3;
     wire         HREADYMUXM3;
-    wire  [31:0] HAUSERM3   ;
-    wire  [31:0] HWUSERM3   ;
+
     wire         HSELM4     ;
     wire  [31:0] HADDRM4    ;
     wire  [ 1:0] HTRANSM4   ;
@@ -127,12 +121,7 @@ module soc (
     wire  [31:0] HWDATAM4   ;
     wire         HMASTLOCKM4;
     wire         HREADYMUXM4;
-    wire  [31:0] HAUSERM4   ;
-    wire  [31:0] HWUSERM4   ;
-    wire  [31:0] HRDATAS0   ;
-    wire         HREADYS0   ;
-    wire         HRESPS0    ;
-    wire  [31:0] HRUSERS0   ;
+
     ahb_bus_matrix_lite u_ahb_bus_matrix_lite (
         .HCLK       (soc_clk    ),
         .HRESETn    (hrstn      ),
@@ -183,8 +172,8 @@ module soc (
         .HWDATAM0   (hwdatam0   ),
         .HMASTLOCKM0(hmastlockm0),
         .HREADYMUXM0(hreadymuxm0),
-        .HAUSERM0   (hauserm0   ),
-        .HWUSERM0   (hwuserm0   ),
+        .HAUSERM0   (/*unused*/ ),
+        .HWUSERM0   (/*unused*/ ),
         // Output to slave 1
         .HSELM1     (hselm1     ),
         .HADDRM1    (haddrm1    ),
@@ -196,8 +185,8 @@ module soc (
         .HWDATAM1   (hwdatam1   ),
         .HMASTLOCKM1(hmastlockm1),
         .HREADYMUXM1(hreadymuxm1),
-        .HAUSERM1   (hauserm1   ),
-        .HWUSERM1   (hwuserm1   ),
+        .HAUSERM1   (/*unused*/ ),
+        .HWUSERM1   (/*unused*/ ),
         // Output to slave 2
         .HSELM2     (HSELM2     ),
         .HADDRM2    (HADDRM2    ),
@@ -209,8 +198,8 @@ module soc (
         .HWDATAM2   (HWDATAM2   ),
         .HMASTLOCKM2(HMASTLOCKM2),
         .HREADYMUXM2(HREADYMUXM2),
-        .HAUSERM2   (HAUSERM2   ),
-        .HWUSERM2   (HWUSERM2   ),
+        .HAUSERM2   (/*unused*/ ),
+        .HWUSERM2   (/*unused*/ ),
         // Output to slave 3
         .HSELM3     (HSELM3     ),
         .HADDRM3    (HADDRM3    ),
@@ -222,8 +211,8 @@ module soc (
         .HWDATAM3   (HWDATAM3   ),
         .HMASTLOCKM3(HMASTLOCKM3),
         .HREADYMUXM3(HREADYMUXM3),
-        .HAUSERM3   (HAUSERM3   ),
-        .HWUSERM3   (HWUSERM3   ),
+        .HAUSERM3   (/*unused*/ ),
+        .HWUSERM3   (/*unused*/ ),
         // Output to slave 4
         .HSELM4     (HSELM4     ),
         .HADDRM4    (HADDRM4    ),
@@ -235,8 +224,8 @@ module soc (
         .HWDATAM4   (HWDATAM4   ),
         .HMASTLOCKM4(HMASTLOCKM4),
         .HREADYMUXM4(HREADYMUXM4),
-        .HAUSERM4   (HAUSERM4   ),
-        .HWUSERM4   (HWUSERM4   ),
+        .HAUSERM4   (/*unused*/ ),
+        .HWUSERM4   (/*unused*/ ),
         // Output to master 0
         .HRDATAS0   (hrdata     ),
         .HREADYS0   (hready     ),
