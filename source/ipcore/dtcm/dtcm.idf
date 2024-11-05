@@ -15,68 +15,28 @@
     </header>
     <param_list>
         <param>
-            <name>RESET_TYPE</name>
-            <value>ASYNC</value>
-        </param>
-        <param>
-            <name>MODE_18K</name>
-            <value>true</value>
-        </param>
-        <param>
-            <name>MODE_9K</name>
-            <value>false</value>
-        </param>
-        <param>
-            <name>INIT_FILE</name>
-            <value>NONE</value>
-        </param>
-        <param>
-            <name>DRM_MODE_SEL</name>
-            <value>AUTO</value>
-        </param>
-        <param>
-            <name>RD_OCE_EN</name>
-            <value>false</value>
-        </param>
-        <param>
-            <name>INIT_FORMAT</name>
-            <value>BIN</value>
-        </param>
-        <param>
-            <name>DATA_WIDTH</name>
-            <value>32</value>
-        </param>
-        <param>
-            <name>INIT_EN</name>
-            <value>false</value>
-        </param>
-        <param>
-            <name>WRITE_MODE</name>
-            <value>NORMAL_WRITE</value>
-        </param>
-        <param>
-            <name>CLK_OR_POL_INV</name>
-            <value>false</value>
-        </param>
-        <param>
             <name>ADDR_STROBE_EN</name>
             <value>false</value>
         </param>
         <param>
-            <name>ADDR_WIDTH</name>
-            <value>9</value>
+            <name>BYTE_SIZE</name>
+            <value>8</value>
         </param>
         <param>
             <name>CLK_EN</name>
             <value>false</value>
         </param>
         <param>
-            <name>BE_WIDTH</name>
-            <value>4</value>
+            <name>MODE_18K</name>
+            <value>true</value>
         </param>
         <param>
-            <name>BYTE_SIZE</name>
-            <value>8</value>
+            <name>WR_BYTE_EN</name>
+            <value>true</value>
+        </param>
+        <param>
+            <name>BE_WIDTH</name>
+            <value>4</value>
         </param>
         <param>
             <name>OUTPUT_REG</name>
@@ -87,8 +47,48 @@
             <value>false</value>
         </param>
         <param>
-            <name>WR_BYTE_EN</name>
-            <value>true</value>
+            <name>DATA_WIDTH</name>
+            <value>32</value>
+        </param>
+        <param>
+            <name>WRITE_MODE</name>
+            <value>NORMAL_WRITE</value>
+        </param>
+        <param>
+            <name>DRM_MODE_SEL</name>
+            <value>AUTO</value>
+        </param>
+        <param>
+            <name>INIT_FILE</name>
+            <value>NONE</value>
+        </param>
+        <param>
+            <name>ADDR_WIDTH</name>
+            <value>13</value>
+        </param>
+        <param>
+            <name>INIT_FORMAT</name>
+            <value>BIN</value>
+        </param>
+        <param>
+            <name>RESET_TYPE</name>
+            <value>ASYNC</value>
+        </param>
+        <param>
+            <name>INIT_EN</name>
+            <value>false</value>
+        </param>
+        <param>
+            <name>MODE_9K</name>
+            <value>false</value>
+        </param>
+        <param>
+            <name>CLK_OR_POL_INV</name>
+            <value>false</value>
+        </param>
+        <param>
+            <name>RD_OCE_EN</name>
+            <value>false</value>
         </param>
     </param_list>
     <pin_list>
@@ -105,7 +105,7 @@
             <text>addr</text>
             <dir>input</dir>
             <pos>left</pos>
-            <msb>8</msb>
+            <msb>12</msb>
             <lsb>0</lsb>
         </pin>
         <pin>

@@ -242,8 +242,8 @@ module soc (
     wire [03:0] itcm_write    ;
     wire        itcm_cs       ;
     wire [29:0] itcm_addr_full;
-    wire [ 8:0] itcm_addr     ;
-    assign itcm_addr = itcm_addr_full[8:0];
+    wire [13:0] itcm_addr     ;
+    assign itcm_addr = itcm_addr_full[13:0];
 
     ahb_to_sram #(.AW(32)) u_ahb_itcm (
         .HCLK     (soc_clk       ),
@@ -274,7 +274,7 @@ module soc (
         .addr      (itcm_addr              ),
         .wr_data   (itcm_wdata             ),
         .rd_data   (itcm_rdata             ),
-        .wr_en     (|itcm_write            ),
+        .wr_en     (1'b0                   ),
         .wr_byte_en(itcm_write&{4{itcm_cs}})
     );
 
@@ -283,8 +283,8 @@ module soc (
     wire [03:0] dtcm_write    ;
     wire        dtcm_cs       ;
     wire [29:0] dtcm_addr_full;
-    wire [ 8:0] dtcm_addr     ;
-    assign dtcm_addr = dtcm_addr_full[8:0];
+    wire [12:0] dtcm_addr     ;
+    assign dtcm_addr = dtcm_addr_full[12:0];
 
     ahb_to_sram #(.AW(32)) u_ahb_dtcm (
         .HCLK     (soc_clk       ),
@@ -314,7 +314,7 @@ module soc (
         .addr      (dtcm_addr              ),
         .wr_data   (dtcm_wdata             ),
         .rd_data   (dtcm_rdata             ),
-        .wr_en     (|dtcm_write            ),
+        .wr_en     (1'b0                   ),
         .wr_byte_en(dtcm_write&{4{itcm_cs}})
     );
 

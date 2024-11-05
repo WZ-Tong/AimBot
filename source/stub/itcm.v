@@ -27,7 +27,7 @@ module itcm
     );
 
 
-localparam ADDR_WIDTH = 9 ; // @IPC int 9,20
+localparam ADDR_WIDTH = 14 ; // @IPC int 9,20
 
 localparam DATA_WIDTH = 32 ; // @IPC int 1,1152
 
