@@ -283,23 +283,23 @@ module soc (
     wire [03:0] dtcm_write    ;
     wire        dtcm_cs       ;
     wire [29:0] dtcm_addr_full;
-    wire [12:0] dtcm_addr     ;
-    assign dtcm_addr = dtcm_addr_full[12:0];
+    wire [ 8:0] dtcm_addr     ;
+    assign dtcm_addr = dtcm_addr_full[8:0];
 
     ahb_to_sram #(.AW(32)) u_ahb_dtcm (
         .HCLK     (soc_clk       ),
         .HRESETn  (hrstn         ),
         // AHB
-        .HSEL     (hselm0        ),
-        .HREADY   (hreadym0      ),
-        .HTRANS   (htransm0      ),
-        .HSIZE    (hsizem0       ),
-        .HWRITE   (hwritem0      ),
-        .HADDR    (haddrm0       ),
-        .HWDATA   (hwdatam0      ),
-        .HREADYOUT(hreadyoutm0   ),
-        .HRESP    (hrespm0       ),
-        .HRDATA   (hrdatam0      ),
+        .HSEL     (hselm1        ),
+        .HREADY   (hreadym1      ),
+        .HTRANS   (htransm1      ),
+        .HSIZE    (hsizem1       ),
+        .HWRITE   (hwritem1      ),
+        .HADDR    (haddrm1       ),
+        .HWDATA   (hwdatam1      ),
+        .HREADYOUT(hreadyoutm1   ),
+        .HRESP    (hrespm1       ),
+        .HRDATA   (hrdatam1      ),
         // SRAM
         .SRAMRDATA(dtcm_rdata    ),
         .SRAMADDR (dtcm_addr_full),
