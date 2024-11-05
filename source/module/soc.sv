@@ -238,10 +238,10 @@ module soc (
         .HAUSERM4   (HAUSERM4   ),
         .HWUSERM4   (HWUSERM4   ),
         // Output to master 0
-        .HRDATAS0   (HRDATAS0   ),
-        .HREADYS0   (HREADYS0   ),
-        .HRESPS0    (HRESPS0    ),
-        .HRUSERS0   (HRUSERS0   ),
+        .HRDATAS0   (hrdata     ),
+        .HREADYS0   (hready     ),
+        .HRESPS0    (hresp      ),
+        .HRUSERS0   (/*unused*/ ),
         // SCAN
         .SCANENABLE (1'b0       ),
         .SCANINHCLK (1'b0       ),
