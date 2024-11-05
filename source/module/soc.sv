@@ -242,8 +242,8 @@ module soc (
     wire [03:0] itcm_write    ;
     wire        itcm_cs       ;
     wire [29:0] itcm_addr_full;
-    wire [13:0] itcm_addr     ;
-    assign itcm_addr = itcm_addr_full[13:0];
+    wire [ 8:0] itcm_addr     ;
+    assign itcm_addr = itcm_addr_full[8:0];
 
     ahb_to_sram #(.AW(32)) u_ahb_itcm (
         .HCLK     (soc_clk       ),
@@ -267,6 +267,7 @@ module soc (
         .SRAMCS   (itcm_cs       )
     );
 
+    // AW:9, Addr: 512, 2KB
     itcm u_itcm (
         .clk       (clk                    ),
         .rst       (1'b0                   ),
