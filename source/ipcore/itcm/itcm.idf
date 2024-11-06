@@ -15,35 +15,27 @@
     </header>
     <param_list>
         <param>
-            <name>WR_BYTE_EN</name>
-            <value>true</value>
+            <name>DRM_MODE_SEL</name>
+            <value>AUTO</value>
+        </param>
+        <param>
+            <name>MODE_9K</name>
+            <value>false</value>
+        </param>
+        <param>
+            <name>INIT_FILE</name>
+            <value>./../../keil/Example.dat</value>
         </param>
         <param>
             <name>DATA_WIDTH</name>
             <value>32</value>
         </param>
         <param>
-            <name>DRM_MODE_SEL</name>
-            <value>AUTO</value>
-        </param>
-        <param>
             <name>ADDR_WIDTH</name>
             <value>14</value>
         </param>
         <param>
-            <name>WRITE_MODE</name>
-            <value>NORMAL_WRITE</value>
-        </param>
-        <param>
-            <name>BYTE_SIZE</name>
-            <value>8</value>
-        </param>
-        <param>
-            <name>BE_WIDTH</name>
-            <value>4</value>
-        </param>
-        <param>
-            <name>CLK_OR_POL_INV</name>
+            <name>OUTPUT_REG</name>
             <value>false</value>
         </param>
         <param>
@@ -51,31 +43,35 @@
             <value>false</value>
         </param>
         <param>
-            <name>INIT_FILE</name>
-            <value>./../../keil/AimBot.dat</value>
-        </param>
-        <param>
-            <name>CLK_EN</name>
+            <name>ADDR_STROBE_EN</name>
             <value>false</value>
-        </param>
-        <param>
-            <name>MODE_9K</name>
-            <value>false</value>
-        </param>
-        <param>
-            <name>RESET_TYPE</name>
-            <value>ASYNC</value>
         </param>
         <param>
             <name>INIT_FORMAT</name>
             <value>HEX</value>
         </param>
         <param>
+            <name>INIT_EN</name>
+            <value>true</value>
+        </param>
+        <param>
             <name>MODE_18K</name>
             <value>true</value>
         </param>
         <param>
-            <name>ADDR_STROBE_EN</name>
+            <name>BE_WIDTH</name>
+            <value>4</value>
+        </param>
+        <param>
+            <name>BYTE_SIZE</name>
+            <value>8</value>
+        </param>
+        <param>
+            <name>WRITE_MODE</name>
+            <value>NORMAL_WRITE</value>
+        </param>
+        <param>
+            <name>CLK_EN</name>
             <value>false</value>
         </param>
         <param>
@@ -83,12 +79,16 @@
             <value>false</value>
         </param>
         <param>
-            <name>INIT_EN</name>
-            <value>true</value>
+            <name>RESET_TYPE</name>
+            <value>ASYNC</value>
         </param>
         <param>
-            <name>OUTPUT_REG</name>
+            <name>CLK_OR_POL_INV</name>
             <value>false</value>
+        </param>
+        <param>
+            <name>WR_BYTE_EN</name>
+            <value>true</value>
         </param>
     </param_list>
     <pin_list>

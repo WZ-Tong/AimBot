@@ -106,7 +106,7 @@ module cortex_m0 (
         .TDI          (1'b0            ),
         .HALTED       (/*unused*/      ),
         .TXEV         (/*unused*/      ),
-        .RXEV         (/*unused*/      ),
+        .RXEV         (1'b0            ),
         .LOCKUP       (lockup          ),
         .STCLKEN      (1'b1            ),
         .STCALIB      (26'h0           )
