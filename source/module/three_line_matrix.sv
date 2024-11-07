@@ -10,7 +10,7 @@ module three_line_matrix #(
     parameter  MODE        = "BLANK"                                  , // TRIM
 
     localparam I_PACK_SIZE = 3*8+4+$clog2(H_ACT-0)+$clog2(V_ACT-0)    ,
-    localparam O_PACK_SIZE = 3*8+4+$clog2(H_ACT-2*2)+$clog2(V_ACT-2*2)
+    localparam O_PACK_SIZE = 3*8+4+$clog2(H_ACT-2)+$clog2(V_ACT-2)
 ) (
     input  [I_PACK_SIZE-1:0] i_pack_3,
     input  [           23:0] line1   ,
@@ -54,16 +54,14 @@ module three_line_matrix #(
     );
 
     wire in_range;
-    assign in_range = 1
-        && x>=2 && x<H_ACT-2
-        && y>=2 && y<V_ACT-2;
+    assign in_range = x>=2 && y>=2;
 
-    wire                         o_de;
-    wire [                  7:0] o_r ;
-    wire [                  7:0] o_g ;
-    wire [                  7:0] o_b ;
-    wire [$clog2(H_ACT-2*2)-1:0] o_x ;
-    wire [$clog2(V_ACT-2*2)-1:0] o_y ;
+    wire                       o_de;
+    wire [                7:0] o_r ;
+    wire [                7:0] o_g ;
+    wire [                7:0] o_b ;
+    wire [$clog2(H_ACT-2)-1:0] o_x ;
+    wire [$clog2(V_ACT-2)-1:0] o_y ;
 
     if (MODE=="BLANK") begin: g_blank_mode
         assign o_de = de;
@@ -85,7 +83,7 @@ module three_line_matrix #(
         err_mode must_be_blank_or_trim();
     end
 
-    hdmi_pack #(.H_ACT(H_ACT-2*2), .V_ACT(V_ACT-2*2)) u_hdmi_pack_m (
+    hdmi_pack #(.H_ACT(H_ACT-2), .V_ACT(V_ACT-2)) u_hdmi_pack_m (
         .clk  (clk     ),
         .hsync(hsync   ),
         .vsync(vsync   ),

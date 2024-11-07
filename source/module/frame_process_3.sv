@@ -1,11 +1,11 @@
 module frame_process_3 #(
-    parameter  H_ACT       = 1280                                     ,
-    parameter  V_ACT       = 720                                      ,
+    parameter  H_ACT       = 1280                                 ,
+    parameter  V_ACT       = 720                                  ,
 
-    parameter  KEY_TICK    = 500_000                                  ,
+    parameter  KEY_TICK    = 500_000                              ,
 
-    localparam I_PACK_SIZE = 3*8+4+$clog2(H_ACT-0)+$clog2(V_ACT-0)    ,
-    localparam O_PACK_SIZE = 3*8+4+$clog2(H_ACT-2*2)+$clog2(V_ACT-2*2)
+    localparam I_PACK_SIZE = 3*8+4+$clog2(H_ACT-0)+$clog2(V_ACT-0),
+    localparam O_PACK_SIZE = 3*8+4+$clog2(H_ACT-2)+$clog2(V_ACT-2)
 ) (
     input                    clk     ,
     input                    rstn    ,
@@ -97,8 +97,8 @@ module frame_process_3 #(
     );
 
     bin_face #(
-        .H_ACT(H_ACT-2*2),
-        .V_ACT(V_ACT-2*2)
+        .H_ACT(H_ACT-2),
+        .V_ACT(V_ACT-2)
     ) u_bin_face (
         .rstn  (rstn   ),
         .en    (face_en),
