@@ -1,23 +1,23 @@
 module frame_process #(
-    parameter  H_ACT       = 1280                                 ,
-    parameter  V_ACT       = 720                                  ,
+    parameter  H_ACT     = 1280                                 ,
+    parameter  V_ACT     = 720                                  ,
 
-    parameter  KEY_TICK    = 500_000                              ,
+    parameter  KEY_TICK  = 500_000                              ,
 
-    localparam I_PACK_SIZE = 3*8+4+$clog2(H_ACT-0)+$clog2(V_ACT-0),
-    localparam O_PACK_SIZE = 3*8+4+$clog2(H_ACT-2)+$clog2(V_ACT-2)
+    localparam PACK_SIZE = 3*8+4+$clog2(H_ACT-0)+$clog2(V_ACT-0)
 ) (
-    input                    clk           ,
-    input                    rstn          ,
+    input                  clk           ,
+    input                  rstn          ,
 
-    input                    balance_update,
-    input                    balance_key   ,
-    input                    gamma_key     ,
-    input                    gray_key      ,
-    input                    face_key      ,
+    input                  balance_update,
+    input                  balance_key   ,
+    input                  gamma_key     ,
+    input                  gray_key      ,
+    input                  face_key      ,
+    input                  bin_proc_key  ,
 
-    input  [I_PACK_SIZE-1:0] i_pack        ,
-    output [O_PACK_SIZE-1:0] o_pack
+    input  [PACK_SIZE-1:0] i_pack        ,
+    output [PACK_SIZE-1:0] o_pack
 );
 
     wire gamma_en;
@@ -31,7 +31,7 @@ module frame_process #(
         .switch(gamma_en )
     );
 
-    wire [I_PACK_SIZE-1:0] gamma_pack;
+    wire [PACK_SIZE-1:0] gamma_pack;
     gamma_correction #(
         .H_ACT(H_ACT),
         .V_ACT(V_ACT)
@@ -52,7 +52,7 @@ module frame_process #(
         .switch(wb_en      )
     );
 
-    wire [I_PACK_SIZE-1:0] wb_pack;
+    wire [PACK_SIZE-1:0] wb_pack;
     white_balance #(
         .H_ACT(H_ACT),
         .V_ACT(V_ACT)
@@ -86,7 +86,7 @@ module frame_process #(
         .switch(face_en )
     );
 
-    wire [I_PACK_SIZE-1:0] gray_pack;
+    wire [PACK_SIZE-1:0] gray_pack;
     gray_convert #(
         .H_ACT(H_ACT),
         .V_ACT(V_ACT)
@@ -96,7 +96,7 @@ module frame_process #(
         .o_pack(gray_pack          )
     );
 
-    wire [I_PACK_SIZE-1:0] face_pack;
+    wire [PACK_SIZE-1:0] face_pack;
     bin_face #(
         .H_ACT(H_ACT),
         .V_ACT(V_ACT)
@@ -107,15 +107,22 @@ module frame_process #(
         .o_pack(face_pack          )
     );
 
-    frame_process_3 #(
-        .H_ACT   (H_ACT   ),
-        .V_ACT   (V_ACT   ),
-        .KEY_TICK(KEY_TICK)
-    ) u_frame_process_3 (
-        .clk   (clk      ),
-        .rstn  (rstn     ),
-        .i_pack(face_pack),
-        .o_pack(o_pack   )
+    wire bin_proc_trig;
+    trig_gen #(.TICK(KEY_TICK)) u_bp_trig_gen (
+        .clk   (clk          ),
+        .rstn  (rstn         ),
+        .switch(bin_proc_key ),
+        .trig  (bin_proc_trig)
+    );
+
+    binary_process #(
+        .H_ACT(H_ACT),
+        .V_ACT(V_ACT)
+    ) u_binary_process (
+        .rstn  (rstn         ),
+        .trig  (bin_proc_trig),
+        .i_pack(face_pack    ),
+        .o_pack(o_pack       )
     );
 
 endmodule : frame_process
