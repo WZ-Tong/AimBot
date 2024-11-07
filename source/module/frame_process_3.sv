@@ -9,7 +9,6 @@ module frame_process_3 #(
 ) (
     input                    clk     ,
     input                    rstn    ,
-    input                    face_key,
     input  [I_PACK_SIZE-1:0] i_pack  ,
     output [O_PACK_SIZE-1:0] o_pack
 );
@@ -85,25 +84,6 @@ module frame_process_3 #(
     );
     // Preload matrix end
 
-    wire face_en;
-    key_to_switch #(
-        .TICK(KEY_TICK),
-        .INIT(1'b1    )
-    ) u_face_en (
-        .clk   (clk     ),
-        .rstn  (rstn    ),
-        .key   (face_key),
-        .switch(face_en )
-    );
-
-    bin_face #(
-        .H_ACT(H_ACT-2),
-        .V_ACT(V_ACT-2)
-    ) u_bin_face (
-        .rstn  (rstn   ),
-        .en    (face_en),
-        .i_pack(pack_m ),
-        .o_pack(o_pack )
-    );
+    assign o_pack = pack_m;
 
 endmodule : frame_process_3
