@@ -5,19 +5,25 @@ module three_line_buffer #(
 ) (
     input                        rstn  ,
     input        [PACK_SIZE-1:0] i_pack,
-    output logic [         23:0] line1   /*synthesis PAP_MARK_DEBUG="true"*/,
-    output logic [         23:0] line2   /*synthesis PAP_MARK_DEBUG="true"*/
+    output logic [         23:0] line1 ,
+    output logic [         23:0] line2 ,
+    output logic [         23:0] line3 ,
+
+    output       [PACK_SIZE-1:0] o_pack
 );
 
-    wire                     clk   /*synthesis PAP_MARK_DEBUG="true"*/;
-    wire                     hsync /*synthesis PAP_MARK_DEBUG="true"*/;
-    wire                     vsync /*synthesis PAP_MARK_DEBUG="true"*/;
-    wire                     de    /*synthesis PAP_MARK_DEBUG="true"*/;
-    wire [              7:0] r;
-    wire [              7:0] g;
-    wire [              7:0] b;
+    wire clk  ;
+    wire hsync;
+    wire vsync;
+    wire de   ;
+
+    wire [7:0] r;
+    wire [7:0] g;
+    wire [7:0] b;
+
     wire [$clog2(H_ACT)-1:0] x;
     wire [$clog2(V_ACT)-1:0] y;
+
     hdmi_unpack #(
         .H_ACT(H_ACT),
         .V_ACT(V_ACT)
@@ -33,7 +39,7 @@ module three_line_buffer #(
         .x    (x     ),
         .y    (y     )
     );
-    wire [23:0] wdata /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire [23:0] wdata;
     assign wdata = {r, g, b};
 
     logic        wen_a  ;
@@ -69,7 +75,7 @@ module three_line_buffer #(
         .rd_data(rdata_c )
     );
 
-    reg [1:0] wid /*synthesis PAP_MARK_DEBUG="true"*/; // Which ram is currently write
+    reg [1:0] wid; // Which ram is currently write
     always_comb begin
         unique case (wid)
             2'b00 : begin
@@ -103,6 +109,12 @@ module three_line_buffer #(
             end
         endcase
     end
+
+    delay #(.DELAY(1), .WIDTH(3*8)) u_current (
+        .clk   (clk  ),
+        .i_data(wdata),
+        .o_data(line3)
+    );
 
     reg hsync_d;
     always_ff @(posedge clk or negedge rstn) begin
@@ -138,5 +150,45 @@ module three_line_buffer #(
             endcase
         end
     end
+
+    localparam DELAY = 1;
+
+    wire o_hsync, o_vsync, o_de;
+    delay #(
+        .DELAY(DELAY),
+        .WIDTH(3    )
+    ) u_sync_de_delay (
+        .clk   (clk                     ),
+        .i_data({hsync, vsync, de}      ),
+        .o_data({o_hsync, o_vsync, o_de})
+    );
+
+    wire [$clog2(H_ACT)-1:0] o_x;
+    wire [$clog2(V_ACT)-1:0] o_y;
+    delay #(
+        .DELAY(DELAY                      ),
+        .WIDTH($clog2(H_ACT)+$clog2(V_ACT))
+    ) u_xy_delay (
+        .clk   (clk       ),
+        .i_data({x, y}    ),
+        .o_data({o_x, o_y})
+    );
+
+    wire [7:0] o_r;
+    wire [7:0] o_g;
+    wire [7:0] o_b;
+    assign {o_r, o_g, o_b} = line3;
+    hdmi_pack #(.H_ACT(H_ACT), .V_ACT(V_ACT)) u_hdmi_pack (
+        .clk  (clk    ),
+        .hsync(o_hsync),
+        .vsync(o_vsync),
+        .de   (o_de   ),
+        .r    (o_r    ),
+        .g    (o_g    ),
+        .b    (o_b    ),
+        .x    (o_x    ),
+        .y    (o_y    ),
+        .pack (o_pack )
+    );
 
 endmodule : three_line_buffer
