@@ -82,7 +82,7 @@ module three_line_matrix #(
         assign o_g = g ;
         assign o_b = b ;
     end else begin: g_unknown_mode
-        $error("Must be `BLANK` or `TRIM`");
+        $display("Must be `BLANK` or `TRIM`");
     end
 
     hdmi_pack #(.H_ACT(H_ACT-2*2), .V_ACT(V_ACT-2*2)) u_hdmi_pack_m (
