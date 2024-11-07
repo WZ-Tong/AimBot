@@ -40,11 +40,11 @@ define_attribute {p:face_key} {PAP_IO_VCCIO} {3.3}
 define_attribute {p:face_key} {PAP_IO_STANDARD} {LVCMOS33}
 define_attribute {p:face_key} {PAP_IO_NONE} {TRUE}
 
-define_attribute {p:soc_rstn} {PAP_IO_DIRECTION} {INPUT}
-define_attribute {p:soc_rstn} {PAP_IO_LOC} {H20}
-define_attribute {p:soc_rstn} {PAP_IO_VCCIO} {3.3}
-define_attribute {p:soc_rstn} {PAP_IO_STANDARD} {LVCMOS33}
-define_attribute {p:soc_rstn} {PAP_IO_NONE} {TRUE}
+# define_attribute {p:STUB} {PAP_IO_DIRECTION} {INPUT}
+# define_attribute {p:STUB} {PAP_IO_LOC} {H20}
+# define_attribute {p:STUB} {PAP_IO_VCCIO} {3.3}
+# define_attribute {p:STUB} {PAP_IO_STANDARD} {LVCMOS33}
+# define_attribute {p:STUB} {PAP_IO_NONE} {TRUE}
 
 define_attribute {p:balance_rstn} {PAP_IO_DIRECTION} {INPUT}
 define_attribute {p:balance_rstn} {PAP_IO_LOC} {H17}

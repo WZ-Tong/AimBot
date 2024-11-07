@@ -15,7 +15,6 @@ module AimBot #(
     localparam KEY_HOLD   = 500_000
 ) (
     input        clk          ,
-    input        soc_rstn     ,
 
     // Ctrl key
     input        cam_key      ,
@@ -72,11 +71,7 @@ module AimBot #(
     output       cam_tick     ,
     output       line_err     ,
     output       udp_err      ,
-    output       udp_busy     ,
-
-    // Cortex debugger
-    input        swclk        ,
-    inout        swdio
+    output       udp_busy
 );
 
     localparam PACK_SIZE = 3*8+4+$clog2(H_ACT)+$clog2(V_ACT);
