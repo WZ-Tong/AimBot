@@ -37,7 +37,7 @@ module frame_process #(
         .V_ACT(V_ACT)
     ) u_gamma_correction (
         .en    (gamma_en  ),
-        .i_pack(i_pack   ),
+        .i_pack(i_pack    ),
         .o_pack(gamma_pack)
     );
 
@@ -86,25 +86,14 @@ module frame_process #(
         .o_pack(gray_pack )
     );
 
-    wire face_en;
-    key_to_switch #(
-        .TICK(KEY_TICK),
-        .INIT(1'b1    )
-    ) u_face_en (
-        .clk   (clk     ),
-        .rstn  (rstn    ),
-        .key   (face_key),
-        .switch(face_en )
-    );
-
-    bin_face #(
-        .H_ACT(H_ACT),
-        .V_ACT(V_ACT)
-    ) u_bin_face (
-        .rstn  (rstn     ),
-        .en    (face_en  ),
-        .i_pack(gray_pack),
-        .o_pack(o_pack   )
+    frame_process_3 #(
+        .H_ACT   (H_ACT   ),
+        .V_ACT   (V_ACT   ),
+        .KEY_TICK(KEY_TICK)
+    ) u_frame_process_3 (
+        .face_key(face_key ),
+        .i_pack  (gray_pack),
+        .o_pack  (o_pack   )
     );
 
 endmodule : frame_process
