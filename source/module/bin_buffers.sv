@@ -66,42 +66,43 @@ module bin_buffers #(
     end
 
     if (PARALLEL==5) begin: g_temp_link_5
-        reg [CAPACITY-1:0] window;
+        reg [CAPACITY-1:0] temp_window;
         always_comb begin
             unique case (ptr)
                 'd0 : begin
-                    window[0] = g_rams[1].read;
-                    window[1] = g_rams[2].read;
-                    window[2] = g_rams[3].read;
-                    window[3] = g_rams[4].read;
+                    temp_window[0] = g_rams[1].read;
+                    temp_window[1] = g_rams[2].read;
+                    temp_window[2] = g_rams[3].read;
+                    temp_window[3] = g_rams[4].read;
                 end
                 'd1 : begin
-                    window[0] = g_rams[2].read;
-                    window[1] = g_rams[3].read;
-                    window[2] = g_rams[4].read;
-                    window[3] = g_rams[0].read;
+                    temp_window[0] = g_rams[2].read;
+                    temp_window[1] = g_rams[3].read;
+                    temp_window[2] = g_rams[4].read;
+                    temp_window[3] = g_rams[0].read;
                 end
                 'd2 : begin
-                    window[0] = g_rams[3].read;
-                    window[1] = g_rams[4].read;
-                    window[2] = g_rams[0].read;
-                    window[3] = g_rams[1].read;
+                    temp_window[0] = g_rams[3].read;
+                    temp_window[1] = g_rams[4].read;
+                    temp_window[2] = g_rams[0].read;
+                    temp_window[3] = g_rams[1].read;
                 end
                 'd3 : begin
-                    window[0] = g_rams[4].read;
-                    window[1] = g_rams[0].read;
-                    window[2] = g_rams[1].read;
-                    window[3] = g_rams[2].read;
+                    temp_window[0] = g_rams[4].read;
+                    temp_window[1] = g_rams[0].read;
+                    temp_window[2] = g_rams[1].read;
+                    temp_window[3] = g_rams[2].read;
                 end
                 'd4 : begin
-                    window[0] = g_rams[0].read;
-                    window[1] = g_rams[1].read;
-                    window[2] = g_rams[2].read;
-                    window[3] = g_rams[3].read;
+                    temp_window[0] = g_rams[0].read;
+                    temp_window[1] = g_rams[1].read;
+                    temp_window[2] = g_rams[2].read;
+                    temp_window[3] = g_rams[3].read;
                 end
             endcase
-            window[4] = current;
+            temp_window[4] = current;
         end
+        assign window = temp_window;
     end else begin: g_temp_link_unimpl
         err_mode not_yet_linked();
     end
