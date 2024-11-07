@@ -1,52 +1,51 @@
 module cortex_m3 (
-    input             clk         ,
-    input             rstn        ,
-    output reg        hrstn       ,
-    input             swclk       ,
-    inout             swdio       ,
+    input         clk         ,
+    input         rstn        ,
+    output        cpu_rstn    ,
+    output        cpu_clk     ,
+    input         swclk       ,
+    inout         swdio       ,
     // CPU I-Code
-    input             hreadyi     ,
-    input      [31:0] hrdatai     ,
-    input      [ 1:0] hrespi      ,
-    output     [31:0] haddri      ,
-    output     [ 1:0] htransi     ,
-    output     [ 2:0] hsizei      ,
-    output     [ 2:0] hbursti     ,
-    output     [ 3:0] hproti      ,
+    input         hreadyi     ,
+    input  [31:0] hrdatai     ,
+    input  [ 1:0] hrespi      ,
+    output [31:0] haddri      ,
+    output [ 1:0] htransi     ,
+    output [ 2:0] hsizei      ,
+    output [ 2:0] hbursti     ,
+    output [ 3:0] hproti      ,
     // CPU D-Code
-    input             hreadyd     ,
-    input      [31:0] hrdatad     ,
-    input      [ 1:0] hrespd      ,
-    output     [31:0] haddrd      ,
-    output     [ 1:0] htransd     ,
-    output     [ 2:0] hsized      ,
-    output     [ 2:0] hburstd     ,
-    output     [ 3:0] hprotd      ,
-    output     [31:0] hwdatad     ,
-    output            hwrited     ,
-    output     [ 1:0] hmasterd    ,
+    input         hreadyd     ,
+    input  [31:0] hrdatad     ,
+    input  [ 1:0] hrespd      ,
+    output [31:0] haddrd      ,
+    output [ 1:0] htransd     ,
+    output [ 2:0] hsized      ,
+    output [ 2:0] hburstd     ,
+    output [ 3:0] hprotd      ,
+    output [31:0] hwdatad     ,
+    output        hwrited     ,
+    output [ 1:0] hmasterd    ,
     // CPU System bus
-    input             hreadys     ,
-    input      [31:0] hrdatas     ,
-    input      [ 1:0] hresps      ,
-    output     [31:0] haddrs      ,
-    output     [ 1:0] htranss     ,
-    output            hwrites     ,
-    output     [ 2:0] hsizes      ,
-    output     [31:0] hwdatas     ,
-    output     [ 2:0] hbursts     ,
-    output     [ 3:0] hprots      ,
-    output     [ 1:0] hmasters    ,
-    output            hmasterlocks
+    input         hreadys     ,
+    input  [31:0] hrdatas     ,
+    input  [ 1:0] hresps      ,
+    output [31:0] haddrs      ,
+    output [ 1:0] htranss     ,
+    output        hwrites     ,
+    output [ 2:0] hsizes      ,
+    output [31:0] hwdatas     ,
+    output [ 2:0] hbursts     ,
+    output [ 3:0] hprots      ,
+    output [ 1:0] hmasters    ,
+    output        hmasterlocks
 );
 
-    wire soc_clk, hclk, fclk;
-    assign soc_clk = clk;
-    assign hclk    = soc_clk;
-    assign fclk    = soc_clk;
+    wire hclk, fclk;
+    assign cpu_clk = clk;
+    assign hclk    = cpu_clk;
+    assign fclk    = cpu_clk;
 
-    wire sys_rstn_req;
-    reg  sys_rstn    ;
 
     wire swdi, swdo_en, swdo;
     assign swdi  = swdio;
@@ -57,11 +56,23 @@ module cortex_m3 (
 
     wire cdbg_pwr_up_req;
     reg  cdbg_pwr_up_ack;
-    always @(posedge clk or negedge rstn)begin
+    always @(posedge cpu_clk or negedge rstn)begin
         if (~rstn) begin
             cdbg_pwr_up_ack <= 1'b0;
         end else begin
             cdbg_pwr_up_ack <= cdbg_pwr_up_req;
+        end
+    end
+
+    wire cpu_rstn_req;
+    reg cpu_rstn;
+    always_ff @(posedge cpu_clk or negedge rstn) begin
+        if(~rstn) begin
+            cpu_rstn <= #1 'b0;
+        end else if (cpu_rstn_req) begin
+            cpu_rstn <= #1 'b0;
+        end else begin
+            cpu_rstn <= #1 'b1;
         end
     end
 
@@ -70,8 +81,8 @@ module cortex_m3 (
         .RETAINn      (1'b1           ),
         // Resets
         .PORESETn     (rstn           ),
-        .SYSRESETn    (sys_rstn       ),
-        .SYSRESETREQ  (sys_rstn_req   ),
+        .SYSRESETn    (cpu_rstn       ),
+        .SYSRESETREQ  (cpu_rstn_req   ),
         .RSTBYPASS    (1'b0           ),
         .CGBYPASS     (1'b0           ),
         .SE           (1'b0           ),
