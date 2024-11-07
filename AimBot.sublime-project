@@ -10,8 +10,8 @@
 			"-t null",
 			// "-i",
 			"-y$project_path\\source",
-			"-y$project_path\\source\\cmsdk-m3",
-			"-y$project_path\\source\\cmsdk-m3\\ahb_busmatrix\\verilog\\built\\ahb_bus_matrix",
+			// "-y$project_path\\source\\cmsdk-m3",
+			// "-y$project_path\\source\\cmsdk-m3\\ahb_busmatrix\\verilog\\built\\ahb_bus_matrix",
 			"-y$project_path\\source\\stub",
 			"-y$project_path\\source\\module",
 			"-y$project_path\\source\\util",
@@ -66,15 +66,10 @@
 				"yolo*",
 				"ipcore",
 				"*cortex",
-				"cmsdk"
+				"cmsdk",
+				"cmsdk-m3",
+				"keil",
 			]
 		},
-		{
-			"name": "Simulation",
-			"path": "compile\\sim",
-			"file_include_patterns": [
-				"*.vcd"
-			],
-		}
 	]
 }
