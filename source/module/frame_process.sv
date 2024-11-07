@@ -90,6 +90,7 @@ module frame_process #(
         .V_ACT   (V_ACT   ),
         .KEY_TICK(KEY_TICK)
     ) u_frame_process_3 (
+        .clk     (clk      ),
         .rstn    (rstn     ),
         .face_key(face_key ),
         .i_pack  (gray_pack),

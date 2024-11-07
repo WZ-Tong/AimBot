@@ -7,6 +7,7 @@ module frame_process_3 #(
     localparam I_PACK_SIZE = 3*8+4+$clog2(H_ACT-0)+$clog2(V_ACT-0)    ,
     localparam O_PACK_SIZE = 3*8+4+$clog2(H_ACT-2*2)+$clog2(V_ACT-2*2)
 ) (
+    input                    clk     ,
     input                    rstn    ,
     input                    face_key,
     input  [I_PACK_SIZE-1:0] i_pack  ,
