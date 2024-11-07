@@ -100,7 +100,7 @@ module bin_buffers #(
                     temp_window[3] = g_rams[3].read;
                 end
             endcase
-            temp_window[4] = current;
+            temp_window[4] = current; // TODO: When hold, use g_rams.read
         end
         assign window = temp_window;
     end else begin: g_temp_link_unimpl
