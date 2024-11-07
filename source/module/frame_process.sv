@@ -80,9 +80,9 @@ module frame_process #(
         .H_ACT(H_ACT),
         .V_ACT(V_ACT)
     ) u_gray_convert (
-        .en    (gray_en   ),
-        .i_pack(gamma_pack),
-        .o_pack(gray_pack )
+        .en    (gray_en  ),
+        .i_pack(wb_pack  ),
+        .o_pack(gray_pack)
     );
 
     frame_process_3 #(
