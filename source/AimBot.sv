@@ -23,7 +23,7 @@ module AimBot #(
     input        gray_key     ,
     input        gammar_key   ,
     input        box_key      ,
-    input        binary_key   ,
+    input        face_key   ,
     input        balance_rstn ,
 
     // Cam1 ctrl/data
@@ -180,7 +180,7 @@ module AimBot #(
         .balance_key   (balance_key  ),
         .gamma_key     (gamma_key    ),
         .gray_key      (gray_key     ),
-        .bin_key       (binary_key   ),
+        .face_key      (face_key     ),
         .i_pack        (disp_pack_1  ),
         .o_pack        (hdmi_cam1    )
     );
@@ -198,7 +198,7 @@ module AimBot #(
         .balance_key   (balance_key  ),
         .gamma_key     (gamma_key    ),
         .gray_key      (gray_key     ),
-        .bin_key       (binary_key   ),
+        .face_key       (face_key   ),
         .i_pack        (disp_pack_2  ),
         .o_pack        (hdmi_cam2    )
     );
@@ -382,12 +382,5 @@ module AimBot #(
         assign end_ys   = 'b0;
         assign colors   = 'b0;
     end
-
-    soc u_soc (
-        .clk  (clk          ),
-        .rstn (rstn&soc_rstn),
-        .swclk(swclk        ),
-        .swdio(swdio        )
-    );
 
 endmodule : AimBot

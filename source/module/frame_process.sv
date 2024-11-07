@@ -1,23 +1,23 @@
 module frame_process #(
-    parameter H_ACT    = 1280   ,
-    parameter V_ACT    = 720    ,
+    parameter  H_ACT     = 1280                             ,
+    parameter  V_ACT     = 720                              ,
 
-    parameter KEY_TICK = 500_000
+    parameter  KEY_TICK  = 500_000                          ,
+
+    localparam PACK_SIZE = 3*8+4+$clog2(H_ACT)+$clog2(V_ACT)
 ) (
-    input                                          clk           ,
-    input                                          rstn          ,
+    input                  clk           ,
+    input                  rstn          ,
 
-    input                                          balance_update,
-    input                                          balance_key   ,
-    input                                          gamma_key     ,
-    input                                          gray_key      ,
-    input                                          bin_key       ,
+    input                  balance_update,
+    input                  balance_key   ,
+    input                  gamma_key     ,
+    input                  gray_key      ,
+    input                  face_key      ,
 
-    input  [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] i_pack        ,
-    output [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] o_pack
+    input  [PACK_SIZE-1:0] i_pack        ,
+    output [PACK_SIZE-1:0] o_pack
 );
-
-    localparam PACK_SIZE = 3*8+4+$clog2(H_ACT)+$clog2(V_ACT);
 
     wire wb_en;
     key_to_switch #(
@@ -84,23 +84,23 @@ module frame_process #(
         .o_pack(gray_pack )
     );
 
-    wire b_en;
+    wire face_en;
     key_to_switch #(
         .TICK(KEY_TICK),
         .INIT(1'b1    )
-    ) u_bin_en (
-        .clk   (clk    ),
-        .rstn  (rstn   ),
-        .key   (bin_key),
-        .switch(b_en   )
+    ) u_face_en (
+        .clk   (clk     ),
+        .rstn  (rstn    ),
+        .key   (face_key),
+        .switch(face_en )
     );
 
-    binaryzation #(
+    bin_face #(
         .H_ACT(H_ACT),
         .V_ACT(V_ACT)
-    ) u_binaryzation (
+    ) u_bin_face (
         .rstn  (rstn     ),
-        .en    (b_en     ),
+        .en    (face_en  ),
         .i_pack(gray_pack),
         .o_pack(o_pack   )
     );
