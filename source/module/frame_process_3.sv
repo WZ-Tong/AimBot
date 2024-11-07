@@ -13,6 +13,7 @@ module frame_process_3 #(
     output [O_PACK_SIZE-1:0] o_pack
 );
 
+    // Preload matrix start
     wire [23:0] line1;
     wire [23:0] line2;
     wire [23:0] line3;
@@ -81,7 +82,7 @@ module frame_process_3 #(
         .b32     (b32   ),
         .b33     (b33   )
     );
-
+    // Preload matrix end
 
     wire face_en;
     key_to_switch #(
