@@ -5,19 +5,19 @@ module three_line_buffer #(
 ) (
     input                        rstn  ,
     input        [PACK_SIZE-1:0] i_pack,
-    output logic [         23:0] line1 ,
-    output logic [         23:0] line2
+    output logic [         23:0] line1   /*synthesis PAP_MARK_DEBUG="true"*/,
+    output logic [         23:0] line2   /*synthesis PAP_MARK_DEBUG="true"*/
 );
 
-    wire                     clk  ;
-    wire                     hsync;
-    wire                     vsync;
-    wire                     de   ;
-    wire [              7:0] r    ;
-    wire [              7:0] g    ;
-    wire [              7:0] b    ;
-    wire [$clog2(H_ACT)-1:0] x    ;
-    wire [$clog2(V_ACT)-1:0] y    ;
+    wire                     clk   /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire                     hsync /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire                     vsync /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire                     de    /*synthesis PAP_MARK_DEBUG="true"*/;
+    wire [              7:0] r;
+    wire [              7:0] g;
+    wire [              7:0] b;
+    wire [$clog2(H_ACT)-1:0] x;
+    wire [$clog2(V_ACT)-1:0] y;
     hdmi_unpack #(
         .H_ACT(H_ACT),
         .V_ACT(V_ACT)
@@ -33,7 +33,7 @@ module three_line_buffer #(
         .x    (x     ),
         .y    (y     )
     );
-    wire [23:0] wdata;
+    wire [23:0] wdata /*synthesis PAP_MARK_DEBUG="true"*/;
     assign wdata = {r, g, b};
 
     logic        wen_a  ;
@@ -69,7 +69,7 @@ module three_line_buffer #(
         .rd_data(rdata_c )
     );
 
-    reg [1:0] wid; // Which ram is currently write
+    reg [1:0] wid /*synthesis PAP_MARK_DEBUG="true"*/; // Which ram is currently write
     always_comb begin
         unique case (wid)
             2'b00 : begin
@@ -130,7 +130,7 @@ module three_line_buffer #(
                     wid <= #1 2'b10;
                 end
                 2'b10 : begin
-                    wid <= #1 2'b11;
+                    wid <= #1 2'b00;
                 end
                 2'b11 : begin
                     wid <= #1 wid;

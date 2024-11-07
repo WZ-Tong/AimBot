@@ -23,7 +23,7 @@ module frame_process #(
     wire gamma_en;
     key_to_switch #(
         .TICK(KEY_TICK),
-        .INIT(1'b1    )
+        .INIT(1'b0    )
     ) u_gamma_en (
         .clk   (clk      ),
         .rstn  (rstn     ),
@@ -44,7 +44,7 @@ module frame_process #(
     wire wb_en;
     key_to_switch #(
         .TICK(KEY_TICK),
-        .INIT(1'b1    )
+        .INIT(1'b0    )
     ) u_wb_en (
         .clk   (clk        ),
         .rstn  (rstn       ),
@@ -64,11 +64,10 @@ module frame_process #(
         .o_pack(wb_pack       )
     );
 
-
     wire gray_en;
     key_to_switch #(
         .TICK(KEY_TICK),
-        .INIT(1'b1    )
+        .INIT(1'b0    )
     ) u_gray_en (
         .clk   (clk     ),
         .rstn  (rstn    ),
