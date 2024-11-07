@@ -1,22 +1,23 @@
 module frame_process #(
-    parameter  H_ACT     = 1280                             ,
-    parameter  V_ACT     = 720                              ,
+    parameter  H_ACT       = 1280                                     ,
+    parameter  V_ACT       = 720                                      ,
 
-    parameter  KEY_TICK  = 500_000                          ,
+    parameter  KEY_TICK    = 500_000                                  ,
 
-    localparam PACK_SIZE = 3*8+4+$clog2(H_ACT)+$clog2(V_ACT)
+    localparam I_PACK_SIZE = 3*8+4+$clog2(H_ACT-0)+$clog2(V_ACT-0)    ,
+    localparam O_PACK_SIZE = 3*8+4+$clog2(H_ACT-2*2)+$clog2(V_ACT-2*2)
 ) (
-    input                  clk           ,
-    input                  rstn          ,
+    input                    clk           ,
+    input                    rstn          ,
 
-    input                  balance_update,
-    input                  balance_key   ,
-    input                  gamma_key     ,
-    input                  gray_key      ,
-    input                  face_key      ,
+    input                    balance_update,
+    input                    balance_key   ,
+    input                    gamma_key     ,
+    input                    gray_key      ,
+    input                    face_key      ,
 
-    input  [PACK_SIZE-1:0] i_pack        ,
-    output [PACK_SIZE-1:0] o_pack
+    input  [I_PACK_SIZE-1:0] i_pack        ,
+    output [O_PACK_SIZE-1:0] o_pack
 );
 
     wire gamma_en;
@@ -30,7 +31,7 @@ module frame_process #(
         .switch(gamma_en )
     );
 
-    wire [PACK_SIZE-1:0] gamma_pack;
+    wire [I_PACK_SIZE-1:0] gamma_pack;
     gamma_correction #(
         .H_ACT(H_ACT),
         .V_ACT(V_ACT)
@@ -51,7 +52,7 @@ module frame_process #(
         .switch(wb_en      )
     );
 
-    wire [PACK_SIZE-1:0] wb_pack;
+    wire [I_PACK_SIZE-1:0] wb_pack;
     white_balance #(
         .H_ACT(H_ACT),
         .V_ACT(V_ACT)
@@ -74,7 +75,7 @@ module frame_process #(
         .switch(gray_en )
     );
 
-    wire [PACK_SIZE-1:0] gray_pack;
+    wire [I_PACK_SIZE-1:0] gray_pack;
     gray_convert #(
         .H_ACT(H_ACT),
         .V_ACT(V_ACT)

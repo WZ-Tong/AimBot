@@ -96,12 +96,12 @@ module frame_process_3 #(
     );
 
     bin_face #(
-        .H_ACT(H_ACT),
-        .V_ACT(V_ACT)
+        .H_ACT(H_ACT-2*2),
+        .V_ACT(V_ACT-2*2)
     ) u_bin_face (
         .rstn  (rstn   ),
         .en    (face_en),
-        .i_pack(i_pack ),
+        .i_pack(pack_m ),
         .o_pack(o_pack )
     );
 
