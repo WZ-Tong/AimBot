@@ -22,11 +22,11 @@ define_attribute {p:gray_key} {PAP_IO_VCCIO} {3.3}
 define_attribute {p:gray_key} {PAP_IO_STANDARD} {LVCMOS33}
 define_attribute {p:gray_key} {PAP_IO_NONE} {TRUE}
 
-define_attribute {p:gammar_key} {PAP_IO_DIRECTION} {INPUT}
-define_attribute {p:gammar_key} {PAP_IO_LOC} {K16}
-define_attribute {p:gammar_key} {PAP_IO_VCCIO} {3.3}
-define_attribute {p:gammar_key} {PAP_IO_STANDARD} {LVCMOS33}
-define_attribute {p:gammar_key} {PAP_IO_NONE} {TRUE}
+define_attribute {p:gamma_key} {PAP_IO_DIRECTION} {INPUT}
+define_attribute {p:gamma_key} {PAP_IO_LOC} {K16}
+define_attribute {p:gamma_key} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:gamma_key} {PAP_IO_STANDARD} {LVCMOS33}
+define_attribute {p:gamma_key} {PAP_IO_NONE} {TRUE}
 
 define_attribute {p:box_key} {PAP_IO_DIRECTION} {INPUT}
 define_attribute {p:box_key} {PAP_IO_LOC} {J16}

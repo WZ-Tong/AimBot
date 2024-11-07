@@ -21,9 +21,9 @@ module AimBot #(
     input        cam_key      ,
     input        balance_key  ,
     input        gray_key     ,
-    input        gammar_key   ,
+    input        gamma_key    ,
     input        box_key      ,
-    input        face_key   ,
+    input        face_key     ,
     input        balance_rstn ,
 
     // Cam1 ctrl/data
@@ -187,7 +187,6 @@ module AimBot #(
 
     wire [PACK_SIZE-1:0] hdmi_cam2;
 
-    logic gamma_key;
     frame_process #(
         .H_ACT(H_ACT),
         .V_ACT(V_ACT)
@@ -198,7 +197,7 @@ module AimBot #(
         .balance_key   (balance_key  ),
         .gamma_key     (gamma_key    ),
         .gray_key      (gray_key     ),
-        .face_key       (face_key   ),
+        .face_key      (face_key     ),
         .i_pack        (disp_pack_2  ),
         .o_pack        (hdmi_cam2    )
     );
