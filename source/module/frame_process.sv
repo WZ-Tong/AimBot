@@ -19,28 +19,6 @@ module frame_process #(
     output [PACK_SIZE-1:0] o_pack
 );
 
-    wire wb_en;
-    key_to_switch #(
-        .TICK(KEY_TICK),
-        .INIT(1'b1    )
-    ) u_wb_en (
-        .clk   (clk        ),
-        .rstn  (rstn       ),
-        .key   (balance_key),
-        .switch(wb_en      )
-    );
-
-    wire [PACK_SIZE-1:0] wb_pack;
-    white_balance #(
-        .H_ACT(H_ACT),
-        .V_ACT(V_ACT)
-    ) u_white_balance (
-        .i_pack(i_pack        ),
-        .rstn  (rstn          ),
-        .en    (wb_en         ),
-        .update(balance_update),
-        .o_pack(wb_pack       )
-    );
 
     wire gamma_en;
     key_to_switch #(
@@ -59,9 +37,33 @@ module frame_process #(
         .V_ACT(V_ACT)
     ) u_gamma_correction (
         .en    (gamma_en  ),
-        .i_pack(wb_pack   ),
+        .i_pack(i_pack   ),
         .o_pack(gamma_pack)
     );
+
+    wire wb_en;
+    key_to_switch #(
+        .TICK(KEY_TICK),
+        .INIT(1'b1    )
+    ) u_wb_en (
+        .clk   (clk        ),
+        .rstn  (rstn       ),
+        .key   (balance_key),
+        .switch(wb_en      )
+    );
+
+    wire [PACK_SIZE-1:0] wb_pack;
+    white_balance #(
+        .H_ACT(H_ACT),
+        .V_ACT(V_ACT)
+    ) u_white_balance (
+        .i_pack(gamma_pack    ),
+        .rstn  (rstn          ),
+        .en    (wb_en         ),
+        .update(balance_update),
+        .o_pack(wb_pack       )
+    );
+
 
     wire gray_en;
     key_to_switch #(
