@@ -8,7 +8,6 @@ module gamma_correction #(
     output [PACK_SIZE-1:0] o_pack
 );
 
-    wire [    PACK_SIZE-1:0] pack ;
     wire                     clk  ;
     wire                     hsync;
     wire                     vsync;
@@ -20,16 +19,16 @@ module gamma_correction #(
     wire [$clog2(V_ACT)-1:0] y    ;
 
     hdmi_unpack #(.H_ACT(H_ACT), .V_ACT(V_ACT)) u_hdmi_unpack (
-        .pack (pack ),
-        .clk  (clk  ),
-        .hsync(hsync),
-        .vsync(vsync),
-        .de   (de   ),
-        .r    (r    ),
-        .g    (g    ),
-        .b    (b    ),
-        .x    (x    ),
-        .y    (y    )
+        .pack (i_pack),
+        .clk  (clk   ),
+        .hsync(hsync ),
+        .vsync(vsync ),
+        .de   (de    ),
+        .r    (r     ),
+        .g    (g     ),
+        .b    (b     ),
+        .x    (x     ),
+        .y    (y     )
     );
 
     wire [7:0] post_r;
@@ -59,7 +58,7 @@ module gamma_correction #(
         .b    (en?post_b:b),
         .x    (x          ),
         .y    (y          ),
-        .pack (pack       )
+        .pack (o_pack     )
     );
 
 endmodule : gamma_correction

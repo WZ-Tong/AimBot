@@ -19,7 +19,6 @@ module frame_process #(
     output [PACK_SIZE-1:0] o_pack
 );
 
-
     wire gamma_en;
     key_to_switch #(
         .TICK(KEY_TICK),
@@ -32,7 +31,7 @@ module frame_process #(
     );
 
     wire [PACK_SIZE-1:0] gamma_pack;
-    gray_convert #(
+    gamma_correction #(
         .H_ACT(H_ACT),
         .V_ACT(V_ACT)
     ) u_gamma_correction (
