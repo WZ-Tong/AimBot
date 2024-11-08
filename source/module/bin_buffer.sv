@@ -15,6 +15,18 @@ module bin_buffer #(
     reg [$clog2(WIDTH)-1:0] addr;
     reg [ $clog2(ROWS)-1:0] ptr ;
 
+    reg next_d;
+    always_ff @(posedge clk or negedge rstn) begin
+        if(~rstn) begin
+            next_d <= #1 'b0;
+        end else begin
+            next_d <= #1 next;
+        end
+    end
+
+    wire next_r;
+    assign next_r = next_d==0 && next==1;
+
     always_ff @(posedge clk or negedge rstn) begin
         if(~rstn) begin
             addr <= #1 'b0;
@@ -22,7 +34,7 @@ module bin_buffer #(
         end else if (cls) begin
             addr <= #1 'b0;
             ptr  <= #1 'b0;
-        end else if (next) begin
+        end else if (next_r) begin
             addr <= #1 'b0;
             if (ptr!=ROWS-1) begin
                 ptr <= #1 ptr + 1'b1;

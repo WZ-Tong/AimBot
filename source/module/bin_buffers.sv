@@ -35,8 +35,20 @@ module bin_buffers #(
     wire bin;
     assign bin = (r==0&&g==0&&b==0) ? 1'b0 : 1'b1;
 
-    reg [ $clog2(H_ACT)-1:0] addr;
-    reg [$clog2(ROW)-1:0] ptr ;
+    reg [$clog2(H_ACT)-1:0] addr;
+    reg [  $clog2(ROW)-1:0] ptr ;
+
+    reg hsync_d;
+    always_ff @(posedge clk or negedge rstn) begin
+        if(~rstn) begin
+            hsync_d <= #1 'b0;
+        end else begin
+            hsync_d <= #1 hsync;
+        end
+    end
+
+    wire hsync_r;
+    assign hsync_r= hsync_d==0 && hsync==1;
 
     always_ff @(posedge clk or negedge rstn) begin
         if(~rstn) begin
@@ -45,7 +57,7 @@ module bin_buffers #(
         end else if (vsync) begin
             addr <= #1 'b0;
             ptr  <= #1 'b0;
-        end else if (hsync) begin
+        end else if (hsync_r) begin
             addr <= #1 'b0;
             if (ptr!=ROW-1) begin
                 ptr <= #1 ptr + 1'b1;
