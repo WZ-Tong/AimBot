@@ -43,16 +43,16 @@ module compress_window #(
         + window[4]
         + 3'b0;
 
-    reg hsync_d;
+    reg de_d;
     always_ff @(posedge clk or negedge rstn) begin
         if(~rstn) begin
-            hsync_d <= #1 'b0;
+            de_d <= #1 'b0;
         end else begin
-            hsync_d <= #1 hsync;
+            de_d <= #1 de;
         end
     end
-    wire hsync_r;
-    assign hsync_r = hsync_d==0 && hsync==1;
+    wire de_f;
+    assign de_f = de_d==1 && de==0;
 
     reg [5:0] sum    ; // MAX: 5*8=40
     reg [3:0] row_cnt; // MAX: 10
@@ -71,7 +71,7 @@ module compress_window #(
             valid   <= #1 'b0;
             col_en  <= #1 'b1;
         end else begin
-            if (hsync_r) begin
+            if (de_f) begin
                 if (row_cnt==10-1) begin
                     row_cnt <= #1 'b0;
                 end else begin
@@ -129,7 +129,7 @@ module compress_window #(
             dbg_line    <= #1 'b0;
             dbg_addr    <= #1 'b0;
             dbg_current <= #1 'b0;
-        end else begin
+        end else if (de) begin
             if (row_valid) begin
                 if (col_valid) begin
                     dbg_addr           <= #1 dbg_addr + 1'b1;
