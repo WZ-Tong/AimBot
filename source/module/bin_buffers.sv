@@ -65,7 +65,55 @@ module bin_buffers #(
         end
     end
 
-    if (PARALLEL==5) begin: g_temp_link_5
+    if (PARALLEL==3) begin: g_temp_link_3
+        reg [CAPACITY-1:0] temp_window;
+        always_comb begin
+            unique case (ptr)
+                'd0 : begin
+                    temp_window[0] = g_rams[1].read;
+                    temp_window[1] = g_rams[2].read;
+                end
+                'd1 : begin
+                    temp_window[0] = g_rams[2].read;
+                    temp_window[1] = g_rams[0].read;
+                end
+                'd2 : begin
+                    temp_window[0] = g_rams[0].read;
+                    temp_window[1] = g_rams[1].read;
+                end
+            endcase
+            temp_window[2] = current;
+        end
+        assign window = temp_window;
+    end else if (PARALLEL==4) begin: g_temp_link_4
+        reg [CAPACITY-1:0] temp_window;
+        always_comb begin
+            unique case (ptr)
+                'd0 : begin
+                    temp_window[0] = g_rams[1].read;
+                    temp_window[1] = g_rams[2].read;
+                    temp_window[2] = g_rams[3].read;
+                end
+                'd1 : begin
+                    temp_window[0] = g_rams[2].read;
+                    temp_window[1] = g_rams[3].read;
+                    temp_window[2] = g_rams[0].read;
+                end
+                'd2 : begin
+                    temp_window[0] = g_rams[3].read;
+                    temp_window[1] = g_rams[0].read;
+                    temp_window[2] = g_rams[1].read;
+                end
+                'd3 : begin
+                    temp_window[0] = g_rams[0].read;
+                    temp_window[1] = g_rams[1].read;
+                    temp_window[2] = g_rams[2].read;
+                end
+            endcase
+            temp_window[3] = current;
+        end
+        assign window = temp_window;
+    end else if (PARALLEL==5) begin: g_temp_link_5
         reg [CAPACITY-1:0] temp_window;
         always_comb begin
             unique case (ptr)
