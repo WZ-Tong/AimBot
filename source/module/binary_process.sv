@@ -41,7 +41,7 @@ module binary_process #(
         .clk   (clk   ),
         .rstn  (rstn  ),
         .hsync (hsync ),
-        .cls   (vsync ),   // TODO: Maybe we will hold it
+        .cls   (vsync ),
         .bin   (bin   ),
         .de    (de    ),
         .window(window)
