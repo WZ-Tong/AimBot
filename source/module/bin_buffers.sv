@@ -35,7 +35,7 @@ module bin_buffers #(
     wire bin;
     assign bin = (r==0&&g==0&&b==0) ? 1'b0 : 1'b1;
 
-    reg [   $clog2(H_ACT)-1:0] addr;
+    reg [ $clog2(H_ACT)-1:0] addr;
     reg [$clog2(COLUMN)-1:0] ptr ;
 
     always_ff @(posedge clk or negedge rstn) begin
@@ -179,7 +179,10 @@ module bin_buffers #(
         err_mode not_yet_linked();
     end
 
-        localparam DELAY = 1;
+    localparam DELAY = 1;
+
+    wire blank;
+    assign blank = y<(COLUMN-1);
 
     wire o_hsync, o_vsync, o_de;
     delay #(
@@ -192,7 +195,7 @@ module bin_buffers #(
     );
 
     wire [$clog2(V_ACT)-1:0] o_adj_y;
-    assign o_adj_y = y-(COLUMN-1);
+    assign o_adj_y = y>=(COLUMN-1) ? y-(COLUMN-1) : 0;
 
     wire [$clog2(H_ACT)-1:0] o_x;
     wire [$clog2(V_ACT)-1:0] o_y;
@@ -209,16 +212,16 @@ module bin_buffers #(
     assign o_rgb = {8{current}};
 
     hdmi_pack #(.H_ACT(H_ACT), .V_ACT(V_ACT)) u_hdmi_pack (
-        .clk  (clk    ),
-        .hsync(o_hsync),
-        .vsync(o_vsync),
-        .de   (o_de   ),
-        .r    (o_rgb  ),
-        .g    (o_rgb  ),
-        .b    (o_rgb  ),
-        .x    (o_x    ),
-        .y    (o_y    ),
-        .pack (o_pack )
+        .clk  (clk             ),
+        .hsync(o_hsync         ),
+        .vsync(o_vsync         ),
+        .de   (o_de            ),
+        .r    (blank?8'b0:o_rgb),
+        .g    (blank?8'b0:o_rgb),
+        .b    (blank?8'b0:o_rgb),
+        .x    (o_x             ),
+        .y    (o_y             ),
+        .pack (o_pack          )
     );
 
 endmodule : bin_buffers
