@@ -30,16 +30,12 @@ module binary_process #(
     localparam COMP_HEIGHT = WIN_SIZE*2;
 
     compress_window #(
-        .H_ACT      (H_ACT      ),
-        .V_ACT      (V_ACT      ),
-        .WIN_WIDTH  (WIN_WIDTH  ),
-        .WIN_HEIGHT (WIN_HEIGHT ),
-        .COMP_WIDTH (COMP_WIDTH ),
-        .COMP_HEIGHT(COMP_HEIGHT)
+        .H_ACT(H_ACT),
+        .V_ACT(V_ACT)
     ) u_compress_window (
-        .rstn  (rstn  ),
+        .rstn  (rstn    ),
         .i_pack(buf_pack),
-        .window(window)
+        .window(window  )
     );
 
 endmodule : binary_process
