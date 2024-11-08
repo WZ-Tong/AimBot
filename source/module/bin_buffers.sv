@@ -191,15 +191,18 @@ module bin_buffers #(
         .o_data({o_hsync, o_vsync, o_de})
     );
 
+    wire [$clog2(V_ACT)-1:0] o_adj_y;
+    assign o_adj_y = y-(COLUMN-1);
+
     wire [$clog2(H_ACT)-1:0] o_x;
     wire [$clog2(V_ACT)-1:0] o_y;
     delay #(
         .DELAY(DELAY                      ),
         .WIDTH($clog2(H_ACT)+$clog2(V_ACT))
     ) u_xy_delay (
-        .clk   (clk       ),
-        .i_data({x, y}    ),
-        .o_data({o_x, o_y})
+        .clk   (clk         ),
+        .i_data({x, o_adj_y}),
+        .o_data({o_x, o_y}  )
     );
 
     wire [7:0] o_rgb;
