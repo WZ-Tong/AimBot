@@ -1,18 +1,14 @@
+// Non-universal compress:
+//    Win: 8*5
+//   Repr: 16*10
 module compress_window #(
-    parameter  H_ACT       = 12'd1280                         ,
-    parameter  V_ACT       = 12'd720                          ,
-
-    localparam COMP_WIDTH  = 8                                ,
-    localparam COMP_HEIGHT = 10                               ,
-    localparam WIN_WIDTH   = 8                                ,
-    localparam WIN_HEIGHT  = 5                                ,
-    localparam WIN_SIZE    = WIN_WIDTH*WIN_HEIGHT             ,
-    localparam WIN_THRESH  = WIN_SIZE/2                       ,
-    localparam PACK_SIZE   = 3*8+4+$clog2(H_ACT)+$clog2(V_ACT)
+    localparam H_ACT     = 12'd1280                         ,
+    localparam V_ACT     = 12'd720                          ,
+    localparam PACK_SIZE = 3*8+4+$clog2(H_ACT)+$clog2(V_ACT)
 ) (
-    input                  rstn  ,
-    input [ PACK_SIZE-1:0] i_pack,
-    input [WIN_HEIGHT-1:0] window
+    input                 rstn  ,
+    input [PACK_SIZE-1:0] i_pack,
+    input [          4:0] window  /*synthesis PAP_MARK_DEBUG="true"*/
 );
 
     wire                     clk  ;
@@ -37,39 +33,93 @@ module compress_window #(
         .y    (y     )
     );
 
-    genvar i;
-    for (i = 0; i < WIN_HEIGHT; i=i+1) begin: g_col_sum
-        wire [$clog2(WIN_HEIGHT)-1:0] temp_col_sum;
-        if (i==0) begin: g_col_initial
-            assign temp_col_sum=window[0];
-        end else begin: g_col_last
-            assign temp_col_sum = g_col_sum[i-1].temp_col_sum+window[i];
-        end
-    end
+    wire [2:0] col_sum; // MAX: 5
+    assign col_sum = 3'b0
+        + window[0]
+        + window[1]
+        + window[2]
+        + window[3]
+        + window[4]
+        + 3'b0;
 
-    wire [$clog2(WIN_HEIGHT)-1:0] col_sum;
-    assign col_sum = g_col_sum[WIN_HEIGHT-1].temp_col_sum;
-
-    reg [$clog2(WIN_SIZE)-1:0] sum;
+    reg de_d;
     always_ff @(posedge clk or negedge rstn) begin
         if(~rstn) begin
-            sum <= #1 'b0;
+            de_d <= #1 'b0;
         end else begin
+            de_d <= #1 de;
+        end
+    end
+    wire de_f;
+    assign de_f = de_d==1 && de==0;
 
+    localparam TYPE_A   = 2'b00;
+    localparam TYPE_B   = 2'b01;
+    localparam TYPE_C   = 2'b10;
+    localparam TYPE_ERR = 2'b11;
+
+    reg [1:0] state;
+
+    reg [5:0] sum    ; // MAX: 5*8=40
+    reg [3:0] row_cnt; // MAX: 10
+    reg [2:0] col_cnt; // MAX: 8
+
+    reg col_en;
+    reg bin   ;
+    reg valid ;
+
+    always_ff @(posedge clk or negedge rstn) begin
+        if(~rstn | vsync) begin
+            state   <= #1 TYPE_A;
+            sum     <= #1 'b0;
+            row_cnt <= #1 'b0;
+            col_cnt <= #1 'b0;
+            bin     <= #1 'b0;
+            valid   <= #1 'b0;
+            col_en  <= #1 'b1;
+        end else begin
+            if (de_f) begin
+                if (row_cnt==10-1) begin
+                    row_cnt <= #1 'b0;
+                end else begin
+                    row_cnt <= #1 row_cnt + 1'b1;
+                end
+            end
+
+            if (de) begin
+                if (col_cnt==8-1) begin
+                    col_cnt <= #1 'b0;
+                    col_en  <= #1 ~col_en;
+                end else begin
+                    col_cnt <= #1 col_cnt + 1'b1;
+                end
+            end else begin
+                col_cnt <= #1 'b0;
+                col_en  <= #1 'b1;
+            end
+
+            if (row_cnt==5-1 && de && col_en) begin
+                sum <= #1 sum + col_sum;
+            end else begin
+                sum <= #1 'b0;
+            end
         end
     end
 
-    bin_buffer #(
-        .WIDTH(H_ACT/COMP_WIDTH ),
-        .ROWS (V_ACT/COMP_HEIGHT)
-    ) u_bin_buffer (
-        .clk   (clk ),
-        .rstn  (rstn),
-        .valid (    ),
-        .bin   (    ),
-        .cls   (    ),
-        .next  (    ),
-        .window(    )
+    wire buf_valid;
+    assign buf_valid = (col_cnt==8-1 && col_en) && (row_cnt==5-1);
+
+    wire buf_val;
+    assign buf_val = sum>=((5*8)/2) ? 1'b1 : 1'b0;
+
+    bin_buffer #(.WIDTH(80), .ROWS(72)) u_bin_buffer (
+        .clk   (clk      ),
+        .rstn  (rstn     ),
+        .valid (buf_valid),
+        .bin   (buf_val  ),
+        .cls   (vsync    ),
+        .next  (hsync    ),
+        .window(         )
     );
 
 endmodule : compress_window

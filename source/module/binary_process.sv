@@ -29,13 +29,12 @@ module binary_process #(
     localparam COMP_WIDTH  = 16        ;
     localparam COMP_HEIGHT = WIN_SIZE*2;
 
-    compress_window #(
-        .H_ACT(H_ACT),
-        .V_ACT(V_ACT)
-    ) u_compress_window (
+    compress_window u_compress_window (
         .rstn  (rstn    ),
         .i_pack(buf_pack),
         .window(window  )
     );
+
+    assign o_pack = buf_pack;
 
 endmodule : binary_process
