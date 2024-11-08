@@ -8,7 +8,7 @@ module compress_window #(
 ) (
     input                 rstn  ,
     input [PACK_SIZE-1:0] i_pack,
-    input [          4:0] window  /*synthesis PAP_MARK_DEBUG="true"*/
+    input [          4:0] window
 );
 
     wire                     clk  ;
@@ -53,13 +53,6 @@ module compress_window #(
     wire de_f;
     assign de_f = de_d==1 && de==0;
 
-    localparam TYPE_A   = 2'b00;
-    localparam TYPE_B   = 2'b01;
-    localparam TYPE_C   = 2'b10;
-    localparam TYPE_ERR = 2'b11;
-
-    reg [1:0] state;
-
     reg [5:0] sum    ; // MAX: 5*8=40
     reg [3:0] row_cnt; // MAX: 10
     reg [2:0] col_cnt; // MAX: 8
@@ -70,7 +63,6 @@ module compress_window #(
 
     always_ff @(posedge clk or negedge rstn) begin
         if(~rstn | vsync) begin
-            state   <= #1 TYPE_A;
             sum     <= #1 'b0;
             row_cnt <= #1 'b0;
             col_cnt <= #1 'b0;
