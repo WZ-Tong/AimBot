@@ -1,3 +1,4 @@
+// First `ROW` line blank, then normal
 module bin_buffers #(
     parameter  H_ACT     = 12'd1280                         ,
     parameter  V_ACT     = 12'd720                          ,
@@ -48,7 +49,7 @@ module bin_buffers #(
     end
 
     wire hsync_r;
-    assign hsync_r= hsync_d==0 && hsync==1;
+    assign hsync_r = hsync_d==0 && hsync==1;
 
     always_ff @(posedge clk or negedge rstn) begin
         if(~rstn) begin
@@ -206,18 +207,15 @@ module bin_buffers #(
         .o_data({o_hsync, o_vsync, o_de})
     );
 
-    wire [$clog2(V_ACT)-1:0] o_adj_y;
-    assign o_adj_y = y>=(ROW-1) ? y-(ROW-1) : 0;
-
     wire [$clog2(H_ACT)-1:0] o_x;
     wire [$clog2(V_ACT)-1:0] o_y;
     delay #(
         .DELAY(DELAY                      ),
         .WIDTH($clog2(H_ACT)+$clog2(V_ACT))
     ) u_xy_delay (
-        .clk   (clk         ),
-        .i_data({x, o_adj_y}),
-        .o_data({o_x, o_y}  )
+        .clk   (clk       ),
+        .i_data({x, y}    ),
+        .o_data({o_x, o_y})
     );
 
     wire [7:0] o_rgb;
