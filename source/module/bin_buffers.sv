@@ -1,14 +1,14 @@
 module bin_buffers #(
     parameter  H_ACT     = 12'd1280                         ,
     parameter  V_ACT     = 12'd720                          ,
-    parameter  COLUMN    = 4                                ,
+    parameter  ROW       = 4                                ,
     localparam PACK_SIZE = 3*8+4+$clog2(H_ACT)+$clog2(V_ACT)
 ) (
     input                  rstn  ,
     input  [PACK_SIZE-1:0] i_pack,
     output [PACK_SIZE-1:0] o_pack,
 
-    output [   COLUMN-1:0] window
+    output [      ROW-1:0] window
 );
 
     wire                     clk  ;
@@ -36,7 +36,7 @@ module bin_buffers #(
     assign bin = (r==0&&g==0&&b==0) ? 1'b0 : 1'b1;
 
     reg [ $clog2(H_ACT)-1:0] addr;
-    reg [$clog2(COLUMN)-1:0] ptr ;
+    reg [$clog2(ROW)-1:0] ptr ;
 
     always_ff @(posedge clk or negedge rstn) begin
         if(~rstn) begin
@@ -47,7 +47,7 @@ module bin_buffers #(
             ptr  <= #1 'b0;
         end else if (hsync) begin
             addr <= #1 'b0;
-            if (ptr!=COLUMN-1) begin
+            if (ptr!=ROW-1) begin
                 ptr <= #1 ptr + 1'b1;
             end else begin
                 ptr <= #1 'b0;
@@ -58,7 +58,7 @@ module bin_buffers #(
     end
 
     genvar i;
-    for (i = 0; i < COLUMN; i=i+1) begin: g_rams
+    for (i = 0; i < ROW; i=i+1) begin: g_rams
         reg  read;
         wire wen ;
         assign wen = ptr==i && de;
@@ -89,7 +89,7 @@ module bin_buffers #(
         end
     end
 
-    if (COLUMN==3) begin: g_temp_link_3
+    if (ROW==3) begin: g_temp_link_3
         reg [H_ACT-1:0] temp_window;
         always_comb begin
             unique case (ptr)
@@ -109,7 +109,7 @@ module bin_buffers #(
             temp_window[2] = current;
         end
         assign window = temp_window;
-    end else if (COLUMN==4) begin: g_temp_link_4
+    end else if (ROW==4) begin: g_temp_link_4
         reg [H_ACT-1:0] temp_window;
         always_comb begin
             unique case (ptr)
@@ -137,7 +137,7 @@ module bin_buffers #(
             temp_window[3] = current;
         end
         assign window = temp_window;
-    end else if (COLUMN==5) begin: g_temp_link_5
+    end else if (ROW==5) begin: g_temp_link_5
         reg [H_ACT-1:0] temp_window;
         always_comb begin
             unique case (ptr)
@@ -182,7 +182,7 @@ module bin_buffers #(
     localparam DELAY = 1;
 
     wire blank;
-    assign blank = y<(COLUMN-1);
+    assign blank = y<(ROW-1);
 
     wire o_hsync, o_vsync, o_de;
     delay #(
@@ -195,7 +195,7 @@ module bin_buffers #(
     );
 
     wire [$clog2(V_ACT)-1:0] o_adj_y;
-    assign o_adj_y = y>=(COLUMN-1) ? y-(COLUMN-1) : 0;
+    assign o_adj_y = y>=(ROW-1) ? y-(ROW-1) : 0;
 
     wire [$clog2(H_ACT)-1:0] o_x;
     wire [$clog2(V_ACT)-1:0] o_y;

@@ -11,15 +11,34 @@ module binary_process #(
     output [PACK_SIZE-1:0] o_pack
 );
 
-    wire [WIN_SIZE-1:0] window;
+    wire [ WIN_SIZE-1:0] window  ;
+    wire [PACK_SIZE-1:0] buf_pack;
     bin_buffers #(
-        .H_ACT (H_ACT   ),
-        .V_ACT (V_ACT   ),
-        .COLUMN(WIN_SIZE)
+        .H_ACT(H_ACT   ),
+        .V_ACT(V_ACT   ),
+        .ROW  (WIN_SIZE)
     ) u_bin_buffers (
+        .rstn  (rstn    ),
+        .i_pack(i_pack  ),
+        .o_pack(buf_pack),
+        .window(window  )
+    );
+
+    localparam WIN_WIDTH   = 16        ;
+    localparam WIN_HEIGHT  = WIN_SIZE  ;
+    localparam COMP_WIDTH  = 16        ;
+    localparam COMP_HEIGHT = WIN_SIZE*2;
+
+    compress_window #(
+        .H_ACT      (H_ACT      ),
+        .V_ACT      (V_ACT      ),
+        .WIN_WIDTH  (WIN_WIDTH  ),
+        .WIN_HEIGHT (WIN_HEIGHT ),
+        .COMP_WIDTH (COMP_WIDTH ),
+        .COMP_HEIGHT(COMP_HEIGHT)
+    ) u_compress_window (
         .rstn  (rstn  ),
-        .i_pack(i_pack),
-        .o_pack(o_pack),
+        .i_pack(buf_pack),
         .window(window)
     );
 
