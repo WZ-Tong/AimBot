@@ -24,17 +24,13 @@ module binary_process #(
         .window(window  )
     );
 
-    localparam WIN_WIDTH   = 16        ;
-    localparam WIN_HEIGHT  = WIN_SIZE  ;
-    localparam COMP_WIDTH  = 16        ;
-    localparam COMP_HEIGHT = WIN_SIZE*2;
-
+    wire [PACK_SIZE-1:0] dbg_pack;
     compress_window u_compress_window (
-        .rstn  (rstn    ),
-        .i_pack(buf_pack),
-        .window(window  )
+        .rstn    (rstn    ),
+        .i_pack  (buf_pack),
+        .window  (window  ),
+        .dbg_pack(dbg_pack)
     );
-
-    assign o_pack = buf_pack;
+    assign o_pack = dbg_pack;
 
 endmodule : binary_process
