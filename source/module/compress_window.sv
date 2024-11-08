@@ -108,8 +108,10 @@ module compress_window #(
     wire buf_valid;
     assign buf_valid = col_valid && row_valid;
 
+    localparam SUM_THRESH = (5*8)/2;
+
     wire buf_val;
-    assign buf_val = sum>=((5*8)/2) ? 1'b1 : 1'b0;
+    assign buf_val = sum>=SUM_THRESH ? 1'b1 : 1'b0;
 
     bin_buffer #(.WIDTH(80), .ROWS(72)) u_bin_buffer (
         .clk   (clk      ),
