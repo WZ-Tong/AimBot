@@ -142,6 +142,8 @@ module compress_window #(
                     dbg_addr    <= #1 dbg_addr + 1'b1;
                 end
             end
+        end else begin
+            dbg_addr <= #1 'b0;
         end
     end
 
