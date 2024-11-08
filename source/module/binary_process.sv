@@ -24,13 +24,11 @@ module binary_process #(
         .window(window  )
     );
 
-    wire [PACK_SIZE-1:0] dbg_pack;
     compress_window u_compress_window (
         .rstn    (rstn    ),
         .i_pack  (buf_pack),
         .window  (window  ),
-        .dbg_pack(dbg_pack)
+        .dbg_pack(o_pack  )
     );
-    assign o_pack = dbg_pack;
 
 endmodule : binary_process

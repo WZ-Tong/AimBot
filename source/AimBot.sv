@@ -197,19 +197,19 @@ module AimBot #(
         .o_pack        (hdmi_cam2    )
     );
 
-    wire [PACK_SIZE-1:0] hdmi_pack;
+    wire [PACK_SIZE-1:0] hdmi_pack_bak;
     cam_switch #(
         .H_ACT(H_ACT   ),
         .V_ACT(V_ACT   ),
         .TICK (KEY_HOLD),
         .DELAY(16      )
     ) u_cam_switch (
-        .clk       (clk      ),
-        .rstn      (rstn     ),
-        .main_pack (hdmi_cam1),
-        .minor_pack(hdmi_cam2),
-        .key       (cam_key  ),
-        .pack      (hdmi_pack)
+        .clk       (clk          ),
+        .rstn      (rstn         ),
+        .main_pack (hdmi_cam1    ),
+        .minor_pack(hdmi_cam2    ),
+        .key       (cam_key      ),
+        .pack      (hdmi_pack_bak)
     );
 
     wire box_en;
@@ -221,6 +221,17 @@ module AimBot #(
         .rstn  (rstn   ),
         .key   (box_key),
         .switch(box_en )
+    );
+
+    wire [PACK_SIZE-1:0] hdmi_pack;
+    binary_process #(
+        .H_ACT(H_ACT),
+        .V_ACT(V_ACT)
+    ) u_binary_process (
+        .rstn  (rstn         ),
+        .trig  (             ),
+        .i_pack(hdmi_pack_bak),
+        .o_pack(hdmi_pack    )
     );
 
     wire [BOX_NUM*$clog2(H_ACT)-1:0] dw_start_xs;

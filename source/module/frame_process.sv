@@ -104,25 +104,7 @@ module frame_process #(
         .rstn  (rstn               ),
         .en    (face_en&&(~gray_en)),
         .i_pack(gray_pack          ),
-        .o_pack(face_pack          )
-    );
-
-    wire bin_proc_trig;
-    trig_gen #(.TICK(KEY_TICK)) u_bp_trig_gen (
-        .clk   (clk          ),
-        .rstn  (rstn         ),
-        .switch(bin_proc_key ),
-        .trig  (bin_proc_trig)
-    );
-
-    binary_process #(
-        .H_ACT(H_ACT),
-        .V_ACT(V_ACT)
-    ) u_binary_process (
-        .rstn  (rstn         ),
-        .trig  (bin_proc_trig),
-        .i_pack(face_pack    ),
-        .o_pack(o_pack       )
+        .o_pack(o_pack             )
     );
 
 endmodule : frame_process
