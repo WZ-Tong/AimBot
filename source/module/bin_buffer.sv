@@ -1,6 +1,6 @@
 module bin_buffer #(
-    parameter WIDTH = 1280,
-    parameter ROWS  = 5
+    parameter WIDTH = 1280/16, // 80
+    parameter ROWS  = 720/10   // 72
 ) (
     input             clk   ,
     input             rstn  ,
