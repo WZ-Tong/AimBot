@@ -6,9 +6,10 @@ module compress_window #(
     localparam V_ACT     = 12'd720                          ,
     localparam PACK_SIZE = 3*8+4+$clog2(H_ACT)+$clog2(V_ACT)
 ) (
-    input                 rstn  ,
-    input [PACK_SIZE-1:0] i_pack,
-    input [          4:0] window
+    input                  rstn    ,
+    input  [PACK_SIZE-1:0] i_pack  ,
+    input  [          4:0] window  ,
+    output [PACK_SIZE-1:0] dbg_pack
 );
 
     wire                     clk  ;
@@ -42,16 +43,16 @@ module compress_window #(
         + window[4]
         + 3'b0;
 
-    reg de_d;
+    reg hsync_d;
     always_ff @(posedge clk or negedge rstn) begin
         if(~rstn) begin
-            de_d <= #1 'b0;
+            hsync_d <= #1 'b0;
         end else begin
-            de_d <= #1 de;
+            hsync_d <= #1 hsync;
         end
     end
-    wire de_f;
-    assign de_f = de_d==1 && de==0;
+    wire hsync_r;
+    assign hsync_r = hsync_d==0 && hsync==1;
 
     reg [5:0] sum    ; // MAX: 5*8=40
     reg [3:0] row_cnt; // MAX: 10
@@ -70,7 +71,7 @@ module compress_window #(
             valid   <= #1 'b0;
             col_en  <= #1 'b1;
         end else begin
-            if (de_f) begin
+            if (hsync_r) begin
                 if (row_cnt==10-1) begin
                     row_cnt <= #1 'b0;
                 end else begin
@@ -98,8 +99,14 @@ module compress_window #(
         end
     end
 
+    wire row_valid;
+    assign row_valid = row_cnt==5-1;
+
+    wire col_valid;
+    assign col_valid = col_cnt==8-1 && col_en;
+
     wire buf_valid;
-    assign buf_valid = (col_cnt==8-1 && col_en) && (row_cnt==5-1);
+    assign buf_valid = col_valid && row_valid;
 
     wire buf_val;
     assign buf_val = sum>=((5*8)/2) ? 1'b1 : 1'b0;
@@ -111,7 +118,48 @@ module compress_window #(
         .bin   (buf_val  ),
         .cls   (vsync    ),
         .next  (hsync    ),
-        .window(         )
+        .window(         )    // TODO
     );
+
+    reg [$clog2(80)-1:0] dbg_addr   ;
+    reg [        80-1:0] dbg_line   ;
+    reg                  dbg_current;
+    always_ff @(posedge clk or negedge rstn) begin
+        if(~rstn) begin
+            dbg_line    <= #1 'b0;
+            dbg_addr    <= #1 'b0;
+            dbg_current <= #1 'b0;
+        end else begin
+            if (row_valid) begin
+                if (col_valid) begin
+                    dbg_addr           <= #1 dbg_addr + 1'b1;
+                    dbg_line[dbg_addr] <= #1 buf_val;
+                    dbg_current        <= #1 buf_val;
+                end
+            end else begin
+                if (col_valid) begin
+                    dbg_current <= #1 dbg_line[dbg_addr];
+                    dbg_addr    <= #1 dbg_addr + 1'b1;
+                end
+            end
+        end
+    end
+
+    wire [7:0] dbg_rgb;
+    assign dbg_rgb = dbg_current ? (~8'b0) : 8'b0;
+
+    hdmi_pack #(.H_ACT(H_ACT), .V_ACT(V_ACT)) u_hdmi_pack (
+        .clk  (clk     ),
+        .hsync(hsync   ),
+        .vsync(vsync   ),
+        .de   (de      ),
+        .r    (dbg_rgb ),
+        .g    (dbg_rgb ),
+        .b    (dbg_rgb ),
+        .x    (x       ),
+        .y    (y       ),
+        .pack (dbg_pack)
+    );
+
 
 endmodule : compress_window
