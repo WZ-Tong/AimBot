@@ -70,28 +70,46 @@ module bin_buffers #(
         end
     end
 
-    genvar i;
-    for (i = 0; i < ROW; i=i+1) begin: g_rams
-        reg  read;
-        wire wen ;
-        assign wen = ptr==i && de;
+    `ifdef __ICARUS__
+        genvar i;
+        for (i = 0; i < ROW; i=i+1) begin: g_rams
+            reg  read;
+            wire wen ;
+            assign wen = ptr==i && de;
 
-        reg [H_ACT-1:0] ram;
-        always_ff @(posedge clk or negedge rstn) begin
-            if(~rstn) begin
-                ram  <= #1 'b0;
-                read <= #1 'b0;
-            end else begin
-                if (wen) begin
-                    // Write mode
-                    ram[addr] <= #1 bin;
+            reg [H_ACT-1:0] ram;
+            always_ff @(posedge clk or negedge rstn) begin
+                if(~rstn) begin
+                    ram  <= #1 'b0;
+                    read <= #1 'b0;
                 end else begin
-                    // Read mode
-                    read <= #1 ram[addr];
+                    if (wen) begin
+                        // Write mode
+                        ram[addr] <= #1 bin;
+                    end else begin
+                        // Read mode
+                        read <= #1 ram[addr];
+                    end
                 end
             end
         end
-    end
+    `else
+        genvar i;
+        for (i = 0; i < ROW; i=i+1) begin: g_rams
+            wire read;
+            wire wen ;
+            assign wen = ptr==i && de;
+            bin_ram u_bin_ram (
+                .clk    (clk ),
+                .rst    (rst ),
+                .wr_en  (wen ),
+                .addr   (addr),
+                .wr_data(bin ),
+                .rd_data(read)
+            );
+        end
+    `endif
+
 
     reg current;
     always_ff @(posedge clk or negedge rstn) begin
