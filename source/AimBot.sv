@@ -265,19 +265,35 @@ module AimBot #(
     wire [$clog2(V_ACT)-1:0] cam_face_start_y;
     wire [$clog2(H_ACT)-1:0] cam_face_end_x  ;
     wire [$clog2(V_ACT)-1:0] cam_face_end_y  ;
-    assign cam_face_start_x = cam_id==0 ? cam1_face_start_x : cam2_face_start_x;
-    assign cam_face_start_y = cam_id==0 ? cam1_face_start_y : cam2_face_start_y;
-    assign cam_face_end_x   = cam_id==0 ? cam1_face_end_x   : cam2_face_end_x  ;
-    assign cam_face_end_y   = cam_id==0 ? cam1_face_end_y   : cam2_face_end_y  ;
+
+    draw_window_pos_sel #(
+        .V_ACT      (V_ACT),
+        .H_ACT      (H_ACT),
+        .MAIN_CAM_ID(1'b0 )
+    ) u_draw_window_pos_sel (
+        .cam_id      (cam_id           ),
+        .cam1_start_x(cam1_face_start_x),
+        .cam1_start_y(cam1_face_start_y),
+        .cam1_end_x  (cam1_face_end_x  ),
+        .cam1_end_y  (cam1_face_end_y  ),
+        .cam2_start_x(cam2_face_start_x),
+        .cam2_start_y(cam2_face_start_y),
+        .cam2_end_x  (cam2_face_end_x  ),
+        .cam2_end_y  (cam2_face_end_y  ),
+        .cam_start_x (cam_face_start_x ),
+        .cam_start_y (cam_face_start_y ),
+        .cam_end_x   (cam_face_end_x   ),
+        .cam_end_y   (cam_face_end_y   )
+    );
 
     wire [PACK_SIZE-1:0] dw_pack;
     draw_window #(
         .BOX_WIDTH(BOX_WIDTH),
         .BOX_NUM  (BOX_NUM+1)
     ) u_draw_window (
-        .en      (box_en                          ),
-        .i_pack  (hdmi_pack                       ),
-        .o_pack  (dw_pack                         ),
+        .en      (box_en                         ),
+        .i_pack  (hdmi_pack                      ),
+        .o_pack  (dw_pack                        ),
         .start_xs({dw_start_xs, cam_face_start_x}),
         .start_ys({dw_start_ys, cam_face_start_y}),
         .end_xs  ({dw_end_xs,   cam_face_end_x  }),
