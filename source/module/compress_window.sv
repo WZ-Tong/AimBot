@@ -2,13 +2,18 @@
 //    Win: 8*5
 //   Repr: 16*10
 module compress_window #(
+    localparam WIN_W     = 8                                ,
+    localparam WIN_H     = 5                                ,
+    localparam FAC_W     = 2                                ,
+    localparam FAC_H     = 2                                ,
+    localparam WIN_S     = WIN_W*WIN_H                      ,
     localparam H_ACT     = 12'd1280                         ,
     localparam V_ACT     = 12'd720                          ,
     localparam PACK_SIZE = 3*8+4+$clog2(H_ACT)+$clog2(V_ACT)
 ) (
     input                  rstn    ,
     input  [PACK_SIZE-1:0] i_pack  ,
-    input  [          4:0] window  ,
+    input  [    WIN_H-1:0] window  ,
     output [PACK_SIZE-1:0] dbg_pack
 );
 
@@ -34,7 +39,7 @@ module compress_window #(
         .y    (y     )
     );
 
-    wire [2:0] col_sum; // MAX: 5
+    wire [2:0] col_sum; // MAX: WIN_H=5
     assign col_sum = 3'b0
         + window[0]
         + window[1]
@@ -54,9 +59,9 @@ module compress_window #(
     wire de_f;
     assign de_f = de_d==1 && de==0;
 
-    reg [5:0] sum    ; // MAX: 5*8=40
-    reg [3:0] row_cnt; // MAX: 10
-    reg [2:0] col_cnt; // MAX: 8
+    reg [      $clog2(WIN_S)-1:0] sum    ;
+    reg [$clog2(WIN_H*FAC_H)-1:0] row_cnt;
+    reg [      $clog2(WIN_W)-1:0] col_cnt;
 
     reg col_en;
     reg bin   ;
@@ -72,7 +77,7 @@ module compress_window #(
             col_en  <= #1 'b1;
         end else begin
             if (de_f) begin
-                if (row_cnt==10-1) begin
+                if (row_cnt==(WIN_H*FAC_H)-1) begin
                     row_cnt <= #1 'b0;
                 end else begin
                     row_cnt <= #1 row_cnt + 1'b1;
@@ -80,7 +85,7 @@ module compress_window #(
             end
 
             if (de) begin
-                if (col_cnt==8-1) begin
+                if (col_cnt==WIN_W-1) begin
                     col_cnt <= #1 'b0;
                     col_en  <= #1 ~col_en;
                 end else begin
@@ -91,7 +96,7 @@ module compress_window #(
                 col_en  <= #1 'b1;
             end
 
-            if (row_cnt==5-1 && de && col_en) begin
+            if (row_cnt==WIN_H-1 && de && col_en) begin
                 sum <= #1 sum + col_sum;
             end else begin
                 sum <= #1 'b0;
@@ -100,20 +105,23 @@ module compress_window #(
     end
 
     wire row_valid;
-    assign row_valid = row_cnt==5-1;
+    assign row_valid = row_cnt==WIN_H-1;
 
     wire col_valid;
-    assign col_valid = col_cnt==8-1 && col_en;
+    assign col_valid = col_cnt==WIN_W-1 && col_en;
 
     wire buf_valid;
     assign buf_valid = col_valid && row_valid;
 
-    localparam SUM_THRESH = (5*8)/2;
+    localparam SUM_THRESH = WIN_S/4;
 
     wire buf_val;
     assign buf_val = sum>=SUM_THRESH ? 1'b1 : 1'b0;
 
-    bin_buffer #(.WIDTH(80), .ROWS(72)) u_bin_buffer (
+    bin_buffer #(
+        .WIDTH(H_ACT/(FAC_W*WIN_W)),
+        .ROWS (V_ACT/(FAC_H*WIN_H))
+    ) u_bin_buffer (
         .clk   (clk      ),
         .rstn  (rstn     ),
         .valid (buf_valid),
@@ -123,9 +131,9 @@ module compress_window #(
         .window(         )    // TODO
     );
 
-    reg [$clog2(80)-1:0] dbg_addr   ;
-    reg [        80-1:0] dbg_line   ;
-    reg                  dbg_current;
+    reg [$clog2(H_ACT/(FAC_W*WIN_W))-1:0] dbg_addr   ;
+    reg [        H_ACT/(FAC_W*WIN_W)-1:0] dbg_line   ;
+    reg                                   dbg_current;
     always_ff @(posedge clk or negedge rstn) begin
         if(~rstn) begin
             dbg_line    <= #1 'b0;
