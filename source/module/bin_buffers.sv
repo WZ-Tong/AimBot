@@ -100,12 +100,12 @@ module bin_buffers #(
             wire wen ;
             assign wen = ptr==i && de;
             bin_ram u_bin_ram (
-                .clk    (clk ),
-                .rst    (rst ),
-                .wr_en  (wen ),
-                .addr   (addr),
-                .wr_data(bin ),
-                .rd_data(read)
+                .clk    (clk  ),
+                .rst    (~rstn),
+                .wr_en  (wen  ),
+                .addr   (addr ),
+                .wr_data(bin  ),
+                .rd_data(read )
             );
         end
     `endif
@@ -121,7 +121,7 @@ module bin_buffers #(
     end
 
     if (ROW==3) begin: g_temp_link_3
-        reg [H_ACT-1:0] temp_window;
+        reg [ROW-1:0] temp_window;
         always_comb begin
             unique case (ptr)
                 'd0 : begin
@@ -136,12 +136,16 @@ module bin_buffers #(
                     temp_window[0] = g_rams[0].read;
                     temp_window[1] = g_rams[1].read;
                 end
+                default : begin
+                    temp_window[0] = 'b0;
+                    temp_window[1] = 'b0;
+                end
             endcase
             temp_window[2] = current;
         end
         assign window = temp_window;
     end else if (ROW==4) begin: g_temp_link_4
-        reg [H_ACT-1:0] temp_window;
+        reg [ROW-1:0] temp_window;
         always_comb begin
             unique case (ptr)
                 'd0 : begin
@@ -164,12 +168,17 @@ module bin_buffers #(
                     temp_window[1] = g_rams[1].read;
                     temp_window[2] = g_rams[2].read;
                 end
+                default : begin
+                    temp_window[0] = 'b0;
+                    temp_window[1] = 'b0;
+                    temp_window[2] = 'b0;
+                end
             endcase
             temp_window[3] = current;
         end
         assign window = temp_window;
     end else if (ROW==5) begin: g_temp_link_5
-        reg [H_ACT-1:0] temp_window;
+        reg [ROW-1:0] temp_window;
         always_comb begin
             unique case (ptr)
                 'd0 : begin
@@ -201,6 +210,12 @@ module bin_buffers #(
                     temp_window[1] = g_rams[1].read;
                     temp_window[2] = g_rams[2].read;
                     temp_window[3] = g_rams[3].read;
+                end
+                default : begin
+                    temp_window[0] = 'b0;
+                    temp_window[1] = 'b0;
+                    temp_window[2] = 'b0;
+                    temp_window[3] = 'b0;
                 end
             endcase
             temp_window[4] = current;
