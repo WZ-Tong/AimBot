@@ -1,6 +1,6 @@
 // Non-universal compress:
-//    Win: 8*5
-//   Repr: 16*10
+//    Win: 16*5
+//   Repr: 32*10
 module compress_window #(
     localparam WIN_W     = 16                               ,
     localparam WIN_H     = 5                                ,
@@ -124,19 +124,48 @@ module compress_window #(
     wire buf_val;
     assign buf_val = sum>=SUM_THRESH ? 1'b1 : 1'b0;
 
+    reg vsync_d;
     always_ff @(posedge clk or negedge rstn) begin
-        if(~rstn | vsync) begin
-            start_x <= #1 H_ACT;
-            start_y <= #1 V_ACT;
+        if(~rstn) begin
+            vsync_d <= #1 'b0;
+        end else begin
+            vsync_d <= #1 vsync;
+        end
+    end
+    wire vsync_r;
+    assign vsync_r = vsync_d==0 && vsync==1;
+
+    reg [$clog2(H_ACT)-1:0] temp_start_x;
+    reg [$clog2(V_ACT)-1:0] temp_start_y;
+    reg [$clog2(H_ACT)-1:0] temp_end_x  ;
+    reg [$clog2(V_ACT)-1:0] temp_end_y  ;
+
+    always_ff @(posedge clk or negedge rstn) begin
+        if(~rstn) begin
+            temp_start_x <= #1 H_ACT;
+            temp_start_y <= #1 V_ACT;
+            temp_end_x   <= #1 'b0;
+            temp_end_y   <= #1 'b0;
+
+            start_x <= #1 'b0;
+            start_y <= #1 'b0;
             end_x   <= #1 'b0;
             end_y   <= #1 'b0;
-        end else begin
-            if (buf_valid && buf_val) begin
-                start_x <= #1 start_x<=x ? start_x : x;
-                start_y <= #1 start_y<=y ? start_y : y;
-                end_x   <= #1 end_x>=x ? end_x : x;
-                end_y   <= #1 end_y>=y ? end_y : y;
-            end
+        end else if (vsync_r) begin
+            temp_start_x <= #1 H_ACT;
+            temp_start_y <= #1 V_ACT;
+            temp_end_x   <= #1 'b0;
+            temp_end_y   <= #1 'b0;
+
+            start_x <= #1 temp_start_x;
+            start_y <= #1 temp_start_y;
+            end_x   <= #1 temp_end_x  ;
+            end_y   <= #1 temp_end_y  ;
+        end else if (buf_valid && buf_val) begin
+            temp_start_x <= #1 temp_start_x<=x ? temp_start_x : x;
+            temp_start_y <= #1 temp_start_y<=y ? temp_start_y : y;
+            temp_end_x   <= #1 temp_end_x>=x ? temp_end_x : x;
+            temp_end_y   <= #1 temp_end_y>=y ? temp_end_y : y;
         end
     end
 
