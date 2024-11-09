@@ -11,10 +11,16 @@ module compress_window #(
     localparam V_ACT     = 12'd720                          ,
     localparam PACK_SIZE = 3*8+4+$clog2(H_ACT)+$clog2(V_ACT)
 ) (
-    input                  rstn    ,
-    input  [PACK_SIZE-1:0] i_pack  ,
-    input  [    WIN_H-1:0] window  ,
-    output [PACK_SIZE-1:0] dbg_pack
+    input                          rstn    ,
+    input      [    PACK_SIZE-1:0] i_pack  ,
+    input      [        WIN_H-1:0] window  ,
+    // Position
+    output reg [$clog2(H_ACT)-1:0] start_x ,
+    output reg [$clog2(V_ACT)-1:0] start_y ,
+    output reg [$clog2(H_ACT)-1:0] end_x   ,
+    output reg [$clog2(V_ACT)-1:0] end_y   ,
+    // Debug only
+    output     [    PACK_SIZE-1:0] dbg_pack
 );
 
     wire                     clk  ;
@@ -118,18 +124,21 @@ module compress_window #(
     wire buf_val;
     assign buf_val = sum>=SUM_THRESH ? 1'b1 : 1'b0;
 
-    bin_buffer #(
-        .WIDTH(H_ACT/(FAC_W*WIN_W)),
-        .ROWS (V_ACT/(FAC_H*WIN_H))
-    ) u_bin_buffer (
-        .clk   (clk      ),
-        .rstn  (rstn     ),
-        .valid (buf_valid),
-        .bin   (buf_val  ),
-        .cls   (vsync    ),
-        .next  (hsync    ),
-        .window(         )    // TODO
-    );
+    always_ff @(posedge clk or negedge rstn) begin
+        if(~rstn | vsync) begin
+            start_x <= #1 H_ACT;
+            start_y <= #1 V_ACT;
+            end_x   <= #1 'b0;
+            end_y   <= #1 'b0;
+        end else begin
+            if (buf_valid && buf_val) begin
+                start_x <= #1 start_x<=x ? start_x : x;
+                start_y <= #1 start_y<=y ? start_y : y;
+                end_x   <= #1 end_x>=x ? end_x : x;
+                end_y   <= #1 end_y>=y ? end_y : y;
+            end
+        end
+    end
 
     reg [$clog2(H_ACT/(FAC_W*WIN_W))-1:0] dbg_addr   ;
     reg [        H_ACT/(FAC_W*WIN_W)-1:0] dbg_line   ;

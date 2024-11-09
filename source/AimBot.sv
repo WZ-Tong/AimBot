@@ -197,7 +197,7 @@ module AimBot #(
         .o_pack        (hdmi_cam2    )
     );
 
-    wire [PACK_SIZE-1:0] hdmi_pack_bak;
+    wire [PACK_SIZE-1:0] hdmi_pack;
     cam_switch #(
         .H_ACT(H_ACT   ),
         .V_ACT(V_ACT   ),
@@ -209,7 +209,7 @@ module AimBot #(
         .main_pack (hdmi_cam1    ),
         .minor_pack(hdmi_cam2    ),
         .key       (cam_key      ),
-        .pack      (hdmi_pack_bak)
+        .pack      (hdmi_pack)
     );
 
     wire box_en;
@@ -223,15 +223,23 @@ module AimBot #(
         .switch(box_en )
     );
 
-    wire [PACK_SIZE-1:0] hdmi_pack;
+    wire [$clog2(H_ACT)-1:0] comp_start_x ;
+    wire [$clog2(V_ACT)-1:0] comp_start_y ;
+    wire [$clog2(H_ACT)-1:0] comp_end_x   ;
+    wire [$clog2(V_ACT)-1:0] comp_end_y   ;
+    wire [    PACK_SIZE-1:0] comp_dbg_pack;
+
     binary_process #(
         .H_ACT(H_ACT),
         .V_ACT(V_ACT)
     ) u_binary_process (
-        .rstn  (rstn         ),
-        .trig  (             ),
-        .i_pack(hdmi_pack_bak),
-        .o_pack(hdmi_pack    )
+        .rstn    (rstn         ),
+        .i_pack  (hdmi_pack    ),
+        .start_x (comp_start_x ),
+        .start_y (comp_start_y ),
+        .end_x   (comp_end_x   ),
+        .end_y   (comp_end_y   ),
+        .dbg_pack(comp_dbg_pack)
     );
 
     wire [BOX_NUM*$clog2(H_ACT)-1:0] dw_start_xs;
@@ -243,16 +251,16 @@ module AimBot #(
     wire [PACK_SIZE-1:0] dw_pack;
     draw_window #(
         .BOX_WIDTH(BOX_WIDTH),
-        .BOX_NUM  (BOX_NUM  )
+        .BOX_NUM  (BOX_NUM+1)
     ) u_draw_window (
-        .en      (box_en     ),
-        .i_pack  (hdmi_pack  ),
-        .o_pack  (dw_pack    ),
-        .start_xs(dw_start_xs),
-        .start_ys(dw_start_ys),
-        .end_xs  (dw_end_xs  ),
-        .end_ys  (dw_end_ys  ),
-        .colors  (dw_colors  )
+        .en      (box_en                     ),
+        .i_pack  (hdmi_pack                  ),
+        .o_pack  (dw_pack                    ),
+        .start_xs({dw_start_xs, comp_start_x}),
+        .start_ys({dw_start_ys, comp_start_y}),
+        .end_xs  ({dw_end_xs,   comp_end_x  }),
+        .end_ys  ({dw_end_ys,   comp_end_y  }),
+        .colors  ({dw_colors,   24'h00_FF_FF})
     );
 
     hdmi_unpack #(
