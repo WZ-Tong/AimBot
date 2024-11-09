@@ -22,6 +22,7 @@ module AimBot #(
     input        gray_key     ,
     input        gamma_key    ,
     input        box_key      ,
+    input        face_key     ,
     input        balance_rstn ,
 
     // Cam1 ctrl/data
@@ -179,6 +180,7 @@ module AimBot #(
         .balance_key   (balance_key      ),
         .gamma_key     (gamma_key        ),
         .gray_key      (gray_key         ),
+        .face_key      (face_key         ),
         .i_pack        (disp_pack_1      ),
         .o_pack        (hdmi_cam1        ),
         .face_start_x  (cam1_face_start_x),
@@ -202,6 +204,7 @@ module AimBot #(
         .balance_key   (balance_key      ),
         .gamma_key     (gamma_key        ),
         .gray_key      (gray_key         ),
+        .face_key      (face_key         ),
         .i_pack        (disp_pack_2      ),
         .o_pack        (hdmi_cam2        ),
         .face_start_x  (cam2_face_start_x),

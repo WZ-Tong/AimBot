@@ -13,6 +13,7 @@ module frame_process #(
     input                      balance_key   ,
     input                      gamma_key     ,
     input                      gray_key      ,
+    input                      face_key      ,
 
     output [$clog2(H_ACT)-1:0] face_start_x  ,
     output [$clog2(V_ACT)-1:0] face_start_y  ,
@@ -88,6 +89,17 @@ module frame_process #(
         .o_pack(o_pack             )
     );
 
+    wire face_en;
+    key_to_switch #(
+        .TICK(KEY_TICK),
+        .INIT(1'b0    )
+    ) u_face_en (
+        .clk   (clk     ),
+        .rstn  (rstn    ),
+        .key   (face_key),
+        .switch(face_en )
+    );
+
     // Binaryzation
     wire [PACK_SIZE-1:0] face_pack;
     bin_face #(
@@ -96,7 +108,7 @@ module frame_process #(
     ) u_bin_face (
         .rstn  (rstn     ),
         .en    (1'b1     ),
-        .i_pack(o_pack   ),
+        .i_pack(wb_pack  ),
         .o_pack(face_pack)
     );
 
