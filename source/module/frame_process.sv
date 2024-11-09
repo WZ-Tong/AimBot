@@ -6,18 +6,21 @@ module frame_process #(
 
     localparam PACK_SIZE = 3*8+4+$clog2(H_ACT-0)+$clog2(V_ACT-0)
 ) (
-    input                  clk           ,
-    input                  rstn          ,
+    input                      clk           ,
+    input                      rstn          ,
 
-    input                  balance_update,
-    input                  balance_key   ,
-    input                  gamma_key     ,
-    input                  gray_key      ,
-    input                  face_key      ,
-    input                  bin_proc_key  ,
+    input                      balance_update,
+    input                      balance_key   ,
+    input                      gamma_key     ,
+    input                      gray_key      ,
 
-    input  [PACK_SIZE-1:0] i_pack        ,
-    output [PACK_SIZE-1:0] o_pack
+    output [$clog2(H_ACT)-1:0] face_start_x  ,
+    output [$clog2(V_ACT)-1:0] face_start_y  ,
+    output [$clog2(H_ACT)-1:0] face_end_x    ,
+    output [$clog2(V_ACT)-1:0] face_end_y    ,
+
+    input  [    PACK_SIZE-1:0] i_pack        ,
+    output [    PACK_SIZE-1:0] o_pack
 );
 
     wire gamma_en;
@@ -75,17 +78,6 @@ module frame_process #(
         .switch(gray_en )
     );
 
-    wire face_en;
-    key_to_switch #(
-        .TICK(KEY_TICK),
-        .INIT(1'b1    )
-    ) u_face_en (
-        .clk   (clk     ),
-        .rstn  (rstn    ),
-        .key   (face_key),
-        .switch(face_en )
-    );
-
     wire [PACK_SIZE-1:0] gray_pack;
     gray_convert #(
         .H_ACT(H_ACT),
@@ -93,18 +85,33 @@ module frame_process #(
     ) u_gray_convert (
         .en    (gray_en&&(~face_en)),
         .i_pack(wb_pack            ),
-        .o_pack(gray_pack          )
+        .o_pack(o_pack             )
     );
 
+    // Binaryzation
     wire [PACK_SIZE-1:0] face_pack;
     bin_face #(
         .H_ACT(H_ACT),
         .V_ACT(V_ACT)
     ) u_bin_face (
-        .rstn  (rstn               ),
-        .en    (face_en&&(~gray_en)),
-        .i_pack(gray_pack          ),
-        .o_pack(o_pack             )
+        .rstn  (rstn     ),
+        .en    (1'b1     ),
+        .i_pack(o_pack   ),
+        .o_pack(face_pack)
+    );
+
+    wire [PACK_SIZE-1:0] face_dbg_pack;
+    binary_process #(
+        .H_ACT(H_ACT),
+        .V_ACT(V_ACT)
+    ) u_binary_process (
+        .rstn    (rstn         ),
+        .i_pack  (face_pack    ),
+        .start_x (face_start_x ),
+        .start_y (face_start_y ),
+        .end_x   (face_end_x   ),
+        .end_y   (face_end_y   ),
+        .dbg_pack(face_dbg_pack)
     );
 
 endmodule : frame_process

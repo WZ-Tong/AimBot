@@ -22,7 +22,6 @@ module AimBot #(
     input        gray_key     ,
     input        gamma_key    ,
     input        box_key      ,
-    input        face_key     ,
     input        balance_rstn ,
 
     // Cam1 ctrl/data
@@ -164,37 +163,51 @@ module AimBot #(
     );
 
     wire [PACK_SIZE-1:0] hdmi_cam1;
+
+    wire [$clog2(H_ACT)-1:0] cam1_face_start_x;
+    wire [$clog2(V_ACT)-1:0] cam1_face_start_y;
+    wire [$clog2(H_ACT)-1:0] cam1_face_end_x  ;
+    wire [$clog2(V_ACT)-1:0] cam1_face_end_y  ;
     frame_process #(
         .H_ACT   (H_ACT   ),
         .V_ACT   (V_ACT   ),
         .KEY_TICK(KEY_HOLD)
     ) u_cam1_process (
-        .clk           (clk          ),
-        .rstn          (rstn         ),
-        .balance_update(~balance_rstn),
-        .balance_key   (balance_key  ),
-        .gamma_key     (gamma_key    ),
-        .gray_key      (gray_key     ),
-        .face_key      (face_key     ),
-        .i_pack        (disp_pack_1  ),
-        .o_pack        (hdmi_cam1    )
+        .clk           (clk              ),
+        .rstn          (rstn             ),
+        .balance_update(~balance_rstn    ),
+        .balance_key   (balance_key      ),
+        .gamma_key     (gamma_key        ),
+        .gray_key      (gray_key         ),
+        .i_pack        (disp_pack_1      ),
+        .o_pack        (hdmi_cam1        ),
+        .face_start_x  (cam1_face_start_x),
+        .face_start_y  (cam1_face_start_y),
+        .face_end_x    (cam1_face_end_x  ),
+        .face_end_y    (cam1_face_end_y  )
     );
 
-    wire [PACK_SIZE-1:0] hdmi_cam2;
-
+    wire [    PACK_SIZE-1:0] hdmi_cam2        ;
+    wire [$clog2(H_ACT)-1:0] cam2_face_start_x;
+    wire [$clog2(V_ACT)-1:0] cam2_face_start_y;
+    wire [$clog2(H_ACT)-1:0] cam2_face_end_x  ;
+    wire [$clog2(V_ACT)-1:0] cam2_face_end_y  ;
     frame_process #(
         .H_ACT(H_ACT),
         .V_ACT(V_ACT)
     ) u_cam2_process (
-        .clk           (clk          ),
-        .rstn          (rstn         ),
-        .balance_update(~balance_rstn),
-        .balance_key   (balance_key  ),
-        .gamma_key     (gamma_key    ),
-        .gray_key      (gray_key     ),
-        .face_key      (face_key     ),
-        .i_pack        (disp_pack_2  ),
-        .o_pack        (hdmi_cam2    )
+        .clk           (clk              ),
+        .rstn          (rstn             ),
+        .balance_update(~balance_rstn    ),
+        .balance_key   (balance_key      ),
+        .gamma_key     (gamma_key        ),
+        .gray_key      (gray_key         ),
+        .i_pack        (disp_pack_2      ),
+        .o_pack        (hdmi_cam2        ),
+        .face_start_x  (cam2_face_start_x),
+        .face_start_y  (cam2_face_start_y),
+        .face_end_x    (cam2_face_end_x  ),
+        .face_end_y    (cam2_face_end_y  )
     );
 
     wire [PACK_SIZE-1:0] hdmi_pack;
@@ -204,11 +217,11 @@ module AimBot #(
         .TICK (KEY_HOLD),
         .DELAY(16      )
     ) u_cam_switch (
-        .clk       (clk          ),
-        .rstn      (rstn         ),
-        .main_pack (hdmi_cam1    ),
-        .minor_pack(hdmi_cam2    ),
-        .key       (cam_key      ),
+        .clk       (clk      ),
+        .rstn      (rstn     ),
+        .main_pack (hdmi_cam1),
+        .minor_pack(hdmi_cam2),
+        .key       (cam_key  ),
         .pack      (hdmi_pack)
     );
 
@@ -223,25 +236,6 @@ module AimBot #(
         .switch(box_en )
     );
 
-    wire [$clog2(H_ACT)-1:0] comp_start_x ;
-    wire [$clog2(V_ACT)-1:0] comp_start_y ;
-    wire [$clog2(H_ACT)-1:0] comp_end_x   ;
-    wire [$clog2(V_ACT)-1:0] comp_end_y   ;
-    wire [    PACK_SIZE-1:0] comp_dbg_pack;
-
-    binary_process #(
-        .H_ACT(H_ACT),
-        .V_ACT(V_ACT)
-    ) u_binary_process (
-        .rstn    (rstn         ),
-        .i_pack  (hdmi_pack    ),
-        .start_x (comp_start_x ),
-        .start_y (comp_start_y ),
-        .end_x   (comp_end_x   ),
-        .end_y   (comp_end_y   ),
-        .dbg_pack(comp_dbg_pack)
-    );
-
     wire [BOX_NUM*$clog2(H_ACT)-1:0] dw_start_xs;
     wire [BOX_NUM*$clog2(V_ACT)-1:0] dw_start_ys;
     wire [BOX_NUM*$clog2(H_ACT)-1:0] dw_end_xs  ;
@@ -253,14 +247,14 @@ module AimBot #(
         .BOX_WIDTH(BOX_WIDTH),
         .BOX_NUM  (BOX_NUM+1)
     ) u_draw_window (
-        .en      (box_en                     ),
-        .i_pack  (hdmi_pack                  ),
-        .o_pack  (dw_pack                    ),
-        .start_xs({dw_start_xs, comp_start_x}),
-        .start_ys({dw_start_ys, comp_start_y}),
-        .end_xs  ({dw_end_xs,   comp_end_x  }),
-        .end_ys  ({dw_end_ys,   comp_end_y  }),
-        .colors  ({dw_colors,   24'h00_FF_FF})
+        .en      (box_en                          ),
+        .i_pack  (hdmi_pack                       ),
+        .o_pack  (dw_pack                         ),
+        .start_xs({dw_start_xs, cam1_face_start_x}),
+        .start_ys({dw_start_ys, cam1_face_start_y}),
+        .end_xs  ({dw_end_xs,   cam1_face_end_x  }),
+        .end_ys  ({dw_end_ys,   cam1_face_end_y  }),
+        .colors  ({dw_colors,   24'h00_FF_FF}     )
     );
 
     hdmi_unpack #(
