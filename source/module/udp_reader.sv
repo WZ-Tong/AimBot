@@ -71,8 +71,10 @@ module udp_reader #(parameter CAPACITY = 1) (
         end
     `else
         assign o_data = 'b0;
-        assign error  = 'b0;
-        assign trig   = 'b0;
+        always_comb begin
+            error = 'b0;
+            trig = 'b0;
+        end
     `endif
 
 endmodule : udp_reader
