@@ -15,7 +15,7 @@ module cam_dis_calc #(
     output [             23:0] color
 );
 
-    localparam MAX_DIST = {1'b1,{$clog2(2.5*1280/55){1'b0}}}; // 720p: 64
+    localparam MAX_DIST = 64; // 720p: 2.5*1280/55
 
     wire [$clog2(H_ACT)-1+1:0] cam1_sum;
     assign cam1_sum = cam1_start_x + cam1_end_x;
