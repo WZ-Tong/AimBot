@@ -4,20 +4,22 @@ module cam_switch #(
     parameter DELAY = 5   ,
     parameter TICK  = 5
 ) (
-    input                                          clk       ,
-    input                                          rstn      ,
-    input  [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] main_pack ,
-    input  [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] minor_pack,
-    input                                          key       ,
-    output [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] pack
+    input                                              clk       ,
+    input                                              rstn      ,
+    input      [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] main_pack ,
+    input      [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] minor_pack,
+    input                                              key       ,
+    output reg                                         cam_id    ,
+    output     [3*8+4+$clog2(H_ACT)+$clog2(V_ACT)-1:0] pack
 );
 
     localparam MINOR_OFFSET = 2;
+    localparam MAIN_CAM_ID  = 0;
 
     wire switch_switch;
     key_to_switch #(
-        .TICK(TICK),
-        .INIT(1'b1)
+        .TICK(TICK       ),
+        .INIT(MAIN_CAM_ID)
     ) u_cam_id_switch_gen (
         .clk   (clk          ),
         .rstn  (rstn         ),
@@ -25,7 +27,6 @@ module cam_switch #(
         .switch(switch_switch)
     );
 
-    reg cam_id      ;
     reg main_vsync_d;
     always_ff @(posedge main_clk or negedge rstn) begin
         if(~rstn) begin
@@ -148,13 +149,13 @@ module cam_switch #(
 
     wire wclk, wrst, wen, rrst, ren;
     assign wclk = minor_clk;
-    assign wrst = cam_id ? 1'b1 : minor_vsync;
-    assign wen  = cam_id ? 1'b0 : minor_de;
-    assign rrst = cam_id ? 1'b1 : main_vsync;
-    assign ren  = cam_id ? 1'b0 : mo_re;
+    assign wrst = cam_id==MAIN_CAM_ID ? 1'b1 : minor_vsync;
+    assign wen  = cam_id==MAIN_CAM_ID ? 1'b0 : minor_de;
+    assign rrst = cam_id==MAIN_CAM_ID ? 1'b1 : main_vsync;
+    assign ren  = cam_id==MAIN_CAM_ID ? 1'b0 : mo_re;
 
     wire [23:0] wdata;
-    assign wdata = cam_id ? (~24'b0) : minor_data;
+    assign wdata = cam_id==MAIN_CAM_ID ? (~24'b0) : minor_data;
 
     wire [23:0] rdata;
     async_fifo_lite u_pack_sync (
@@ -177,9 +178,9 @@ module cam_switch #(
     assign {no_r, no_g, no_b} = rdata;
 
     wire [7:0] o_r, o_g, o_b;
-    assign o_r = cam_id ? mo_r : no_r;
-    assign o_g = cam_id ? mo_g : no_g;
-    assign o_b = cam_id ? mo_b : no_b;
+    assign o_r = cam_id==MAIN_CAM_ID ? mo_r : no_r;
+    assign o_g = cam_id==MAIN_CAM_ID ? mo_g : no_g;
+    assign o_b = cam_id==MAIN_CAM_ID ? mo_b : no_b;
 
     hdmi_pack #(
         .H_ACT(H_ACT),
