@@ -84,9 +84,9 @@ module frame_process #(
         .H_ACT(H_ACT),
         .V_ACT(V_ACT)
     ) u_gray_convert (
-        .en    (gray_en&&(~face_en)),
-        .i_pack(wb_pack            ),
-        .o_pack(o_pack             )
+        .en    (gray_en),
+        .i_pack(wb_pack),
+        .o_pack(o_pack )
     );
 
     wire face_en;
@@ -107,7 +107,7 @@ module frame_process #(
         .V_ACT(V_ACT)
     ) u_bin_face (
         .rstn  (rstn     ),
-        .en    (1'b1     ),
+        .en    (face_en  ),
         .i_pack(wb_pack  ),
         .o_pack(face_pack)
     );
@@ -118,6 +118,7 @@ module frame_process #(
         .V_ACT(V_ACT)
     ) u_binary_process (
         .rstn    (rstn         ),
+        .en      (face_en      ),
         .i_pack  (face_pack    ),
         .start_x (face_start_x ),
         .start_y (face_start_y ),
