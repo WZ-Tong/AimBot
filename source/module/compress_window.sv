@@ -1,12 +1,8 @@
-// Non-universal compress:
-//    Win: 16*5
-//   Repr: 32*10
 module compress_window #(
     localparam WIN_W     = 4                                ,
     localparam WIN_H     = 5                                ,
-    localparam FAC_W     = 2                                ,
-    localparam FAC_H     = 2                                ,
     localparam WIN_S     = WIN_W*WIN_H                      ,
+    localparam WIN_TH    = WIN_S*2/3                        ,
     localparam H_ACT     = 12'd1280                         ,
     localparam V_ACT     = 12'd720                          ,
     localparam PACK_SIZE = 3*8+4+$clog2(H_ACT)+$clog2(V_ACT)
@@ -54,75 +50,40 @@ module compress_window #(
         + window[4]
         + 3'b0;
 
-    reg de_d;
-    always_ff @(posedge clk or negedge rstn) begin
-        if(~rstn) begin
-            de_d <= #1 'b0;
-        end else begin
-            de_d <= #1 de;
-        end
-    end
-    wire de_f;
-    assign de_f = de_d==1 && de==0;
-
-    reg [      $clog2(WIN_S)-1:0] sum    ;
-    reg [$clog2(WIN_H*FAC_H)-1:0] row_cnt;
-    reg [      $clog2(WIN_W)-1:0] col_cnt;
-
-    reg col_en;
-    reg bin   ;
-    reg valid ;
+    reg [$clog2(WIN_S)-1:0] sum    ;
+    reg [$clog2(WIN_W)-1:0] col_cnt;
 
     always_ff @(posedge clk or negedge rstn) begin
         if(~rstn | vsync) begin
             sum     <= #1 'b0;
-            row_cnt <= #1 'b0;
             col_cnt <= #1 'b0;
-            bin     <= #1 'b0;
-            valid   <= #1 'b0;
-            col_en  <= #1 'b1;
         end else begin
-            if (de_f) begin
-                if (row_cnt==(WIN_H*FAC_H)-1) begin
-                    row_cnt <= #1 'b0;
-                end else begin
-                    row_cnt <= #1 row_cnt + 1'b1;
-                end
-            end
-
             if (de) begin
                 if (col_cnt==WIN_W-1) begin
+                    sum     <= #1 'b0;
                     col_cnt <= #1 'b0;
-                    col_en  <= #1 ~col_en;
                 end else begin
+                    sum     <= #1 sum + col_sum;
                     col_cnt <= #1 col_cnt + 1'b1;
                 end
             end else begin
+                sum     <= #1 'b0;
                 col_cnt <= #1 'b0;
-                col_en  <= #1 'b1;
-            end
-
-            if (row_cnt==WIN_H-1 && de && col_en) begin
-                sum <= #1 sum + col_sum;
-            end else begin
-                sum <= #1 'b0;
             end
         end
     end
 
     wire row_valid;
-    assign row_valid = row_cnt==WIN_H-1;
+    assign row_valid = y>=WIN_H;
 
     wire col_valid;
-    assign col_valid = col_cnt==WIN_W-1 && col_en;
+    assign col_valid = col_cnt==WIN_W-1;
 
     wire buf_valid;
     assign buf_valid = col_valid && row_valid;
 
-    localparam SUM_THRESH = WIN_S*2/3;
-
     wire buf_val;
-    assign buf_val = sum>=SUM_THRESH ? 1'b1 : 1'b0;
+    assign buf_val = sum>=WIN_TH ? 1'b1 : 1'b0;
 
     reg vsync_d;
     always_ff @(posedge clk or negedge rstn) begin
@@ -169,9 +130,9 @@ module compress_window #(
         end
     end
 
-    reg [$clog2(H_ACT/(FAC_W*WIN_W))-1:0] dbg_addr   ;
-    reg [        H_ACT/(FAC_W*WIN_W)-1:0] dbg_line   ;
-    reg                                   dbg_current;
+    reg [$clog2(H_ACT/WIN_W)-1:0] dbg_addr   ;
+    reg [        H_ACT/WIN_W-1:0] dbg_line   ;
+    reg                           dbg_current;
     always_ff @(posedge clk or negedge rstn) begin
         if(~rstn) begin
             dbg_line    <= #1 'b0;
