@@ -15,7 +15,7 @@ module cam_dis_calc #(
     output [             23:0] color
 );
 
-    localparam MAX_DIST = 64; // 720p: 2.5*1280/55
+    localparam MAX_DIST = 128; // 720p: 2.5*1280/55
 
     wire [$clog2(H_ACT)-1+1:0] cam1_sum;
     assign cam1_sum = cam1_start_x + cam1_end_x;
@@ -31,9 +31,11 @@ module cam_dis_calc #(
     wire [$clog2(MAX_DIST)-1:0] offset;
     assign offset = distance>MAX_DIST ? MAX_DIST-1 : distance;
 
-    wire [7:0] color_comp;
-    assign color_comp = offset << 2;
+    wire [7:0] color_r, color_g, color_b;
+    assign color_r = 8'b1111_1111 - offset;
+    assign color_g = {7'b0001000, 1'b0};
+    assign color_b = {offset, 1'b0};
 
-    assign color = {8'b0, color_comp, color_comp};
+    assign color = {color_r, color_g, color_b};
 
 endmodule : cam_dis_calc
