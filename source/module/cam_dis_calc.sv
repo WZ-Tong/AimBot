@@ -32,7 +32,7 @@ module cam_dis_calc #(
     assign offset = distance>MAX_DIST ? MAX_DIST-1 : distance;
 
     wire [7:0] r, g, b;
-    color_gradient u_color_gradient (.step(offset[5:2]), .r(r), .g(g), .b(b));
+    color_gradient u_color_gradient (.step(offset[7:4]), .r(r), .g(g), .b(b));
     assign color = {r, g, b};
 
 endmodule : cam_dis_calc
