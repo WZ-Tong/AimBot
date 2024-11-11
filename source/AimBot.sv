@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 
 module AimBot #(
-    parameter  BOX_NUM    = 1                    ,
+    parameter  BOX_NUM    = 8                    ,
     parameter  BOX_WIDTH  = 1                    ,
 
     parameter  LOCAL_MAC  = 48'h01_02_03_04_05_06,
