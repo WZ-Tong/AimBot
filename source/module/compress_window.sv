@@ -2,7 +2,7 @@
 //    Win: 16*5
 //   Repr: 32*10
 module compress_window #(
-    localparam WIN_W     = 16                               ,
+    localparam WIN_W     = 4                                ,
     localparam WIN_H     = 5                                ,
     localparam FAC_W     = 2                                ,
     localparam FAC_H     = 2                                ,
@@ -119,7 +119,7 @@ module compress_window #(
     wire buf_valid;
     assign buf_valid = col_valid && row_valid;
 
-    localparam SUM_THRESH = WIN_S/2;
+    localparam SUM_THRESH = WIN_S*2/3;
 
     wire buf_val;
     assign buf_val = sum>=SUM_THRESH ? 1'b1 : 1'b0;
